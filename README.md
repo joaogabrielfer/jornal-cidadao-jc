@@ -28,13 +28,24 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 
 # Histórias de Usuario 
 
-- Cadastrar Usuário 
-- Login de Usuário 
-- Recomendador de Charges
-- Notificar Breaking News
-- Recomendações por interesse
-- Reagir às notícias 
-- Enquetes Participativas
-- Publicar Notícias 
-- Visualizar Notícias dos Usuários 
-- Resumo de Notícias
+1. Cadastrar Usuário 
+1. Login de Usuário 
+1. Aba de charges
+1. Gerenciamento de charges
+1. Criar enquetes
+1. Votação na enquete
+1. Publicar notícias
+1. Moderação de notícias
+1. Notificação de status da publicação 
+1. Visualizar notícias dos usuários
+1. Reagir a notícias
+1. Denunciar conteúdos
+
+
+# Quadro de sprints
+
+![quadro de sprints](./imgs/trello.jpg)
+
+# Diagrama de atividades
+
+![diagrama de atividades](./imgs/diagrama.JPG)
