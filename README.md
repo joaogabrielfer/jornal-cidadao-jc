@@ -9,7 +9,7 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 # Status do Projeto
 
 ✅ Identificação do Problema;  
-⌛ Escolha da solução;   
+✅ Escolha da solução;   
 ⌛ Prototipação;  
 ⌛ Início do desenvolvimento;  
 ⌛ Teste das funcionalidades;  
@@ -26,3 +26,15 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 - Miguel Costa
 - Renato Lopes
 
+# Histórias de Usuario 
+
+- Cadastrar Usuário 
+- Login de Usuário 
+- Recomendador de Charges
+- Notificar Breaking News
+- Recomendações por interesse
+- Reagir às notícias 
+- Enquetes Participativas
+- Publicar Notícias 
+- Visualizar Notícias dos Usuários 
+- Resumo de Notícias
