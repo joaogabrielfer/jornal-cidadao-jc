@@ -1,3 +1,7 @@
+# Jornal Cidadão
+
+#### Busca do segundo clique no site do Jornal do comércio
+
 <img src="./imgs/jc.png" alt="logo jornal do comércio" width="350"/>
  
 # Descrição do projeto
@@ -7,6 +11,10 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 # Ferramentas e Tecnologias
 
 - Trello e Miro: Gestão do projeto e Brainwriting
+- Figma: Prototipação de alta fidelidade
+
+### Trello: https://trello.com/b/gAzfJzpM/grupo-6-projeto
+### Figma: https://www.figma.com/design/drRbNAHoTNeLXgQbNmiNF8/Projeto-JC?node-id=0-1&t=5ofTcdFJieug9wfu-1
 
 # Status do Projeto
 
@@ -46,8 +54,8 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 
 # Quadro de sprints
 
-![quadro de sprints](./imgs/trello.jpg)
+<img src="./imgs/trello.jpg" alt="quadro de sprints" width="500"/>
 
 # Diagrama de atividades
 
-![diagrama de atividades](./imgs/diagrama.png)
+<img src="./imgs/diagrama.png" alt="diagrama de atividades" width="500"/>
