@@ -48,4 +48,4 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 
 # Diagrama de atividades
 
-![diagrama de atividades](./imgs/diagrama.JPG)
+![diagrama de atividades](./imgs/diagrama.png)
