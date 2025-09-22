@@ -1,4 +1,4 @@
-![logo jornal do comércio](./imgs/jc.png)
+<img src="./imgs/jc.png" alt="logo jornal do comércio" width="350"/>
  
 # Descrição do projeto
 
