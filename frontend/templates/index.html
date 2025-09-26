@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>teste</title>
+	</head>
+	<body>
+	
+		<h2>Lista de Tarefas</h2>
+		<ul>
+			{{range .tasks}}
+			{{if .Done}}
+			<li >
+				<span style="text-decoration: line-through;">{{.Name}}</span>
+				<form action="/uncomplete/{{.Id}}" method="POST" style="display: inline;">
+					<button type="submit">desfinalizar</button>
+				</form>
+				<form action="/delete/{{.Id}}" method="POST" style="display: inline;">
+					<button type="submit">deletar</button>
+				</form>
+			</li>
+			{{else}}
+			<li>
+				{{ .Name }}
+				<form action="/complete/{{.Id}}" method="POST" style="display: inline;">
+					<button type="submit">finalizar</button>
+				</form>
+			</li>
+			{{end}}
+			{{else}}
+			<li>Nenhuma tarefa encontrada!</li>
+			{{end}}
+		</ul>
+
+    <form action="/submit" method="POST">
+        <label for="text">task:</label><br>
+        <input type="text" id="name" name="name">
+        <input type="checkbox" id="done" name="done">finalizado?<br>
+
+        <input type="submit" value="Submit">
+    </form>
+	
+	</body>
+</html>
