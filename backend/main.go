@@ -1,176 +1,136 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
-	"strconv"
-	"database/sql"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/gin-gonic/gin"
+	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const PORT string = "8080"
 
-type Task struct{
-	Id int
-	Name string
-	Done bool
-}
-
-type App struct{
+type App struct {
 	DB *sql.DB
 }
 
-func createTable(db *sql.DB) {
-	createTableSQL := `CREATE TABLE IF NOT EXISTS tasks (
+type User struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+func initialize_database(db *sql.DB) {
+	createTableSQL := `CREATE TABLE IF NOT EXISTS users (
 		"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		"name" TEXT,
-		"done" INTEGER
+		"username" TEXT UNIQUE,
+		"email" TEXT UNIQUE,
+		"password_hash" TEXT
 	  );`
 
 	statement, err := db.Prepare(createTableSQL)
 	if err != nil {
-		log.Fatal("Error preparing create table statement:", err)
+		log.Fatal("Erro preparando statement de criar tabela", err)
 	}
 	statement.Exec()
-	log.Println("Table 'tasks' created or already exists.")
+	log.Println("Tabela 'users' foi criada com sucesso ou ja existe")
 }
 
-func main(){
-	db, err := sql.Open("sqlite3", "./tasks.db")
+func main() {
+	db, err := sql.Open("sqlite3", "./users.db")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close() 
-	createTable(db)
+	defer db.Close()
+
+	initialize_database(db)
 
 	app := &App{
 		DB: db,
 	}
 
 	router := gin.Default()
-	router.LoadHTMLGlob("../frontend/templates/*")
 
-	router.GET("/", app.get_index)
-	router.POST("/submit", app.create_task)
-	router.POST("/complete/:id", app.complete_task)
-	router.POST("/uncomplete/:id", app.uncomplete_task)
-	router.POST("/delete/:id", app.delete_task)
+	router.POST("/signup", app.create_user)
+	router.GET("/users", app.get_users)
 
-	router.Run(":"+PORT)
+	router.GET("/signup", func(c *gin.Context) {
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+			<form action="/signup" method="post">
+				<input type="text" name="username" placeholder="Username" required><br>
+				<input type="email" name="email" placeholder="Email" required><br>
+				<input type="password" name="password" placeholder="Password" required><br>
+				<button type="submit">Sign Up</button>
+			</form>
+		`))
+	})
+
+	log.Println("Server starting on port " + PORT)
+	router.Run(":" + PORT)
 }
 
-func (app *App) get_index(c *gin.Context){
-	tasks := []Task{}
+func (app *App) create_user(c *gin.Context) {
+	username := c.PostForm("username")
+	email := c.PostForm("email")
+	password := c.PostForm("password")
 
-	rows, err := app.DB.Query("SELECT id, name, done FROM tasks")
+	if username == "" || email == "" || password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Todos os campos sao requeridos"})
+		return
+	}
+
+	hashed_password, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Println("Error querying tasks:", err)
-		c.HTML(http.StatusInternalServerError, "Error querying tasks", nil)
+		log.Println("Erro fazendo hash da senha: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Falhou em criar conta"})
+		return
+	}
+
+	insert_sql := `INSERT INTO users(username, email, password_hash) VALUES (?, ?, ?)`
+	statement, err := app.DB.Prepare(insert_sql)
+	if err != nil {
+		log.Println("Erro preparando statement de insert", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Falhou em criar a conta"})
+		return
+	}
+
+	_, err = statement.Exec(username, email, string(hashed_password))
+	if err != nil {
+		log.Println("Erro executando statement", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nome ou email ja podem estar em uso"})
+		return
+	}
+
+	c.Redirect(http.StatusSeeOther, "/users")
+}
+
+func (app *App) get_users(c *gin.Context){
+	rows, err := app.DB.Query("SELECT username, email FROM users")
+	if err != nil {
+		log.Println("Erro buscando usuarios: ", err)
+		c.HTML(http.StatusInternalServerError, "Erro buscando usuarios", nil)
 		return
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		var task Task
+	var users []User
 
-		if err := rows.Scan(&task.Id, &task.Name, &task.Done); err != nil {
-			log.Println("Error scanning task:", err)
+	for rows.Next() {
+		var user User
+
+		if err := rows.Scan(&user.Username, &user.Email); err != nil {
+			log.Println("Erro escaneando usuario", err)
 			continue 
 		}
-		tasks = append(tasks, task)
+		users = append(users, user)
 	}
 
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"tasks": tasks,
-	})
-}
-
-func (app *App) create_task(c *gin.Context) {
-	name := c.PostForm("name")
-	done_str := c.PostForm("done")
-
-	var done bool
-	if done_str == "on"{
-		done = true
-	} 
-
-	insert_sql := `INSERT INTO tasks(name, done) VALUES (?, ?)`
-	statement, err := app.DB.Prepare(insert_sql)
-	if err != nil {
-        log.Println("Error preparing insert:", err)
-        c.Redirect(http.StatusSeeOther, "/")
-        return
-    }
-
-	statement.Exec(name, done)
-	c.Redirect(http.StatusSeeOther, "/")
-}
-
-func (app *App) complete_task(c *gin.Context){
-	id_str := c.Param("id")	
-	id, err := strconv.Atoi(id_str)
-	if err != nil{
-		c.String(http.StatusInternalServerError, "Erro convertendo o id")
-	}
-
-	update_sql := `UPDATE tasks SET done = 1 WHERE id = ?`
-	statement, err := app.DB.Prepare(update_sql)
-	if err != nil{
-		log.Println("Error preparing update statement:", err)
-        return
-	}
-
-	_, err = statement.Exec(id)
-	if err != nil{
-		log.Println("Error executing update statement:", err)
-	}
-
-	c.Redirect(http.StatusSeeOther, "/")
-}
-
-func (app *App) uncomplete_task(c *gin.Context){
-	id_str := c.Param("id")	
-	id, err := strconv.Atoi(id_str)
-	if err != nil{
-		c.String(http.StatusInternalServerError, "Erro convertendo o id")
-	}
-
-	update_sql := `UPDATE tasks SET done = 0 WHERE id = ?`
-	statement, err := app.DB.Prepare(update_sql)
-	if err != nil{
-		log.Println("Error preparing update statement:", err)
+	if err = rows.Err(); err != nil {
+		log.Println("Erro durante iteraçao de linhas", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro processando lista de usuarios"})
 		return
 	}
 
-	_, err = statement.Exec(id)
-	if err != nil{
-		log.Println("Error executing update statement:", err)
-	}
-
-	c.Redirect(http.StatusSeeOther, "/")
-}
-
-func (app *App) delete_task(c *gin.Context){
-	id_str := c.Param("id")
-	id, err := strconv.Atoi(id_str)
-	if err != nil {
-		c.String(http.StatusBadRequest, "Invalid ID format")
-		return
-	}
-
-	delete_sql := `DELETE FROM tasks WHERE id = ?`
-	statement, err := app.DB.Prepare(delete_sql)
-	if err != nil{
-		log.Println("Error preparing delete statement: ", err)
-		return
-	}
-
-	_, err = statement.Exec(id)
-	if err != nil{
-		log.Println("Error executing delete statement: ", err)
-	}
-
-	c.Redirect(http.StatusSeeOther, "/")
+	c.JSON(http.StatusOK, users)
 }
