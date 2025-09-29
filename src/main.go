@@ -4,6 +4,10 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"sort"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
@@ -19,6 +23,11 @@ type App struct {
 type User struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
+}
+
+type ChargesInfo struct{
+	Filename string
+	ModTime time.Time
 }
 
 func initialize_database(db *sql.DB) {
@@ -38,7 +47,7 @@ func initialize_database(db *sql.DB) {
 }
 
 func main() {
-	db, err := sql.Open("sqlite3", "./users.db")
+	db, err := sql.Open("sqlite3", "../db/users.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,10 +60,12 @@ func main() {
 	}
 
 	router := gin.Default()
+	router.Static("/static", "../static/")
 
 	router.POST("/signup", app.create_user)
 	router.GET("/users", app.get_users)
-
+	router.GET("/charge/:name", app.get_charges)
+	router.GET("/charges", app.get_charges_list)
 	router.GET("/signup", func(c *gin.Context) {
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
 			<form action="/signup" method="post">
@@ -66,7 +77,6 @@ func main() {
 		`))
 	})
 
-	log.Println("Server starting on port " + PORT)
 	router.Run(":" + PORT)
 }
 
@@ -115,7 +125,6 @@ func (app *App) get_users(c *gin.Context){
 	defer rows.Close()
 
 	var users []User
-
 	for rows.Next() {
 		var user User
 
@@ -133,4 +142,74 @@ func (app *App) get_users(c *gin.Context){
 	}
 
 	c.JSON(http.StatusOK, users)
+}
+
+func (app *App) get_charges(c *gin.Context) {
+	charge_name := c.Param("name")
+    charge_url := filepath.Join("../static", "images", "charges",  charge_name)
+
+    c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Charge</title>
+        </head>
+        <body>
+            <img src="`+charge_url+`" alt="Charge">    
+        </body>
+    </html>
+    `))
+}
+
+func (app *App) get_charges_list(c *gin.Context){
+	charges_dir := "../static/images/charges" 
+
+	files, err := os.ReadDir(charges_dir)
+	if err != nil {
+		log.Println("Erro lendo diretorio de charges: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Não foi possível ler diretório de charges."})
+		return
+	}
+	var charges []ChargesInfo
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		file_path := charges_dir + "/" + file.Name()
+		file_info, err := os.Stat(file_path)
+		if err != nil {
+			log.Println("Erro obtendo informação da charge: ", file.Name(), err)
+			continue 
+		}
+
+		charges = append(charges, ChargesInfo{
+			Filename: file.Name(),
+			ModTime:  file_info.ModTime(),
+		})
+	}
+
+	if len(charges) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Nenhuma charge encontrada"})
+		return
+	}
+
+	sort.Slice(charges, func(i, j int) bool {
+		return charges[i].ModTime.After(charges[j].ModTime)
+	})
+
+	type ChargeResponse struct {
+		Filename string `json:"filename"`
+		Date     string `json:"date"`
+	}
+	var responseData []ChargeResponse
+	for _, charge := range charges {
+		responseData = append(responseData, ChargeResponse{
+			Filename: charge.Filename,
+			Date: charge.ModTime.Format("02-01-2006 15:04:05"),
+		})
+	}
+
+	c.JSON(http.StatusOK, responseData)	
 }
