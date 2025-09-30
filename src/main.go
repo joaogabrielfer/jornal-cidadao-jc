@@ -25,9 +25,9 @@ type User struct {
 	Email    string `json:"email"`
 }
 
-type ChargesInfo struct{
+type ChargesInfo struct {
 	Filename string
-	ModTime time.Time
+	ModTime  time.Time
 }
 
 func initialize_database(db *sql.DB) {
@@ -61,21 +61,13 @@ func main() {
 
 	router := gin.Default()
 	router.Static("/static", "../static/")
+	router.LoadHTMLGlob("../static/templates/*")
 
 	router.POST("/signup", app.create_user)
+	router.GET("/signup", app.get_signup_page)
 	router.GET("/users", app.get_users)
 	router.GET("/charge/:name", app.get_charges)
 	router.GET("/charges", app.get_charges_list)
-	router.GET("/signup", func(c *gin.Context) {
-		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
-			<form action="/signup" method="post">
-				<input type="text" name="username" placeholder="Username" required><br>
-				<input type="email" name="email" placeholder="Email" required><br>
-				<input type="password" name="password" placeholder="Password" required><br>
-				<button type="submit">Sign Up</button>
-			</form>
-		`))
-	})
 
 	router.Run(":" + PORT)
 }
@@ -83,7 +75,17 @@ func main() {
 func (app *App) create_user(c *gin.Context) {
 	username := c.PostForm("username")
 	email := c.PostForm("email")
-	password := c.PostForm("password")
+	var password string
+	if c.PostForm("password") == c.PostForm("password-confirm") {
+		password = c.PostForm("password")
+	} else{
+		c.JSON(http.StatusBadRequest, gin.H{"error": "A senha na confirmaçao esta diferente."})
+		log.Println("Senhas diferentes")
+		return
+	}
+
+	log.Println(c.PostForm("username"))
+	log.Println(c.PostForm("password-confirm"))
 
 	if username == "" || email == "" || password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Todos os campos sao requeridos"})
@@ -115,7 +117,11 @@ func (app *App) create_user(c *gin.Context) {
 	c.Redirect(http.StatusSeeOther, "/users")
 }
 
-func (app *App) get_users(c *gin.Context){
+func (app *App) get_signup_page(c *gin.Context) {
+	c.HTML(http.StatusOK, "cadastro.tmpl", nil)
+}
+
+func (app *App) get_users(c *gin.Context) {
 	rows, err := app.DB.Query("SELECT username, email FROM users")
 	if err != nil {
 		log.Println("Erro buscando usuarios: ", err)
@@ -130,7 +136,7 @@ func (app *App) get_users(c *gin.Context){
 
 		if err := rows.Scan(&user.Username, &user.Email); err != nil {
 			log.Println("Erro escaneando usuario", err)
-			continue 
+			continue
 		}
 		users = append(users, user)
 	}
@@ -146,9 +152,9 @@ func (app *App) get_users(c *gin.Context){
 
 func (app *App) get_charges(c *gin.Context) {
 	charge_name := c.Param("name")
-    charge_url := filepath.Join("../static", "images", "charges",  charge_name)
+	charge_url := filepath.Join("../static", "images", "charges", charge_name)
 
-    c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
+	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
     <!DOCTYPE html>
     <html lang="en">
         <head>
@@ -162,8 +168,8 @@ func (app *App) get_charges(c *gin.Context) {
     `))
 }
 
-func (app *App) get_charges_list(c *gin.Context){
-	charges_dir := "../static/images/charges" 
+func (app *App) get_charges_list(c *gin.Context) {
+	charges_dir := "../static/images/charges"
 
 	files, err := os.ReadDir(charges_dir)
 	if err != nil {
@@ -181,7 +187,7 @@ func (app *App) get_charges_list(c *gin.Context){
 		file_info, err := os.Stat(file_path)
 		if err != nil {
 			log.Println("Erro obtendo informação da charge: ", file.Name(), err)
-			continue 
+			continue
 		}
 
 		charges = append(charges, ChargesInfo{
@@ -207,9 +213,9 @@ func (app *App) get_charges_list(c *gin.Context){
 	for _, charge := range charges {
 		responseData = append(responseData, ChargeResponse{
 			Filename: charge.Filename,
-			Date: charge.ModTime.Format("02-01-2006 15:04:05"),
+			Date:     charge.ModTime.Format("02-01-2006 15:04:05"),
 		})
 	}
 
-	c.JSON(http.StatusOK, responseData)	
+	c.JSON(http.StatusOK, responseData)
 }
