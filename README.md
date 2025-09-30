@@ -12,6 +12,8 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 
 - Trello e Miro: Gestão do projeto e Brainwriting
 - Figma: Prototipação de alta fidelidade
+- Golang e Gin: Linguagem e framework para implementaçao do backend
+- HTML e CSS: Criaçao de paginas do frontend
 
 ### Trello: https://trello.com/b/gAzfJzpM/grupo-6-projeto
 ### Figma: https://www.figma.com/design/drRbNAHoTNeLXgQbNmiNF8/Projeto-JC?node-id=0-1&t=5ofTcdFJieug9wfu-1
@@ -20,7 +22,7 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 
 ✅ Identificação do Problema;  
 ✅ Escolha da solução;   
-⌛ Prototipação;  
+✅ Prototipação;  
 ⌛ Início do desenvolvimento;  
 ⌛ Teste das funcionalidades;  
 ⌛ Entrega do MVP;  
