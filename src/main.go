@@ -63,11 +63,11 @@ func main() {
 	router.Static("/static", "../static/")
 	router.LoadHTMLGlob("../static/templates/*")
 
-	router.POST("/signup", app.create_user)
-	router.GET("/signup", app.get_signup_page)
-	router.GET("/users", app.get_users)
+	router.POST("/api/cadastro", app.create_user)
+	router.GET("/cadastro", app.get_signup_page)
+	router.GET("/api/users", app.get_users)
 	router.GET("/charge/:name", app.get_charges)
-	router.GET("/charges", app.get_charges_list)
+	router.GET("/api/charges", app.get_charges_list)
 
 	router.Run(":" + PORT)
 }
@@ -114,7 +114,7 @@ func (app *App) create_user(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusSeeOther, "/users")
+	c.Redirect(http.StatusSeeOther, "/cadastro")
 }
 
 func (app *App) get_signup_page(c *gin.Context) {
