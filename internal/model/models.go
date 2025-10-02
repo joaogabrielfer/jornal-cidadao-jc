@@ -8,8 +8,10 @@ type User struct {
 }
 
 type ChargesInfo struct {
-	Filename string
-	ModTime  time.Time
+	URL 		string		`json:"url"`
+	Filename 	string		`json:"filename"`
+	Title 		string		`json:"title"`
+	ModTime  	time.Time 	`json:"modtime"`
 }
 
 type ChargeResponse struct {

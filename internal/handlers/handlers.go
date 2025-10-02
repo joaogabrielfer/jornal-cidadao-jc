@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"log"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
-	"github/jornal-cidadao-jc/internal/model"  
-	"github/jornal-cidadao-jc/internal/storage" 
+	"path"
+
+	"github/jornal-cidadao-jc/internal/model"
+	"github/jornal-cidadao-jc/internal/storage"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -103,14 +106,54 @@ func (h *Handler) Get_charges_list(c *gin.Context) {
 		return charges[i].ModTime.After(charges[j].ModTime)
 	})
 
-	var responseData []model.ChargeResponse
+	var response_data []model.ChargeResponse
 	for _, charge := range charges {
-		responseData = append(responseData, model.ChargeResponse{
+		response_data = append(response_data, model.ChargeResponse{
 			Filename: charge.Filename,
 			Date:     charge.ModTime.Format("02-01-2006 15:04:05"),
 		})
 	}
 
-	c.JSON(http.StatusOK, responseData)
+	c.JSON(http.StatusOK, response_data)
 }
 
+func (h *Handler) Get_index_page(c *gin.Context){
+	c.HTML(http.StatusOK, "index.tmpl", nil)
+}
+
+func (h *Handler) Get_random_charge(c *gin.Context){
+	dir_entries, err := os.ReadDir(h.ChargesDir)
+	if err != nil {
+		log.Println("Erro lendo diretorio de charges: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Não foi possível ler diretório de charges."})
+		return
+	}
+
+	var files []os.DirEntry
+	for _, entry := range dir_entries {
+		if !entry.IsDir() {
+			files = append(files, entry)
+		}
+	}
+
+	if len(files) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Nenhuma charge (arquivo) encontrada"})
+		return
+	}
+	var chosen_charge model.ChargesInfo
+
+	random_index := rand.N(len(files))
+	file_info, err := files[random_index].Info()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Não foi possível obter informações da charge"})
+	}
+
+	chosen_charge.Filename = files[random_index].Name()
+	chosen_charge.URL = path.Join("/static", "images", "charges", files[random_index].Name())
+	chosen_charge.ModTime = file_info.ModTime()
+	chosen_charge.Title = ""
+
+	c.JSON(http.StatusOK, gin.H{
+		"charge": chosen_charge,
+	})
+}

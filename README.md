@@ -8,6 +8,10 @@
 
 O projeto se consiste em uma intervenção no site do SJCC visando um maior engagamento e tempo de permanencia no site.
 
+# Documentação da API
+
+[link do docs](./docs.md)
+
 # Ferramentas e Tecnologias
 
 - Trello e Miro: Gestão do projeto e Brainwriting

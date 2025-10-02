@@ -50,8 +50,10 @@ func main() {
 	router.POST("/api/cadastro", http_handler.Create_user)
 	router.GET("/api/users", http_handler.Get_users)
 	router.GET("/api/charges", http_handler.Get_charges_list)
+	router.GET("/api/charges/random", http_handler.Get_random_charge)
 	
 	router.GET("/cadastro", http_handler.Get_signup_page)
+	router.GET("/", http_handler.Get_index_page)
 	
 	log.Printf("Servidor iniciando na porta %s", port)
 	if err := router.Run(":" + port); err != nil {
