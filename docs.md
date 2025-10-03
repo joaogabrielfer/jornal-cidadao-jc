@@ -1,85 +1,84 @@
-# Documentação da API - Jornal Cidadão JC
+# Documentação da API - Jornal Cidadão JC (Atualizado)
 
 Esta documentação descreve os endpoints da API e as páginas web servidas pelo backend do projeto.
 
 **URL Base**: `http://localhost:8080`
+**Versão da API**: `v1` (sugestão)
 
----
+-----
 
 ## Páginas Web
 
-Estes endpoints servem páginas HTML diretamente para o navegador e não são considerados parte da API REST.
+Estes endpoints servem páginas HTML diretamente para o navegador.
 
-### 1. Página Inicial
+### 1\. Página Inicial
 
--   **Endpoint**: `/`
--   **Método**: `GET`
--   **Descrição**: Renderiza a página principal da aplicação (`index.tmpl`).
+  - **Endpoint**: `/`
+  - **Método**: `GET`
+  - **Descrição**: Renderiza a página principal da aplicação (`index.tmpl`).
 
-### 2. Página de Cadastro
+### 2\. Página de Cadastro
 
--   **Endpoint**: `/cadastro`
--   **Método**: `GET`
--   **Descrição**: Renderiza o formulário de cadastro de novos usuários (`cadastro.tmpl`).
+  - **Endpoint**: `/cadastro`
+  - **Método**: `GET`
+  - **Descrição**: Renderiza o formulário de cadastro de novos usuários (`cadastro.tmpl`).
 
----
+### 3\. Visualizar Charge Específica
 
-## API - Endpoints de Usuários
+  - **Endpoint**: `/charge/:id`
+  - **Método**: `GET`
+  - **Descrição**: Renderiza uma página HTML para visualizar uma charge específica, identificada pelo seu `ID`. O `ID` corresponde à ordem cronológica (ID 1 é a mais antiga).
+  - **Parâmetro de URL**:
+    | Parâmetro | Tipo    | Descrição                                 |
+    | --------- | ------- | ----------------------------------------- |
+    | `id`      | integer | O ID da charge que deve ser exibida. |
 
-### 1. Criar um Novo Usuário
+-----
+
+## API v1
+
+Endpoints que retornam dados no formato JSON.
+
+### Usuários
+
+#### 1\. Criar um Novo Usuário
 
 Cria um novo registro de usuário no sistema.
 
--   **Endpoint**: `/api/cadastro`
--   **Método**: `POST`
--   **Tipo de Conteúdo**: `application/x-www-form-urlencoded`
+  - **Endpoint**: `/api/users`
+  - **Método**: `POST`
+  - **Tipo de Conteúdo**: `application/x-www-form-urlencoded`
 
-#### Parâmetros do Formulário:
+##### Parâmetros do Formulário:
 
-| Parâmetro          | Tipo   | Descrição                                         | Obrigatório |
-| ------------------ | ------ | --------------------------------------------------- | ----------- |
-| `username`         | string | Nome de usuário único.                              | Sim         |
-| `email`            | string | Endereço de e-mail único.                           | Sim         |
-| `password`         | string | Senha do usuário.                                   | Sim         |
-| `password-confirm` | string | Confirmação da senha. Deve ser igual a `password`.  | Sim         |
+| Parâmetro | Tipo | Descrição | Obrigatório |
+| :--- | :--- | :--- | :--- |
+| `username` | string | Nome de usuário único. | Sim |
+| `email` | string | Endereço de e-mail único. | Sim |
+| `password` | string | Senha do usuário. | Sim |
+| `password-confirm` | string | Confirmação da senha. Deve ser igual a `password`. | Sim |
 
-#### Respostas:
+##### Respostas:
 
--   **`303 See Other`**: Sucesso. O usuário é redirecionado para a página `/cadastro`.
--   **`400 Bad Request`**: Erro de validação dos dados enviados.
+  - **`303 See Other`**: Sucesso. Redireciona para `/cadastro`.
+  - **`400 Bad Request`**: Erro de validação ou usuário/email já existente.
     ```json
-    // Exemplo 1: Senhas não conferem
-    {
-      "error": "A senha na confirmaçao esta diferente."
-    }
-    
-    // Exemplo 2: Campos faltando
-    {
-      "error": "Todos os campos sao requeridos"
-    }
-
-    // Exemplo 3: Usuário ou email já existem
-    {
-      "error": "Nome ou email ja podem estar em uso"
-    }
+    {"error": "A senha na confirmaçao esta diferente."}
+    // ou
+    {"error": "Nome ou email ja podem estar em uso"}
     ```
--   **`500 Internal Server Error`**: Erro inesperado no servidor (ex: erro ao gerar hash da senha).
-    ```json
-    {
-      "error": "Falhou em criar conta"
-    }
-    ```
+  - **`500 Internal Server Error`**: Erro inesperado no servidor.
 
-### 2. Listar Todos os Usuários
+#### 2\. Listar Todos os Usuários
 
-Retorna uma lista com o nome e e-mail de todos os usuários cadastrados. (Endpoint de utilidade/teste).
+Retorna uma lista com os dados de todos os usuários cadastrados.
 
--   **Endpoint**: `/api/users`
--   **Método**: `GET`
+  - **Endpoint**: `/api/users`
+  - **Método**: `GET`
 
-#### Respostas:
+##### Respostas:
 
--   **`200 OK`**: Sucesso. Retorna um array de objetos de usuário.
+  - **`200 OK`**: Sucesso. Retorna um array de objetos de usuário.
     ```json
     [
       {
@@ -92,82 +91,63 @@ Retorna uma lista com o nome e e-mail de todos os usuários cadastrados. (Endpoi
       }
     ]
     ```
--   **`500 Internal Server Error`**: Erro ao buscar os dados no banco.
-    ```json
-    {
-        "error": "Erro processando lista de usuarios"
-    }
-    ```
----
+  - **`500 Internal Server Error`**: Erro ao buscar os dados no banco.
 
-## API - Endpoints de Charges
+-----
 
-### 1. Listar Todas as Charges
+### Charges
 
-Retorna uma lista de todas as charges disponíveis, ordenadas da **mais recente para a mais antiga**.
+#### 1\. Listar Todas as Charges
 
--   **Endpoint**: `/api/charges`
--   **Método**: `GET`
+Retorna uma lista de todas as charges disponíveis, **ordenadas da mais recente para a mais antiga**. O `ID` é atribuído de forma inversa (a charge mais antiga tem o `ID: 1`).
 
-#### Respostas:
+  - **Endpoint**: `/api/charges`
+  - **Método**: `GET`
 
--   **`200 OK`**: Sucesso. Retorna um array de objetos de charge com nome e data formatada.
+##### Respostas:
+
+  - **`200 OK`**: Sucesso. Retorna um array de objetos de charge.
     ```json
     [
       {
-        "filename": "charge_mais_nova.png",
-        "date": "02-10-2025 18:30:00"
+        "id": 2,
+        "url": "/static/images/charges/charge_recente.png",
+        "filename": "charge_recente.png",
+        "title": "",
+        "date": "03-10-2025 00:02:00"
       },
       {
+        "id": 1,
+        "url": "/static/images/charges/charge_antiga.png",
         "filename": "charge_antiga.png",
-        "date": "01-10-2025 12:00:00"
+        "title": "",
+        "date": "02-10-2025 15:30:00"
       }
     ]
     ```
--   **`404 Not Found`**: Se nenhuma imagem for encontrada no diretório.
-    ```json
-    {
-      "message": "Nenhuma charge encontrada"
-    }
-    ```
--   **`500 Internal Server Error`**: Se ocorrer um erro ao ler o diretório de imagens.
-    ```json
-    {
-      "error": "Não foi possível ler diretório de charges."
-    }
-    ```
+  - **`404 Not Found`**: Nenhuma charge encontrada.
+  - **`500 Internal Server Error`**: Erro ao ler o diretório.
 
-### 2. Obter uma Charge Aleatória
+#### 2\. Obter uma Charge Aleatória
 
-Busca e retorna os dados de uma única charge selecionada aleatoriamente do diretório.
+Retorna os dados de uma única charge selecionada aleatoriamente.
 
--   **Endpoint**: `/api/charges/random`
--   **Método**: `GET`
+  - **Endpoint**: `/api/charges/random`
+  - **Método**: `GET`
 
-#### Respostas:
+##### Respostas:
 
--   **`200 OK`**: Sucesso. Retorna um objeto JSON contendo os detalhes da charge sorteada.
+  - **`200 OK`**: Sucesso. Retorna um objeto JSON contendo os detalhes da charge sorteada.
     ```json
     {
       "charge": {
+        "id": 1,
         "url": "/static/images/charges/charge_sorteada.png",
         "filename": "charge_sorteada.png",
         "title": "",
-        "modtime": "2025-10-01T12:00:00Z"
+        "date": "02-10-2025 15:30:00"
       }
     }
     ```
-    **Nota**: O campo `url` contém o caminho público que o frontend deve usar para exibir a imagem. O campo `modtime` está no formato ISO 8601 (UTC).
-
--   **`404 Not Found`**: Se nenhum arquivo de charge for encontrado no diretório.
-    ```json
-    {
-      "message": "Nenhuma charge (arquivo) encontrada"
-    }
-    ```
--   **`500 Internal Server Error`**: Se ocorrer um erro ao ler o diretório ou as informações do arquivo.
-    ```json
-    {
-      "error": "Não foi possível ler diretório de charges."
-    }
-    ```
+  - **`404 Not Found`**: Nenhuma charge encontrada.
+  - **`500 Internal Server Error`**: Erro ao ler o diretório.
