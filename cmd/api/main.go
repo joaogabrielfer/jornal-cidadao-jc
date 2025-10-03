@@ -47,11 +47,12 @@ func main() {
 	router.Static("/static", static_path)
 	router.LoadHTMLGlob(templates_path)
 
-	router.POST("/api/cadastro", http_handler.Create_user)
+	router.POST("/api/users", http_handler.Create_user)
 	router.GET("/api/users", http_handler.Get_users)
 	router.GET("/api/charges", http_handler.Get_charges_list)
 	router.GET("/api/charges/random", http_handler.Get_random_charge)
 	
+	router.GET("/charge/:id", http_handler.Get_charge_page)
 	router.GET("/cadastro", http_handler.Get_signup_page)
 	router.GET("/", http_handler.Get_index_page)
 	
