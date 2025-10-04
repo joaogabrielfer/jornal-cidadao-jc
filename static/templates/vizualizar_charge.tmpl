@@ -1,48 +1,171 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vizualizar Charges</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visualizar Charges</title>
 </head>
 <body>
-    <body>
-    <header class="headerUol">
-        <h1 class="h1Uol">Barra da Uol</h1>
-    </header>
-    <header class="headerJc">
-        <div>
-            <h1 class="logoJc">Logo do Jc</h1>
-            <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
-        </div>
-    </header>
-    <header class="headerNav">
-        <h1>Barra de navegação</h1>
-    </header>
+  <header class="headerUol">
+    <h1 class="h1Uol">Barra da Uol</h1>
+  </header>
 
-    <main class="mainCharges">
-        <h2 class="tituloCharge">Charge - Thiago Lucas</h2>
-        
-        <div class="containerCharge">
-            
-            <div class="charge">
-			<img src="{{ .charge.URL }}" alt="">
-            </div>
+  <header class="headerJc">
+    <div>
+      <h1 class="logoJc">Logo do Jc</h1>
+      <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
+    </div>
+  </header>
 
-            <div class="footerCharge">
-        
-                <span class="dataCharge">19/09/2025</span>
-				
-        
-                <span class="nomeCharge">Nome da charge</span>
-        
-                <div class="botoesNavDaCharge">
-                    <button class="botaoNav setaEsqueda"> < </button>
-                    <button class="botaoNav setaDireita"> > </button>
-                </div>
-            </div>
+  <header class="headerNav">
+    <h1>Barra de navegação</h1>
+  </header>
+
+  <main class="mainCharges">
+    <h2 id="charge-title" class="tituloCharge">Charge</h2>
+
+    <div class="containerCharge">
+      <div class="charge" style="min-height:200px; display:grid; place-items:center;">
+        <img id="charge-img" src="" alt="Charge do dia" style="max-width:100%; display:none;" />
+        <span id="charge-loading" aria-live="polite">Carregando…</span>
+        <span id="charge-error" style="display:none; color:#c00;">Não foi possível carregar a charge.</span>
+      </div>
+
+      <div class="footerCharge">
+        <span class="dataCharge" id="charge-date"></span>
+        <span class="nomeCharge" id="charge-author"></span>
+
+        <div class="botoesNavDaCharge">
+          <button class="botaoNav setaEsquerda" id="prev-btn" aria-label="Anterior">&lt;</button>
+          <button class="botaoNav setaDireita" id="next-btn" aria-label="Próxima">&gt;</button>
         </div>
-    </main>
-</body>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const imgEl = document.getElementById('charge-img');
+      const titleEl = document.getElementById('charge-title');
+      const dateEl = document.getElementById('charge-date');
+      const authorEl = document.getElementById('charge-author');
+      const loadingEl = document.getElementById('charge-loading');
+      const errorEl = document.getElementById('charge-error');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+
+     
+      let charges = [];
+      let idx = 0;
+
+      const fallbackSrc = '/static/images/charges/charge1.png';
+      function showFallback() {
+        imgEl.src = fallbackSrc;
+        imgEl.alt = 'Charge';
+        imgEl.style.display = 'block';
+        loadingEl.style.display = 'none';
+        errorEl.style.display = 'none';
+        titleEl.textContent = 'Charge';
+        dateEl.textContent = '';
+        authorEl.textContent = '';
+      }
+      const formatDateBR = (iso) => {
+        if (!iso) return '';
+        const dt = new Date(iso);
+        return isNaN(dt) ? iso : dt.toLocaleDateString('pt-BR');
+      };
+      function setLoading(on) {
+        loadingEl.style.display = on ? 'inline' : 'none';
+        prevBtn.disabled = on;
+        nextBtn.disabled = on;
+      }
+
+     
+      function mapOne(raw) {
+        const d = raw?.charge ?? raw ?? {};
+        const url = d.url ?? d.URL ?? d.image ?? (d.filename ? `/static/images/charges/${d.filename}` : '');
+        return {
+          id: d.id ?? null,
+          url,
+          title: d.title ?? d.titulo ?? d.name ?? 'Charge',
+          author: d.author ?? d.autor ?? d.artist ?? '',
+          date: d.date ?? d.data ?? d.created_at ?? '',
+          filename: d.filename ?? d.file ?? ''
+        };
+      }
+      
+      function mapList(raw) {
+        const arr = Array.isArray(raw) ? raw : (raw?.charges ?? []);
+        return arr.map(mapOne).filter(x => !!x.url);
+      }
+
+    
+      function render(i) {
+        if (!charges.length) return showFallback();
+        const ch = charges[i];
+        setLoading(true);
+        errorEl.style.display = 'none';
+
+        titleEl.textContent = ch.title ? 'Charge – ' + ch.title : 'Charge';
+        authorEl.textContent = ch.author ? 'Autor: ' + ch.author : '';
+        dateEl.textContent = ch.date ? formatDateBR(ch.date) : '';
+
+        imgEl.style.display = 'none';
+        imgEl.src = ch.url;
+        imgEl.alt = ch.title || 'Charge';
+        imgEl.onload = () => { setLoading(false); imgEl.style.display = 'block'; };
+        imgEl.onerror = () => { setLoading(false); errorEl.style.display = 'inline'; };
+      }
+
+      
+      function next() {
+        if (!charges.length) return;
+        idx = (idx + 1) % charges.length;
+        render(idx);
+      }
+      function prev() {
+        if (!charges.length) return;
+        idx = (idx - 1 + charges.length) % charges.length;
+        render(idx);
+      }
+
+      
+      async function loadList() {
+        try {
+          setLoading(true);
+          errorEl.style.display = 'none';
+
+          const url = '/api/charges' + '?_=' + Date.now();
+          const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          const raw = await resp.json();
+
+          charges = mapList(raw);
+
+          charges.sort((a,b) => {
+            if (a.id != null && b.id != null) return a.id - b.id;
+            if (a.filename && b.filename) return a.filename.localeCompare(b.filename, 'pt-BR', { numeric: true });
+            return 0;
+          });
+
+          if (!charges.length) throw new Error('lista vazia');
+          idx = 0; // começa na primeira
+          render(idx);
+        } catch (e) {
+          console.error('Falha ao carregar lista:', e);
+          setLoading(false);
+          showFallback();
+        }
+      }
+
+      
+      showFallback(); // UX: algo na tela enquanto busca
+      loadList();
+
+  
+      prevBtn.addEventListener('click', prev);
+      nextBtn.addEventListener('click', next);
+    });
+  </script>
 </body>
 </html>
