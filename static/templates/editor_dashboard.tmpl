@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Controle</title>
+  
+  <style>
+    .mainDashboard { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    .painelTitulo { font-size: 1.75rem; margin-bottom: 1rem; }
+    .gridAcoes { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; }
+    .cardAcao { border: 1px solid #e3e3e3; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 8px; background: #fff; }
+    .cardAcao h3 { margin: 0; font-size: 1.1rem; }
+    .btnPrimario { padding: 10px 14px; border-radius: 8px; border: 0; cursor: pointer; background: #1f6feb; color: #fff; }
+    .btnPrimario:hover { filter: brightness(0.96); }
+    .acaoDescricao { color: #555; font-size: .95rem; }
+  </style>
+</head>
+<body>
+  
+  <header class="headerUol">
+    <h1 class="h1Uol">Barra da Uol</h1>
+  </header>
+  <header class="headerJc">
+    <div>
+      <h1 class="logoJc">Logo do Jc</h1>
+      <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
+    </div>
+  </header>
+  <header class="headerNav">
+    <h1>Barra de navegação</h1>
+  </header>
+
+  <main class="mainDashboard" role="main">
+    <h2 class="painelTitulo">Painel de Controle</h2>
+
+    <section class="gridAcoes" aria-label="Ações de moderação e edição">
+    
+      <article class="cardAcao">
+        <h3>Escrever Matérias</h3>
+        <p class="acaoDescricao">Criar uma nova matéria para publicação.</p>
+        <a href="/admin/articles/new">
+          <button class="btnPrimario" aria-label="Escrever Matérias">Acessar</button>
+        </a>
+      </article>
+
+     
+      <article class="cardAcao">
+        <h3>Editar Matérias</h3>
+        <p class="acaoDescricao">Listar e editar matérias já criadas.</p>
+        <a href="/admin/articles">
+          <button class="btnPrimario" aria-label="Editar Matérias">Acessar</button>
+        </a>
+      </article>
+
+      <article class="cardAcao">
+        <h3>Moderar Jornal Cidadão</h3>
+        <p class="acaoDescricao">Aprovar, reprovar e revisar envios do Jornal Cidadão.</p>
+        <a href="/admin/moderate/jornal-cidadao">
+          <button class="btnPrimario" aria-label="Moderar Jornal Cidadão">Acessar</button>
+        </a>
+      </article>
+
+      <article class="cardAcao">
+        <h3>Moderar Usuários</h3>
+        <p class="acaoDescricao">Gerenciar usuários, permissões e status.</p>
+        <a href="/admin/users">
+          <button class="btnPrimario" aria-label="Moderar Usuários">Acessar</button>
+        </a>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

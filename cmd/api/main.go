@@ -61,4 +61,3 @@ func main() {
 		log.Fatal("Erro ao iniciar o servidor: ", err)
 	}
 }
-
