@@ -1,19 +1,22 @@
 package utils
 
-import(
-	"os"
+import (
 	"log"
+	"os"
 	"path/filepath"
+	"sort"
+	"time"
 
 	"github/jornal-cidadao-jc/internal/model"
 )
 
-func Get_charges_object(charges_dir string) (charges []model.Charge, err error){
+func Get_charges_object(charges_dir string) ([]model.Charge, error) {
 	files, err := os.ReadDir(charges_dir)
 	if err != nil {
 		return nil, err
 	}
 
+	var charges []model.Charge
 
 	for _, file := range files {
 		if file.IsDir() {
@@ -31,16 +34,17 @@ func Get_charges_object(charges_dir string) (charges []model.Charge, err error){
 			Filename: file.Name(),
 			URL:      filepath.Join("/static/images/charges", file.Name()),
 			Date:     model.FormattedTime(fileInfo.ModTime()),
-			Title:	  "",
+			Title:    "", 
 		})
 	}
 
-	total_charges := len(charges)
+	sort.Slice(charges, func(i, j int) bool {
+		return time.Time(charges[i].Date).Before(time.Time(charges[j].Date))
+	})
+
 	for i := range charges {
-		charges[i].ID = total_charges - i
+		charges[i].ID = i + 1
 	}
 
-
-	return charges, err
+	return charges, nil
 }
-
