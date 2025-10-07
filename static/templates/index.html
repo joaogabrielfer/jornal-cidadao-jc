@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Jornal do Comércio</title>
+    </head>
+    <style>
+        .headerUol {
+            background: rgb(38, 38, 38);
+            top: 0;
+            position: fixed;
+            width: 100%;
+            text-align: center;
+            font-size: xx-small;
+            height: 30px;
+            z-index: 100;
+        }
+
+        .h1Uol {
+            color: white;
+            margin: 0; 
+            padding-top: 5px; 
+        }
+
+        .headerJc {
+            background: rgb(217, 39, 46);
+            width: 100%;
+            height: 130px; 
+            margin-top: 30px; 
+            position: relative;
+        }
+        
+        .logoJc{
+            color: white;
+            text-align: center;
+        }
+        
+        .nomeJc{
+            color: white;
+            text-align: center;
+        }
+        
+        .headerNav {
+            background: rgb(167, 166, 166);
+            height: 40px; 
+            display: flex;
+            align-items: center; 
+            padding: 0 15px; 
+            margin: 0;
+        }
+        
+        body {
+            padding-top: 0; 
+            margin: 0;
+			min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .imgNoticia{
+            background-color: rgb(167, 166, 166);
+			width: 50%;
+            height: 350px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        .descricaoNoticia{
+            background-color: rgb(167, 166, 166);
+			width: 50%;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .conteudoPrincipal {
+            flex-grow: 1; 
+            padding: 30px 40px; 
+            display: flex;
+            justify-content: center;
+            gap: 30px; 
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .colunaNoticia {
+            flex: 2; 
+            max-width: 750px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .containerVisualNoticia {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .imgNoticia h1, .descricaoNoticia h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        
+        .colunaEnquete {
+            flex: 1; 
+            min-width: 300px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .perguntaEnquete {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .opcaoEnqueteInterativa {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .opcaoEnqueteInterativa input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            z-index: 10;
+        }
+        
+        .porcentagemEnquete {
+            font-size: 14px;
+            min-width: 45px;
+            text-align: right;
+            color: #333;
+            font-weight: bold;
+            z-index: 5;
+        }
+
+        .rotuloEnquete {
+            font-weight: bold;
+            margin-right: 5px;
+            font-size: 14px;
+            min-width: 20px;
+            z-index: 5;
+        }
+
+        .containerBarraEnquete {
+            position: relative;
+            flex-grow: 1;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-right: -45px;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .barraEnquete {
+            height: 100%;
+            border-radius: 5px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            transition: width 0.3s ease-out;
+        }
+
+        .barraEnqueteA { background-color: #37A088; width: 81%; }
+        .barraEnqueteB { background-color: #E6BC40; width: 12.6%; }
+        .barraEnqueteC { background-color: transparent; border: none; width: 0%;} 
+
+        .pontoEnquete {
+            width: 10px;
+            height: 10px;
+            background-color: #37A088;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+        
+        .botaoVotar {
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 8px 15px;
+            cursor: pointer;
+            margin-top: 10px;
+            float: right;
+            font-size: 14px;
+            display: block;
+            width: fit-content;
+        }
+        
+    </style>
+    <body>
+        <header class="headerUol">
+            <h1 class="h1Uol">Barra da Uol</h1>
+        </header>
+        <header class="headerJc">
+            <div>
+                <h1 class="logoJc">Logo do Jc</h1>
+                <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
+            </div>
+        </header>
+        <header class="headerNav">
+            <h1>Barra de navegação</h1>
+        </header>
+        
+        <main class="conteudoPrincipal">
+            
+            <section class="colunaNoticia">
+                <h2 style="font-size: 32px; color: #333; margin-top: 0; margin-bottom: 10px;">Título da Notícia Principal</h2>
+
+                <div class="containerVisualNoticia">
+                    <div class="imgNoticia">
+                        <h1>Img noticia</h1>
+                    </div>
+                    <div class="descricaoNoticia">
+                        <h1>Descrição noticia</h1>
+                    </div>
+                </div>
+            </section>
+            
+            <aside class="colunaEnquete">
+                <form id="formEnquete">
+                    
+                    <p style="font-size: 14px; color: #333; margin-bottom: 15px;">Faça **login** para opinar nas enquetes!</p>
+                    
+                    <h3 class="perguntaEnquete">Você é a favor do projeto de anistia?</h3>
+                    
+                    <label class="opcaoEnqueteInterativa" onclick="votar(this, 'A')">
+                        <input type="radio" name="anistia_vote" value="A" id="voteA">
+                        <span class="rotuloEnquete">A -</span>
+                        <div class="containerBarraEnquete">
+                            <div class="barraEnquete barraEnqueteA"></div>
+                        </div>
+                        <span class="porcentagemEnquete">81%</span>
+                    </label>
+
+                    <label class="opcaoEnqueteInterativa" onclick="votar(this, 'B')">
+                        <input type="radio" name="anistia_vote" value="B" id="voteB">
+                        <span class="rotuloEnquete">B -</span>
+                        <div class="containerBarraEnquete">
+                            <div class="barraEnquete barraEnqueteB"></div>
+                        </div>
+                        <span class="porcentagemEnquete">12,6%</span>
+                    </label>
+                    
+                    <label class="opcaoEnqueteInterativa" onclick="votar(this, 'C')">
+                        <input type="radio" name="anistia_vote" value="C" id="voteC">
+                        <span class="rotuloEnquete">C -</span>
+                        <div class="containerBarraEnquete">
+                            <div class="barraEnquete barraEnqueteC"></div>
+                        </div>
+                        <span class="porcentagemEnquete" style="display: flex; align-items: center;">
+                            6,4% <div class="pontoEnquete"></div>
+                        </span>
+                    </label>
+                    
+                    <button type="button" class="botaoVotar" onclick="resetarEnquete()">Votar novamente</button>
+
+                </form>
+            </aside>
+        </main>
+
+    </body>
+    <script>
+        function resetarEnquete() {
+            document.getElementById('formEnquete').reset();
+            alert('Enquete resetada! Você pode votar novamente.');
+        }
+    
+        function votar(labelElement, option) {
+            const radioInput = labelElement.querySelector('input[type="radio"]');
+            if (radioInput) {
+                radioInput.checked = true;
+                console.log("Voto registrado para a opção: " + option);
+            }
+        }
+    </script>
+</html>
