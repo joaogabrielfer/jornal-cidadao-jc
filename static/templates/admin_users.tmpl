@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gerenciar Usuários</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background-color: #f8f8f8; }
+        .actions button { border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px; color: white; }
+        .btn-suspend { background-color: #ffc107; color: #333; }
+        .btn-ban { background-color: #17a2b8; }
+        .btn-delete { background-color: #dc3545; }
+        #status-message { margin-top: 15px; padding: 10px; border-radius: 5px; text-align: center; display: none; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerenciar Usuários</h1>
+        <div id="status-message"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="user-list-body">
+                </tbody>
+        </table>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const userListBody = document.getElementById('user-list-body');
+    const statusMessage = document.getElementById('status-message');
+
+    // Função para mostrar mensagens de feedback
+    function showMessage(message, type) {
+        statusMessage.textContent = message;
+        statusMessage.className = type;
+        statusMessage.style.display = 'block';
+        setTimeout(() => { statusMessage.style.display = 'none'; }, 4000);
+    }
+
+    // Função para buscar e renderizar a lista de usuários
+    async function fetchAndRenderUsers() {
+        try {
+            const response = await fetch('/api/users');
+            if (!response.ok) throw new Error('Falha ao carregar usuários.');
+            
+            const users = await response.json();
+            userListBody.innerHTML = ''; // Limpa a tabela
+
+            if (!users || users.length === 0) {
+                userListBody.innerHTML = '<tr><td colspan="4">Nenhum usuário encontrado.</td></tr>';
+                return;
+            }
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-user-id', user.id); // Adiciona um identificador à linha
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td class="actions">
+                        <button class="btn-suspend" data-username="${user.username}">Suspender</button>
+                        <button class="btn-ban" data-username="${user.username}">Banir</button>
+                        <button class="btn-delete" data-id="${user.id}" data-username="${user.username}">Deletar</button>
+                    </td>
+                `;
+                userListBody.appendChild(row);
+            });
+        } catch (error) {
+            showMessage(error.message, 'error');
+        }
+    }
+
+    // Delegação de evento para os botões de ação na tabela
+    userListBody.addEventListener('click', async (event) => {
+        const button = event.target;
+        const userId = button.dataset.id;
+        const username = button.dataset.username;
+
+        // Ação de Deletar (Funcional)
+        if (button.classList.contains('btn-delete')) {
+            if (!confirm(`Tem certeza que deseja DELETAR PERMANENTEMENTE o usuário '${username}'?`)) return;
+
+            try {
+                const response = await fetch(`/api/user/${userId}`, { method: 'DELETE' });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error);
+                
+                // Remove a linha da tabela na tela
+                const rowToRemove = document.querySelector(`tr[data-user-id='${userId}']`);
+                if(rowToRemove) rowToRemove.remove();
+
+                showMessage(result.message, 'success');
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+        
+        // Ação de Suspender (Mock)
+        if (button.classList.contains('btn-suspend')) {
+            alert(`Funcionalidade "Suspender" para o usuário '${username}' ainda não implementada.`);
+        }
+
+        // Ação de Banir (Mock)
+        if (button.classList.contains('btn-ban')) {
+            alert(`Funcionalidade "Banir" para o usuário '${username}' ainda não implementada.`);
+        }
+    });
+
+    // Carga inicial dos usuários
+    fetchAndRenderUsers();
+});
+</script>
+</body>
+</html>

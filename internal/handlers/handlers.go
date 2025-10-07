@@ -1,64 +1,71 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
+	"database/sql"
 	"math/rand/v2"
 	"net/http"
-	"sort"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
-	"github/jornal-cidadao-jc/internal/model"
 	"github/jornal-cidadao-jc/internal/storage"
-	"github/jornal-cidadao-jc/utils"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Handler struct {
-	Storage      *storage.Storage
-	ChargesDir   string
+	Storage    *storage.Storage
+	ChargesDir string
 }
 
-func New_handler(s *storage.Storage, chargesDir string) *Handler {
+func NewHandler(s *storage.Storage, chargesDir string) *Handler {
 	return &Handler{
-		Storage:      s,
-		ChargesDir:   chargesDir,
+		Storage:    s,
+		ChargesDir: chargesDir,
 	}
 }
 
-func (h *Handler) Get_index_page(c *gin.Context){
+func (h *Handler) GetIndexPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.tmpl", nil)
 }
 
-func (h *Handler) Get_charge_page(c *gin.Context){
+func (h *Handler) GetChargePage(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil{
+	if err != nil {
 		log.Println("Erro convertendo ID para integer", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de charge inválido"})
-		return
-	}
-	charges, err := utils.Get_charges_object(h.ChargesDir)
-	if err != nil{
-		log.Println("Erro obtendo informações das charges: ", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro obtendo informações das charges"})
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "O ID fornecido na URL é inválido.",
+		})
 		return
 	}
 
-	var chosen_charge model.Charge
-	for _, charge := range charges{
-		if charge.ID == id{
-			chosen_charge = charge
+	charge, err := h.Storage.GetChargeByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.HTML(http.StatusNotFound, "error.tmpl", gin.H{
+				"error": "A charge com este ID não foi encontrada.",
+			})
+			return
 		}
+		log.Println("Erro obtendo charge do DB por ID: ", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Ocorreu um erro inesperado ao buscar a charge.",
+		})
+		return
 	}
 
+	charge.URL = filepath.Join("/static/images/charges", charge.Filename)
 	c.HTML(http.StatusOK, "vizualizar_charge.tmpl", gin.H{
-		"charge":chosen_charge,
+		"charge": charge,
 	})
 }
 
-func (h *Handler) Create_user(c *gin.Context) {
+func (h *Handler) CreateUser(c *gin.Context) {
 	username := c.PostForm("username")
 	email := c.PostForm("email")
 	password := c.PostForm("password")
@@ -67,34 +74,32 @@ func (h *Handler) Create_user(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "A senha na confirmaçao esta diferente."})
 		return
 	}
-
 	if username == "" || email == "" || password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Todos os campos sao requeridos"})
 		return
 	}
 
-	hashed_password, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Println("Erro fazendo hash da senha: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Falhou em criar conta"})
 		return
 	}
 
-	err = h.Storage.Create_user(username, email, string(hashed_password))
+	err = h.Storage.CreateUser(username, email, string(hashedPassword))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Nome ou email ja podem estar em uso"})
 		return
 	}
-
 	c.Redirect(http.StatusSeeOther, "/cadastro")
 }
 
-func (h *Handler) Get_signup_page(c *gin.Context) {
+func (h *Handler) GetSignupPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "cadastro.tmpl", nil)
 }
 
-func (h *Handler) Get_users(c *gin.Context) {
-	users, err := h.Storage.Get_users()
+func (h *Handler) GetUsers(c *gin.Context) {
+	users, err := h.Storage.GetUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro processando lista de usuarios"})
 		return
@@ -102,28 +107,23 @@ func (h *Handler) Get_users(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-func (h *Handler) Get_charges_list(c *gin.Context) {
-	charges, err := utils.Get_charges_object(h.ChargesDir)
-	if err != nil{
-		log.Println("Erro obtendo informações das charges: ", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro obtendo informações das charges"})
-		return
-	}
-	if len(charges) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Nenhuma charge encontrada"})
+func (h *Handler) GetChargesList(c *gin.Context) {
+	charges, err := h.Storage.GetAllCharges()
+	if err != nil {
+		log.Println("Erro ao buscar charges no banco de dados:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao obter lista de charges."})
 		return
 	}
 
-	sort.Slice(charges, func(i, j int) bool {
-		return time.Time(charges[i].Date).After(time.Time(charges[j].Date))
-	})
-
+	for i := range charges {
+		charges[i].URL = filepath.Join("/static/images/charges", charges[i].Filename)
+	}
 	c.JSON(http.StatusOK, charges)
 }
 
-func (h *Handler) Get_random_charge(c *gin.Context){
-	charges, err := utils.Get_charges_object(h.ChargesDir)
-	if err != nil{
+func (h *Handler) GetRandomCharge(c *gin.Context) {
+	charges, err := h.Storage.GetAllCharges()
+	if err != nil {
 		log.Println("Erro obtendo informações das charges: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro obtendo informações das charges"})
 		return
@@ -133,15 +133,129 @@ func (h *Handler) Get_random_charge(c *gin.Context){
 		return
 	}
 
-	var chosen_charge model.Charge
-	random_index := rand.N(len(charges)) + 1
-	for _, charge := range charges{
-		if charge.ID == random_index{
-			chosen_charge = charge
-		}
-	}
+	randomIndex := rand.N(len(charges))
+	chosenCharge := charges[randomIndex]
+	chosenCharge.URL = filepath.Join("/static/images/charges", chosenCharge.Filename)
 
 	c.JSON(http.StatusOK, gin.H{
-		"charge": chosen_charge,
+		"charge": chosenCharge,
 	})
+}
+
+func (h *Handler) GetAdminPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "admin.tmpl", nil)
+}
+
+func (h *Handler) GetUsersAdminPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "admin_users.tmpl", nil)
+}
+
+func (h *Handler) GetUploadChargePage(c *gin.Context) {
+	c.HTML(http.StatusOK, "adicionar_charge.tmpl", nil)
+}
+
+func (h *Handler) UploadCharge(c *gin.Context) {
+	title := c.PostForm("title")
+	if title == "" {
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "O campo de título é obrigatório.",
+		})
+		return
+	}
+
+	file, err := c.FormFile("charge_file")
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "Nenhum arquivo foi enviado. Por favor, selecione um arquivo.",
+		})
+		return
+	}
+
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	if ext != ".png" && ext != ".jpg" && ext != ".jpeg" && ext != ".gif" {
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "Formato de arquivo inválido. Apenas imagens (.png, .jpg, .jpeg, .gif) são permitidas.",
+		})
+		return
+	}
+
+	uniqueFilename := fmt.Sprintf("%d-%s", time.Now().Unix(), file.Filename)
+	destinationPath := filepath.Join(h.ChargesDir, uniqueFilename)
+
+	if err := c.SaveUploadedFile(file, destinationPath); err != nil {
+		log.Println("Erro ao salvar o arquivo:", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Não foi possível salvar o arquivo no servidor. Tente novamente mais tarde.",
+		})
+		return
+	}
+
+	if err := h.Storage.CreateCharge(title, uniqueFilename); err != nil {
+		log.Println("Erro ao salvar metadados no banco:", err)
+		os.Remove(destinationPath)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "O arquivo foi salvo, mas houve um erro ao registrar as informações no banco de dados.",
+		})
+		return
+	}
+
+	c.HTML(http.StatusOK, "adicionar_charge.tmpl", gin.H{
+		"message": "Charge '" + title + "' enviada com sucesso!",
+	})
+}
+
+func (h *Handler) GetDeleteChargePage(c *gin.Context) {
+	c.HTML(http.StatusOK, "deletar_charge.tmpl", nil)
+}
+
+func (h *Handler) DeleteCharge(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Println("Erro ao obter ID da charge: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return 
+	}
+
+	filename, err := h.Storage.DeleteCharge(id)
+	if err != nil {
+		log.Println("Erro ao deletar charge do banco de dados: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao deletar charge do banco de dados"})
+		return 
+	}
+
+	destinationPath := filepath.Join(h.ChargesDir, filename)
+	err = os.Remove(destinationPath)
+	if err != nil {
+		log.Println("Erro ao deletar arquivo físico da charge: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao deletar o arquivo físico, mas o registro no banco foi removido"})
+		return 
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Charge '" + filename + "' deletada com sucesso!"})
+}
+
+func (h *Handler) DeleteUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Println("Erro ao obter ID do usuário: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return 
+	}
+
+	user, err := h.Storage.GetUserByID(id)
+	if err != nil {
+		log.Println("Erro ao obter usuário do banco de dados: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao obter usuário do banco de dados"})
+		return 
+	}
+
+	err = h.Storage.DeleteUser(id)
+	if err != nil {
+		log.Println("Erro ao deletar usuário do banco de dados: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao deletar usuário do banco de dados"})
+		return 
+	}
+
+
+	c.JSON(http.StatusOK, gin.H{"message": "Usuário '" + user.Username + "' deletada com sucesso!"})
 }

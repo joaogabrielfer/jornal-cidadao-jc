@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Deletar Charge</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        #charges-list { list-style: none; padding: 0; }
+        .charge-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .charge-item:last-child { border-bottom: none; }
+        .charge-item span { max-width: 80%; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .delete-btn:hover { background-color: #c82333; }
+        #status-message { margin-top: 15px; padding: 10px; border-radius: 5px; text-align: center; display: none; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Deletar Charges</h1>
+        <p>Clique no botão "Deletar" para remover uma charge permanentemente.</p>
+        
+        <div id="status-message"></div>
+
+        <ul id="charges-list">
+            </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chargesList = document.getElementById('charges-list');
+            const statusMessage = document.getElementById('status-message');
+
+            // Função para mostrar mensagens de feedback para o usuário
+            function showMessage(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = type; // 'success' ou 'error'
+                statusMessage.style.display = 'block';
+                setTimeout(() => { statusMessage.style.display = 'none'; }, 4000); // Esconde a mensagem após 4 segundos
+            }
+
+            // Função para buscar e renderizar a lista de charges
+            async function fetchAndRenderCharges() {
+                try {
+                    // 1. Busca a lista de charges da nossa API
+                    const response = await fetch('/api/charges');
+                    if (!response.ok) {
+                        throw new Error('Não foi possível carregar a lista de charges.');
+                    }
+                    const charges = await response.json();
+                    
+                    // Limpa a lista atual
+                    chargesList.innerHTML = '';
+
+                    if (charges.length === 0) {
+                        chargesList.innerHTML = '<li>Nenhuma charge encontrada.</li>';
+                        return;
+                    }
+
+                    // 2. Cria um item na lista para cada charge
+                    charges.forEach(charge => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'charge-item';
+                        listItem.setAttribute('data-id', charge.id); // Guarda o ID no próprio item da lista
+                        
+                        listItem.innerHTML = `
+                            <span>
+                                <strong>ID: ${charge.id}</strong> - ${charge.title || charge.filename} 
+                                <em>(${charge.date})</em>
+                            </span>
+                            <button class="delete-btn" data-id="${charge.id}">Deletar</button>
+                        `;
+                        chargesList.appendChild(listItem);
+                    });
+                } catch (error) {
+                    showMessage(error.message, 'error');
+                }
+            }
+
+            // Lida com o clique em qualquer lugar da lista (usando delegação de eventos)
+            chargesList.addEventListener('click', async (event) => {
+                // Verifica se o que foi clicado foi um botão de deletar
+                if (event.target.classList.contains('delete-btn')) {
+                    const button = event.target;
+                    const chargeId = button.dataset.id;
+                    
+                    // 3. Pede confirmação antes de deletar
+                    if (!confirm(`Tem certeza que deseja deletar a charge com ID ${chargeId}? Esta ação não pode ser desfeita.`)) {
+                        return;
+                    }
+
+                    try {
+                        // 4. Envia a requisição DELETE para o backend
+                        const response = await fetch(`/admin/charge/${chargeId}`, {
+                            method: 'DELETE',
+                        });
+
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Falha ao deletar a charge.');
+                        }
+                        
+                        // 5. Se teve sucesso, remove o item da lista na tela e mostra a mensagem
+                        const listItemToRemove = document.querySelector(`.charge-item[data-id='${chargeId}']`);
+                        if (listItemToRemove) {
+                            listItemToRemove.remove();
+                        }
+                        showMessage(result.message, 'success');
+
+                    } catch (error) {
+                        showMessage(error.message, 'error');
+                    }
+                }
+            });
+
+            // Carga inicial das charges quando a página abre
+            fetchAndRenderCharges();
+        });
+    </script>
+</body>
+</html>

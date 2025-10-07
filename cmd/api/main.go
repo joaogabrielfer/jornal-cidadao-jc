@@ -5,8 +5,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
 	"github/jornal-cidadao-jc/internal/handlers"
-	"github/jornal-cidadao-jc/internal/storage" 
+	"github/jornal-cidadao-jc/internal/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -20,42 +21,56 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" 
+		port = "8080"
 	}
 
-	db_path := os.Getenv("DB_PATH")
-	if db_path == "" {
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
 		log.Fatal("DB_PATH não definido no arquivo .env")
 	}
 
-	static_path := os.Getenv("STATIC_PATH")
-	templates_path := os.Getenv("TEMPLATES_PATH")
+	staticPath := os.Getenv("STATIC_PATH")
+	templatesPath := os.Getenv("TEMPLATES_PATH")
 
-	db, err := sql.Open("sqlite3", db_path)
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatal("Erro ao conectar com o banco de dados: ", err)
 	}
 	defer db.Close()
 
-	storage_layer := storage.New_storage(db)
-	storage_layer.Initialize_database()
+	storageLayer := storage.NewStorage(db)
+	storageLayer.InitializeDatabase()
 
-	charges_dir := filepath.Join(static_path, "images", "charges")
-	http_handler := handlers.New_handler(storage_layer, charges_dir)
+	chargesDir := filepath.Join(staticPath, "images", "charges")
+	httpHandler := handlers.NewHandler(storageLayer, chargesDir)
 
 	router := gin.Default()
-	router.Static("/static", static_path)
-	router.LoadHTMLGlob(templates_path)
+	router.Static("/static", staticPath)
+	router.LoadHTMLGlob(templatesPath)
 
-	router.POST("/api/users", http_handler.Create_user)
-	router.GET("/api/users", http_handler.Get_users)
-	router.GET("/api/charges", http_handler.Get_charges_list)
-	router.GET("/api/charges/random", http_handler.Get_random_charge)
-	
-	router.GET("/charge/:id", http_handler.Get_charge_page)
-	router.GET("/cadastro", http_handler.Get_signup_page)
-	router.GET("/", http_handler.Get_index_page)
-	
+	api := router.Group("/api")
+	{
+		api.POST("/users", httpHandler.CreateUser)
+		api.GET("/users", httpHandler.GetUsers)
+		api.GET("/charges", httpHandler.GetChargesList)
+		api.GET("/charges/random", httpHandler.GetRandomCharge)
+		api.DELETE("/user/:id", httpHandler.DeleteUser)
+	}
+
+	router.GET("/charge/:id", httpHandler.GetChargePage)
+	router.GET("/cadastro", httpHandler.GetSignupPage)
+	router.GET("/", httpHandler.GetIndexPage)
+
+	admin := router.Group("/admin")
+	{
+		admin.GET("/", httpHandler.GetAdminPage)
+		admin.GET("/adicionar-charge", httpHandler.GetUploadChargePage)
+		admin.GET("/charges", httpHandler.GetDeleteChargePage)
+		admin.DELETE("/charge/:id", httpHandler.DeleteCharge)
+		admin.POST("/charge", httpHandler.UploadCharge)
+		admin.GET("/users", httpHandler.GetUsersAdminPage)
+	}
+
 	log.Printf("Servidor iniciando na porta %s", port)
 	if err := router.Run(":" + port); err != nil {
 		log.Fatal("Erro ao iniciar o servidor: ", err)
