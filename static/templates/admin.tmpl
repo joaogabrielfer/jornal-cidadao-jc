@@ -6,6 +6,54 @@
   <title>Painel de Controle</title>
   
   <style>
+    .headerUol {
+        background: rgb(38, 38, 38);
+        top: 0;
+        position: fixed;
+        width: 100%;
+        text-align: center;
+        font-size: xx-small;
+        height: 30px;
+        z-index: 100;
+    }
+
+    .h1Uol {
+        color: white;
+        margin: 0; 
+        padding-top: 5px; 
+    }
+
+    .headerJc {
+        background: rgb(217, 39, 46);
+        width: 100%;
+        height: 130px; 
+        margin-top: 30px; 
+        position: relative;
+    }
+        
+    .logoJc{
+        color: white;
+        text-align: center;
+    }
+        
+    .nomeJc{
+        color: white;
+        text-align: center;
+    }
+        
+    .headerNav {
+        background: rgb(167, 166, 166);
+        height: 40px; 
+        display: flex;
+        align-items: center; 
+        padding: 0 15px; 
+        margin: 0;
+    }
+        
+    body {
+      padding-top: 0; 
+      margin: 0;
+    }
     .mainDashboard { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
     .painelTitulo { font-size: 1.75rem; margin-bottom: 1rem; }
     .gridAcoes { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; }
