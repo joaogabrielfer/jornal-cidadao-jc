@@ -59,6 +59,7 @@ func main() {
 
 	router.GET("/charge/:id", httpHandler.GetChargePage)
 	router.GET("/cadastro", httpHandler.GetSignupPage)
+	router.GET("/login", httpHandler.GetLoginPage)
 	router.GET("/", httpHandler.GetIndexPage)
 
 	admin := router.Group("/admin")

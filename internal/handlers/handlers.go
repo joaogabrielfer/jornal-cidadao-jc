@@ -74,6 +74,8 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "A senha na confirmaçao esta diferente."})
 		return
 	}
+
+	log.Printf("username = %s, email = %s, password = %s, password-confirm = %s\n", username, email, password, c.PostForm("password-confirm"))
 	if username == "" || email == "" || password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Todos os campos sao requeridos"})
 		return
@@ -91,7 +93,11 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Nome ou email ja podem estar em uso"})
 		return
 	}
-	c.Redirect(http.StatusSeeOther, "/cadastro")
+	c.Redirect(http.StatusSeeOther, "/login?signup=success")
+}
+
+func (h *Handler) GetLoginPage(c *gin.Context) {
+    c.HTML(http.StatusOK, "login.tmpl", nil)
 }
 
 func (h *Handler) GetSignupPage(c *gin.Context) {

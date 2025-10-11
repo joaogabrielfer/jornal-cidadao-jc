@@ -195,118 +195,74 @@
             <button type="submit" class="botaoConfirmar">Confirmar</button>
     </form>
 
-    <script>
-        // 1. Variáveis de referência dos elementos
-        const formCadastro = document.getElementById('form-cadastro');
-        const feedbackElement = document.getElementById('feedback-message');
+<script>
+    const formCadastro = document.getElementById('form-cadastro');
+    const feedbackElement = document.getElementById('feedback-message');
+    
+    const URL_BACKEND = '/api/users'; 
+
+    function limparFeedback() {
+        feedbackElement.classList.remove('show', 'success', 'error');
+        feedbackElement.textContent = '';
+    }
+
+    function exibirFeedback(mensagem, tipo) {
+        limparFeedback();
+        feedbackElement.classList.add(tipo, 'show');
+        feedbackElement.textContent = mensagem;
+        setTimeout(() => {
+            feedbackElement.classList.remove('show');
+        }, 6000); 
+    }
+
+    // 3. Função principal de envio do formulário
+    formCadastro.addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+        limparFeedback(); 
+
+        const dadosFormulario = new FormData(e.target);
         
-        // *!!! AJUSTAR A URL DO SEU BACKEND AQUI !!!*
-        const URL_BACKEND = '/api/users'; 
-
-        // 2. Funções de manipulação do feedback
-
-        function limparFeedback() {
-            feedbackElement.classList.remove('show', 'success', 'error');
-            feedbackElement.textContent = '';
+        if (!dadosFormulario.get('username').trim()) {
+            exibirFeedback('❌ O campo "Nome de usuário" é obrigatório.', 'error');
+            return;
+        }
+        if (!dadosFormulario.get('email').trim()) {
+            exibirFeedback('❌ O campo "E-mail" é obrigatório.', 'error');
+            return;
+        }
+        if (!dadosFormulario.get('password').trim()) {
+            exibirFeedback('❌ O campo "Senha" é obrigatório.', 'error');
+            return;
+        }
+        if (dadosFormulario.get('password') !== dadosFormulario.get('password-confirm')) {
+            exibirFeedback("❌ As senhas digitadas não coincidem.", 'error');
+            return; 
         }
 
-        function exibirFeedback(mensagem, tipo) {
-            limparFeedback();
-            
-            feedbackElement.classList.add(tipo, 'show');
-            feedbackElement.textContent = mensagem;
+        try {
+            const bodyData = new URLSearchParams(dadosFormulario);
 
-            // Esconde a mensagem automaticamente após 6 segundos
-            setTimeout(() => {
-                feedbackElement.classList.remove('show');
-            }, 6000); 
+            const response = await fetch(URL_BACKEND, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: bodyData,
+            });
+
+            if (response.redirected) {
+                window.location.href = response.url; // Redireciona a página
+            } else {
+                const resultado = await response.json(); 
+                const mensagemErro = "❌ Erro: " + (resultado.mensagem || resultado.error);
+                exibirFeedback(mensagemErro, 'error');
+            }
+
+        } catch (error) {
+            console.error('Erro de conexão:', error);
+            exibirFeedback("❌ Falha na conexão com o servidor. Verifique sua rede.", 'error');
         }
-
-        // 3. Função principal de envio do formulário
-
-        formCadastro.addEventListener('submit', async function(e) {
-            e.preventDefault(); // Impede o recarregamento padrão da página
-            limparFeedback(); // Limpa qualquer mensagem anterior
-
-            // Coleta os dados do formulário
-            const dadosFormulario = new FormData(e.target);
-            const dadosJson = Object.fromEntries(dadosFormulario.entries());
-            
-            // --- BLOCO DE VALIDAÇÃO DE CAMPOS VAZIOS (CORRIGIDO) ---
-            const camposParaValidar = {
-                'username': 'Nome de usuário',
-                'email': 'E-mail',
-                'password': 'Senha',
-                'password-confirm': 'Confirmar senha'
-            };
-
-            // Loop para verificar se algum campo está vazio
-            for (const [key, nomeAmigavel] of Object.entries(camposParaValidar)) {
-                if (!dadosJson[key] || dadosJson[key].trim() === "") {
-                    // Exibe a mensagem de erro específica e interrompe a função
-                    exibirFeedback(`❌ O campo "${nomeAmigavel}" é obrigatório.`, 'error');
-                    document.getElementById(key).focus(); 
-                    return; // Impede o envio do formulário
-                }
-            }
-            // --- FIM DA VALIDAÇÃO DE CAMPOS VAZIOS ---
-            
-            // --- VALIDAÇÃO DE SENHA IGUAL (CORRIGIDO) ---
-            const senha = dadosJson.password.trim();
-            const confirmacao = dadosJson['password-confirm'].trim();
-            
-            if (senha !== confirmacao) {
-                exibirFeedback("❌ As senhas digitadas não coincidem. Verifique a digitação.", 'error');
-                document.getElementById('password-confirm').focus(); 
-                return; 
-            }
-
-            // Se a validação passar:
-            dadosJson.password = senha; // Usa a senha limpa (sem espaços)
-            delete dadosJson['password-confirm']; // Remove a confirmação antes do envio
-
-            try {
-                // Faz a requisição POST para o backend
-                const response = await fetch(URL_BACKEND, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dadosJson),
-                });
-
-                // Tenta ler o corpo JSON da resposta (com tratamento seguro)
-                const contentType = response.headers.get('content-type');
-                const resultado = contentType && contentType.includes('application/json') 
-                    ? await response.json()
-                    : null; 
-
-                if (response.ok) { // Status 200-299 (SUCESSO)
-                    exibirFeedback("✅ Cadastro efetuado com sucesso! Você já pode fazer login.", 'success');
-                    e.target.reset(); // Limpa os campos do formulário
-                } else { // Status 4xx ou 5xx (ERRO)
-                    let mensagemErro;
-                    
-                    // Tratamento de Erro baseado na resposta JSON do backend
-                    if (resultado && (resultado.mensagem || resultado.error)) {
-                        mensagemErro = "❌ Erro: " + (resultado.mensagem || resultado.error);
-                    } else if (response.status === 409) { // 409 Conflict: E-mail/User já existe
-                        mensagemErro = "❌ Este e-mail ou nome de usuário já está cadastrado.";
-                    } else if (response.status === 400) { // 400 Bad Request: Dados inválidos
-                        mensagemErro = "❌ Dados Inválidos. Verifique o formato do e-mail ou a força da senha.";
-                    } else {
-                        mensagemErro = `❌ Ocorreu um erro no servidor (Status: ${response.status}). Tente novamente.`;
-                    }
-                    
-                    exibirFeedback(mensagemErro, 'error');
-                }
-
-            } catch (error) {
-                // Erro de rede (ex: servidor fora do ar)
-                console.error('Erro de conexão:', error);
-                exibirFeedback("❌ Falha na conexão com o servidor. Verifique sua rede.", 'error');
-            }
-        });
-    </script>
+    });
+</script>
 </body>
 </html>
