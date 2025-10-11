@@ -4,124 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tela de Cadastro</title>
+    <style>
+        /* --- CSS BASE (ORIGINAL) --- */
+        .headerUol {
+            background: rgb(38, 38, 38);
+            top: 0;
+            position: fixed;
+            width: 100%;
+            text-align: center;
+            font-size: xx-small;
+            height: 30px;
+            z-index: 100;
+        }
+
+        .h1Uol {
+            color: white;
+            margin: 0; 
+            padding-top: 5px; 
+        }
+
+        .headerJc {
+            background: rgb(217, 39, 46);
+            width: 100%;
+            height: 130px; 
+            margin-top: 30px; 
+            position: relative;
+        }
+        
+        .logoJc{
+            color: white;
+            text-align: center;
+        }
+        
+        .nomeJc{
+            color: white;
+            text-align: center;
+        }
+        
+        .headerNav {
+            background: rgb(167, 166, 166);
+            height: 40px; 
+            display: flex;
+            align-items: center; 
+            padding: 0 15px; 
+            margin: 0;
+        }
+        
+        body {
+            padding-top: 0; 
+            margin: 0;
+        }
+
+        .formulario {
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            padding-top: 50px; 
+        }
+        
+        .formulario h2 {
+            margin-bottom: 20px;
+        }
+
+        .containerLogin {
+            background-color: rgb(217, 39, 46);
+            width: 380px;
+            padding: 30px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            position: relative;
+        }
+
+        .input {
+            margin-bottom: 20px;
+        }
+        
+        .input label {
+            color: white;
+            font-weight: bold;
+            display: block; 
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .input input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        
+        .botaoConfirmar {
+            background-color: #3770D0; 
+            color: white;
+            border: none;
+            border-radius: 20px; 
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            transition: background-color 0.2s ease, transform 0.1s ease; 
+        }
+
+        .botaoConfirmar:hover {
+            background-color: #4A83E0; 
+        }
+
+        .botaoConfirmar:active {
+            background-color: #2D61B5;
+            transform: translateY(1px);
+        }
+
+        /* --- CSS para Mensagens de Feedback (TOAST) --- */
+        #feedback-message {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            display: none; /* Escondido por padrão */
+            width: 380px; 
+            box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+        }
+
+        .success {
+            background-color: #d4edda; /* Verde claro */
+            color: #155724; /* Verde escuro */
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da; /* Vermelho claro */
+            color: #721c24; /* Vermelho escuro */
+            border: 1px solid #f5c6cb;
+        }
+
+        .show {
+            display: block !important;
+        }
+    </style>
 </head>
-<style>
-    .headerUol {
-        background: rgb(38, 38, 38);
-        top: 0;
-        position: fixed;
-        width: 100%;
-        text-align: center;
-        font-size: xx-small;
-        height: 30px;
-        z-index: 100;
-    }
-
-    .h1Uol {
-        color: white;
-        margin: 0; 
-        padding-top: 5px; 
-    }
-
-    .headerJc {
-        background: rgb(217, 39, 46);
-        width: 100%;
-        height: 130px; 
-        margin-top: 30px; 
-        position: relative;
-    }
-    
-    .logoJc{
-        color: white;
-        text-align: center;
-    }
-    
-    .nomeJc{
-        color: white;
-        text-align: center;
-    }
-    
-    .headerNav {
-        background: rgb(167, 166, 166);
-        height: 40px; 
-        display: flex;
-        align-items: center; 
-        padding: 0 15px; 
-        margin: 0;
-    }
-    
-    body {
-        padding-top: 0; 
-        margin: 0;
-        font-family: Arial, sans-serif;
-    }
-
-    .formulario {
-        flex-grow: 1; 
-        display: flex;
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center;
-        padding-top: 50px; 
-    }
-    
-    .formulario h2 {
-        margin-bottom: 20px;
-    }
-
-    .containerLogin {
-        background-color: rgb(217, 39, 46);
-        width: 380px;
-        padding: 30px;
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .input {
-        margin-bottom: 20px;
-    }
-    
-    .input label {
-        color: white;
-        font-weight: bold;
-        display: block; 
-        margin-bottom: 5px;
-        font-size: 14px;
-    }
-
-    .input input {
-        width: 100%;
-        padding: 10px;
-        border: none;
-        border-radius: 8px;
-        box-sizing: border-box;
-    }
-    
-    .botaoConfirmar {
-        background-color: #3770D0; 
-        color: white;
-        border: none;
-        border-radius: 20px; 
-        padding: 12px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        margin-top: 10px;
-        margin-bottom: 20px;
-        transition: background-color 0.2s ease, transform 0.1s ease; 
-    }
-
-    .botaoConfirmar:hover {
-        background-color: #4A83E0; 
-    }
-
-    .botaoConfirmar:active {
-        background-color: #2D61B5;
-        transform: translateY(1px);
-    }
-</style>
 <body>
     <header class="headerUol">
         <h1 class="h1Uol">Barra da Uol</h1>
@@ -135,9 +165,12 @@
     <header class="headerNav">
         <h1>Barra de navegação</h1>
     </header>
-    <form class="formulario" action="/api/users" method=POST>
+    
+    <form id="form-cadastro" class="formulario">
         <h2>Cadastrar</h2> 
         
+        <div id="feedback-message"></div>
+
         <div class="containerLogin">
             <div class="input">
                 <label for="username">Nome de usuário</label>
@@ -148,20 +181,88 @@
                 <label for="email">E-mail</label>
                 <input type="email" id="email" name="email">
             </div>
-            
+
             <div class="input">
                 <label for="password">Senha</label>
                 <input type="password" id="password" name="password">
             </div>
-            
+
             <div class="input">
                 <label for="password-confirm">Confirmar senha</label>
                 <input type="password" id="password-confirm" name="password-confirm">
             </div>
-            
+
             <button type="submit" class="botaoConfirmar">Confirmar</button>
-            
-            </div>
     </form>
+
+<script>
+    const formCadastro = document.getElementById('form-cadastro');
+    const feedbackElement = document.getElementById('feedback-message');
+    
+    const URL_BACKEND = '/api/users'; 
+
+    function limparFeedback() {
+        feedbackElement.classList.remove('show', 'success', 'error');
+        feedbackElement.textContent = '';
+    }
+
+    function exibirFeedback(mensagem, tipo) {
+        limparFeedback();
+        feedbackElement.classList.add(tipo, 'show');
+        feedbackElement.textContent = mensagem;
+        setTimeout(() => {
+            feedbackElement.classList.remove('show');
+        }, 6000); 
+    }
+
+    // 3. Função principal de envio do formulário
+    formCadastro.addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+        limparFeedback(); 
+
+        const dadosFormulario = new FormData(e.target);
+        
+        if (!dadosFormulario.get('username').trim()) {
+            exibirFeedback('❌ O campo "Nome de usuário" é obrigatório.', 'error');
+            return;
+        }
+        if (!dadosFormulario.get('email').trim()) {
+            exibirFeedback('❌ O campo "E-mail" é obrigatório.', 'error');
+            return;
+        }
+        if (!dadosFormulario.get('password').trim()) {
+            exibirFeedback('❌ O campo "Senha" é obrigatório.', 'error');
+            return;
+        }
+        if (dadosFormulario.get('password') !== dadosFormulario.get('password-confirm')) {
+            exibirFeedback("❌ As senhas digitadas não coincidem.", 'error');
+            return; 
+        }
+
+        try {
+            const bodyData = new URLSearchParams(dadosFormulario);
+
+            const response = await fetch(URL_BACKEND, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: bodyData,
+            });
+
+            if (response.redirected) {
+                window.location.href = response.url; // Redireciona a página
+            } else {
+                const resultado = await response.json(); 
+                const mensagemErro = "❌ Erro: " + (resultado.mensagem || resultado.error);
+                exibirFeedback(mensagemErro, 'error');
+            }
+
+        } catch (error) {
+            console.error('Erro de conexão:', error);
+            exibirFeedback("❌ Falha na conexão com o servidor. Verifique sua rede.", 'error');
+        }
+    });
+</script>
 </body>
 </html>

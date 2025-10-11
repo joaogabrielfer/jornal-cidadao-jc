@@ -65,6 +65,36 @@ func (h *Handler) GetChargePage(c *gin.Context) {
 	})
 }
 
+func (h *Handler) GetNoIdChargePage(c *gin.Context) {
+	charges, err := h.Storage.GetAllCharges()
+	if err != nil{
+		log.Println("Erro obtendo charges: ", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Não foi possível obter charges",
+		})
+		return
+	}
+	
+	highest_id := -1
+	for _, charge := range charges{
+		if charge.ID > highest_id{
+			highest_id = charge.ID
+		}
+	}
+
+	if highest_id == -1{
+		log.Println("Erro obtendo ID de maior charge")
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Não foi possível obter id da charge",
+		})
+	} else{
+		highest_id_str := strconv.Itoa(highest_id)
+		c.Redirect(http.StatusSeeOther, "/charge/"+highest_id_str)
+	}
+
+}
+
+
 func (h *Handler) CreateUser(c *gin.Context) {
 	username := c.PostForm("username")
 	email := c.PostForm("email")
@@ -74,6 +104,8 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "A senha na confirmaçao esta diferente."})
 		return
 	}
+
+	log.Printf("username = %s, email = %s, password = %s, password-confirm = %s\n", username, email, password, c.PostForm("password-confirm"))
 	if username == "" || email == "" || password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Todos os campos sao requeridos"})
 		return
@@ -91,7 +123,11 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Nome ou email ja podem estar em uso"})
 		return
 	}
-	c.Redirect(http.StatusSeeOther, "/cadastro")
+	c.Redirect(http.StatusSeeOther, "/login?signup=success")
+}
+
+func (h *Handler) GetLoginPage(c *gin.Context) {
+    c.HTML(http.StatusOK, "login.tmpl", nil)
 }
 
 func (h *Handler) GetSignupPage(c *gin.Context) {
