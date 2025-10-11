@@ -13,6 +13,11 @@ func (ft FormattedTime) MarshalJSON() ([]byte, error) {
     return []byte(fmt.Sprintf(`"%s"`, formatted)), nil
 }
 
+func (ft FormattedTime) Format() string {
+    t := time.Time(ft)
+    return t.Format("02/01/2006")
+}
+
 type User struct {
 	ID 		 string `json:"id"`
 	Username string `json:"username"`

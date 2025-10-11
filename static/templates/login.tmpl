@@ -6,149 +6,67 @@
     <title>Tela de Login</title>
 </head>
 <style>
-    .headerUol {
-        background: rgb(38, 38, 38);
-        top: 0;
-        position: fixed;
-        width: 100%;
-        text-align: center;
-        font-size: xx-small;
-        height: 30px;
-        z-index: 100;
-    }
+    .headerUol { background: rgb(38, 38, 38); top: 0; position: fixed; width: 100%; text-align: center; font-size: xx-small; height: 30px; z-index: 100; }
+    .h1Uol { color: white; margin: 0; padding-top: 5px; }
+    .headerJc { background: rgb(217, 39, 46); width: 100%; height: 130px; margin-top: 30px; position: relative; }
+    .logoJc, .nomeJc { color: white; text-align: center; }
+    .headerNav { background: rgb(167, 166, 166); height: 40px; display: flex; align-items: center; padding: 0 15px; margin: 0; }
+    body { padding-top: 0; margin: 0; }
+    .formulario { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 50px; }
+    .formulario h2 { margin-bottom: 20px; }
+    .containerLogin { background-color: rgb(217, 39, 46); width: 380px; padding: 30px; border-radius: 20px; display: flex; flex-direction: column; align-items: stretch; }
+    .input { margin-bottom: 20px; }
+    .input label { color: white; font-weight: bold; display: block; margin-bottom: 5px; font-size: 14px; }
+    .input input { width: 100%; padding: 10px; border: none; border-radius: 8px; box-sizing: border-box; }
+    .botaoConfirmar { background-color: #3770D0; color: white; border: none; border-radius: 20px; padding: 12px 20px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; margin-bottom: 20px; transition: background-color 0.2s ease, transform 0.1s ease; }
+    .botaoConfirmar:hover { background-color: #4A83E0; }
+    .botaoConfirmar:active { background-color: #2D61B5; transform: translateY(1px); }
 
-    .h1Uol {
-        color: white;
-        margin: 0; 
-        padding-top: 5px; 
-    }
-
-    .headerJc {
-        background: rgb(217, 39, 46);
-        width: 100%;
-        height: 130px; 
-        margin-top: 30px; 
-        position: relative;
-    }
-    
-    .logoJc{
-        color: white;
-        text-align: center;
-    }
-    
-    .nomeJc{
-        color: white;
-        text-align: center;
-    }
-    
-    .headerNav {
-        background: rgb(167, 166, 166);
-        height: 40px; 
-        display: flex;
-        align-items: center; 
-        padding: 0 15px; 
-        margin: 0;
-    }
-    
-    body {
-        padding-top: 0; 
-        margin: 0;
-    }
-
-    .formulario {
-        flex-grow: 1; 
-        display: flex;
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center;
-        padding-top: 50px; 
-    }
-    
-    .formulario h2 {
+    #feedback-message {
+        padding: 12px;
         margin-bottom: 20px;
-    }
-
-    .containerLogin {
-        background-color: rgb(217, 39, 46);
-        width: 380px;
-        padding: 30px;
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .input {
-        margin-bottom: 20px;
-    }
-    
-    .input label {
-        color: white;
-        font-weight: bold;
-        display: block; 
-        margin-bottom: 5px;
-        font-size: 14px;
-    }
-
-    .input input {
-        width: 100%;
-        padding: 10px;
-        border: none;
         border-radius: 8px;
+        font-weight: bold;
+        text-align: center;
+        display: none;
+        width: 380px; 
         box-sizing: border-box;
     }
-    
-    .botaoConfirmar {
-        background-color: #3770D0; 
-        color: white;
-        border: none;
-        border-radius: 20px; 
-        padding: 12px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        margin-top: 10px;
-        margin-bottom: 20px;
-        transition: background-color 0.2s ease, transform 0.1s ease; 
-    }
 
-    .botaoConfirmar:hover {
-        background-color: #4A83E0; 
-    }
-
-    .botaoConfirmar:active {
-        background-color: #2D61B5;
-        transform: translateY(1px);
+    .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
     }
 
     .linksFooter {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column; 
+        gap: 10px;
         margin-top: 10px;
-        font-size: 12px;
-        padding: 0 10px; 
     }
     
-    .linksFooter {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 10px;
-        font-size: 12px;
-        padding: 0 10px; 
-    }
-    
-    .linksFooter span {
-        color: #00BFFF;
-    }
-    
-    .linksFooter a {
+    .link-botao {
         text-decoration: none;
-        padding-bottom: 2px;
-        color: #00BFFF; /* AZUL CLARO */
-        border-bottom: 1px solid #00BFFF; /* Sublinhado na mesma cor */
+        color: white;
+        background-color: rgba(255, 255, 255, 0.2); 
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        padding: 10px;
+        border-radius: 20px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        transition: background-color 0.2s ease;
     }
+
+    .link-botao:hover {
+        background-color: rgba(255, 255, 255, 0.3); 
+    }
+
+    .show {
+        display: block !important;
+    }
+
 </style>
 <body>
     <header class="headerUol">
@@ -163,28 +81,51 @@
     <header class="headerNav">
         <h1>Barra de navegação</h1>
     </header>
-    <form class="formulario">
+
+    <div class="formulario"> 
         <h2>Login</h2>
+
+        <div id="feedback-message"></div>
     
-        <div class="containerLogin">
+        <form class="containerLogin">
             <div class="input">
                 <label for="email">E-mail</label>
-                <input type="email" id="email" name="email">
+                <input type="email" id="email" name="email" required>
             </div>
         
             <div class="input">
                 <label for="senha">Senha</label>
-                <input type="password" id="senha" name="senha">
+                <input type="password" id="senha" name="senha" required>
             </div>
         
             <button type="submit" class="botaoConfirmar">Confirmar</button>
         
             <div class="linksFooter">
-                <span>Não possui conta?</span>
-                <a href="#" class="cadastrar">Cadastre-se grátis</a>
-                <a href="#" class="esqueci">Esqueci a senha</a>
+                <a href="/cadastro" class="link-botao cadastrar">Não possui conta? Cadastre-se grátis</a>
+                <a href="#" class="link-botao esqueci">Esqueci a senha</a>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
+
+    <script>
+        const feedbackElement = document.getElementById('feedback-message');
+
+        function exibirFeedback(mensagem, tipo) {
+            feedbackElement.classList.remove('show', 'success', 'error');
+            feedbackElement.classList.add(tipo, 'show');
+            feedbackElement.textContent = mensagem;
+
+            setTimeout(() => {
+                feedbackElement.classList.remove('show');
+            }, 6000); 
+        }
+
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('signup') === 'success') {
+                exibirFeedback('✅ Cadastro efetuado com sucesso! Por favor, faça o login.', 'success');
+            }
+        };
+    </script>
 </body>
 </html>
