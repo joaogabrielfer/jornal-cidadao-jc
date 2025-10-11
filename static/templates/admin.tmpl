@@ -41,14 +41,39 @@
         text-align: center;
     }
         
-    .headerNav {
-        background: rgb(167, 166, 166);
-        height: 40px; 
-        display: flex;
-        align-items: center; 
-        padding: 0 15px; 
-        margin: 0;
-    }
+        .headerNav {
+            background: rgb(167, 166, 166);
+            height: 40px; 
+            display: flex;
+            align-items: center; 
+            padding: 0 15px; 
+            margin: 0;
+        }
+
+		.headerNav nav ul {
+            margin: 0;
+            padding: 0;
+            list-style: none; 
+            display: flex; 
+            gap: 15px; 
+        }
+        
+        
+        .headerNav nav a {
+            text-decoration: none; 
+            color: #333; 
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 16px; 
+            border-radius: 5px; 
+            background-color: rgba(255, 255, 255, 0.4); 
+            transition: background-color 0.2s ease, color 0.2s ease; 
+        }
+
+        .headerNav nav a:hover {
+            background-color: #333; 
+            color: white; 
+        }
         
     body {
       padding-top: 0; 
@@ -62,6 +87,7 @@
     .btnPrimario { padding: 10px 14px; border-radius: 8px; border: 0; cursor: pointer; background: #1f6feb; color: #fff; }
     .btnPrimario:hover { filter: brightness(0.96); }
     .acaoDescricao { color: #555; font-size: .95rem; }
+	* { font-family: Verdana, sans}
   </style>
 </head>
 <body>
@@ -75,9 +101,15 @@
       <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
     </div>
   </header>
-  <header class="headerNav">
-    <h1>Barra de navegação</h1>
-  </header>
+	<header class="headerNav">
+		<nav>
+			<ul>
+				<li><a href="/">Início</a></li>
+				<li><a href="/charge">Charges</a></li>
+				<li><a href="/admin">Admin</a></li>
+			</ul>
+		</nav>
+	</header>
 
   <main class="mainDashboard" role="main">
     <h2 class="painelTitulo">Painel de Controle</h2>

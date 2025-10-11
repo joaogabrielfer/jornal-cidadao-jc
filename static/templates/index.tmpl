@@ -49,6 +49,31 @@
             padding: 0 15px; 
             margin: 0;
         }
+
+		.headerNav nav ul {
+            margin: 0;
+            padding: 0;
+            list-style: none; 
+            display: flex; 
+            gap: 15px; 
+        }
+        
+        
+        .headerNav nav a {
+            text-decoration: none; 
+            color: #333; 
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 16px; 
+            border-radius: 5px; 
+            background-color: rgba(255, 255, 255, 0.4); 
+            transition: background-color 0.2s ease, color 0.2s ease; 
+        }
+
+        .headerNav nav a:hover {
+            background-color: #333; 
+            color: white; 
+        }
         
         body {
             padding-top: 0; 
@@ -56,7 +81,7 @@
 			min-height: 100vh;
             display: flex;
             flex-direction: column;
-            font-family: Arial, sans-serif;
+            font-family: Verdana, sans;
         }
         .imgNoticia{
             background-color: rgb(167, 166, 166);
@@ -203,6 +228,20 @@
             display: block;
             width: fit-content;
         }
+
+		.botao {
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 4px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            float: right;
+            font-size: 14px;
+            display: block;
+            width: fit-content;
+			border-radius: 10%;
+        }
+
         
     </style>
     <body>
@@ -216,7 +255,13 @@
             </div>
         </header>
         <header class="headerNav">
-            <h1>Barra de navegação</h1>
+			<nav>
+				<ul>
+					<li><a href="/">Início</a></li>
+					<li><a href="/charge">Charges</a></li>
+					<li><a href="/admin">Admin</a></li>
+				</ul>
+			</nav>
         </header>
         
         <main class="conteudoPrincipal">

@@ -6,7 +6,7 @@
     <title>Admin - Upload de Charge</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Verdana, sans-serif;
             margin: 0;
             background-color: #f4f4f4;
             color: #333;
@@ -54,6 +54,31 @@
             align-items: center; 
             padding: 0 15px; 
             margin: 0;
+        }
+
+		.headerNav nav ul {
+            margin: 0;
+            padding: 0;
+            list-style: none; 
+            display: flex; 
+            gap: 15px; 
+        }
+        
+        
+        .headerNav nav a {
+            text-decoration: none; 
+            color: #333; 
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 16px; 
+            border-radius: 5px; 
+            background-color: rgba(255, 255, 255, 0.4); 
+            transition: background-color 0.2s ease, color 0.2s ease; 
+        }
+
+        .headerNav nav a:hover {
+            background-color: #333; 
+            color: white; 
         }
         
         body {
@@ -135,9 +160,15 @@
             <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
         </div>
     </header>
-    <header class="headerNav">
-        <h1>Barra de navegação</h1>
-    </header>
+	<header class="headerNav">
+		<nav>
+			<ul>
+				<li><a href="/">Início</a></li>
+				<li><a href="/charge">Charges</a></li>
+				<li><a href="/admin">Admin</a></li>
+			</ul>
+		</nav>
+	</header>
 
     <main class="main-content">
         <div class="form-container">
