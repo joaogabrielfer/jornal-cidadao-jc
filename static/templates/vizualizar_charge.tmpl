@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{if .Charge.Title}}{{.Charge.Title}} – {{end}}Visualizar Charges</title>
+  <style>
+    .headerUol{background:#262626;top:0;position:fixed;width:100%;text-align:center;font-size:xx-small;height:30px;z-index:100}
+    .h1Uol{color:#fff;margin:0;padding-top:5px}
+    .headerJc{background:#d9272e;width:100%;height:130px;margin-top:30px;position:relative}
+    .logoJc,.nomeJc{color:#fff;text-align:center}
+    .headerNav{background:#a7a6a6;height:40px;display:flex;align-items:center;padding:0 15px;margin:0}
+    body{padding-top:0;margin:0;min-height:100vh;display:flex;flex-direction:column;font-family:Arial, sans-serif}
+    .mainCharges{flex-grow:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0}
+    .tituloCharge{text-align:center;margin-bottom:20px;font-size:24px;font-weight:500;color:#333}
+    .containerCharge{padding:20px;background:#d9272e;border-radius:10px;box-shadow:0 4px 8px rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;width:450px}
+    .charge{width:400px;height:350px;background:#F0F0F0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;margin-bottom:15px;overflow:hidden}
+    .charge img{max-width:100%;max-height:100%}
+    .footerCharge{width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:0 10px}
+    .dataCharge{font-size:14px;color:#000}
+    .botoesNavDaCharge{display:flex;gap:10px}
+    .botaoNav{background:#F0F0F0;color:#333;border:1px solid #ccc;min-width:34px;height:34px;border-radius:5px;font-size:18px;font-weight:bold;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer}
+    .botaoNav:hover{background:#E0E0E0}
+  </style>
+</head>
+<body>
+  <header class="headerUol"><h1 class="h1Uol">Barra da Uol</h1></header>
+  <header class="headerJc"><div><h1 class="logoJc">Logo do Jc</h1><h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1></div></header>
+  <header class="headerNav"><h1>Barra de navegação</h1></header>
+
+  <main class="mainCharges">
+    <h2 class="tituloCharge">{{if .Charge.Title}}Charge – {{.Charge.Title}}{{else}}Charge{{end}}</h2>
+
+    <div class="containerCharge">
+      <div class="charge">
+        <img src="{{.Charge.URL}}" alt="{{or .Charge.Title `Charge`}}">
+      </div>
+
+      <div class="footerCharge">
+        <span class="dataCharge">{{.Charge.Date}}</span>
+        <span class="nomeCharge">{{.Charge.Author}}</span>
+
+        <div class="botoesNavDaCharge">
+          <a class="botaoNav" href="/charge/{{.PrevID}}" aria-label="Anterior">&lt;</a>
+          <button class="botaoNav" id="btn-random" aria-label="Aleatória">?</button>
+          <a class="botaoNav" href="/charge/{{.NextID}}" aria-label="Próxima">&gt;</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('btn-random')?.addEventListener('click', async () => {
+      try {
+        const r = await fetch('/api/charges/random', { headers: {Accept: 'application/json'} });
+        if (!r.ok) throw new Error('HTTP '+r.status);
+        const data = await r.json();                 // { charge: { id, ... } }
+        const id = (data && data.charge && data.charge.id) ?? null;
+        if (id != null) window.location.href = '/charge/' + id;
+      } catch (e) { console.error(e); }
+    });
+  </script>
+</body>
+</html>

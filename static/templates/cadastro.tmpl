@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tela de Cadastro</title>
     <style>
-        /* CSS Existente */
+        /* --- CSS BASE (ORIGINAL) --- */
         .headerUol {
             background: rgb(38, 38, 38);
             top: 0;
@@ -113,4 +113,200 @@
             transition: background-color 0.2s ease, transform 0.1s ease; 
         }
 
-        .botaoConfirmar:
+        .botaoConfirmar:hover {
+            background-color: #4A83E0; 
+        }
+
+        .botaoConfirmar:active {
+            background-color: #2D61B5;
+            transform: translateY(1px);
+        }
+
+        /* --- CSS para Mensagens de Feedback (TOAST) --- */
+        #feedback-message {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            display: none; /* Escondido por padrão */
+            width: 380px; 
+            box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+        }
+
+        .success {
+            background-color: #d4edda; /* Verde claro */
+            color: #155724; /* Verde escuro */
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da; /* Vermelho claro */
+            color: #721c24; /* Vermelho escuro */
+            border: 1px solid #f5c6cb;
+        }
+
+        .show {
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="headerUol">
+        <h1 class="h1Uol">Barra da Uol</h1>
+    </header>
+    <header class="headerJc">
+        <div>
+            <h1 class="logoJc">Logo do Jc</h1>
+            <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
+        </div>
+    </header>
+    <header class="headerNav">
+        <h1>Barra de navegação</h1>
+    </header>
+    
+    <form id="form-cadastro" class="formulario">
+        <h2>Cadastrar</h2> 
+        
+        <div id="feedback-message"></div>
+
+        <div class="containerLogin">
+            <div class="input">
+                <label for="username">Nome de usuário</label>
+                <input type="text" id="username" name="username">
+            </div>
+
+            <div class="input">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email">
+            </div>
+
+            <div class="input">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password">
+            </div>
+
+            <div class="input">
+                <label for="password-confirm">Confirmar senha</label>
+                <input type="password" id="password-confirm" name="password-confirm">
+            </div>
+
+            <button type="submit" class="botaoConfirmar">Confirmar</button>
+    </form>
+
+    <script>
+        // 1. Variáveis de referência dos elementos
+        const formCadastro = document.getElementById('form-cadastro');
+        const feedbackElement = document.getElementById('feedback-message');
+        
+        // *!!! AJUSTAR A URL DO SEU BACKEND AQUI !!!*
+        const URL_BACKEND = '/api/users'; 
+
+        // 2. Funções de manipulação do feedback
+
+        function limparFeedback() {
+            feedbackElement.classList.remove('show', 'success', 'error');
+            feedbackElement.textContent = '';
+        }
+
+        function exibirFeedback(mensagem, tipo) {
+            limparFeedback();
+            
+            feedbackElement.classList.add(tipo, 'show');
+            feedbackElement.textContent = mensagem;
+
+            // Esconde a mensagem automaticamente após 6 segundos
+            setTimeout(() => {
+                feedbackElement.classList.remove('show');
+            }, 6000); 
+        }
+
+        // 3. Função principal de envio do formulário
+
+        formCadastro.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Impede o recarregamento padrão da página
+            limparFeedback(); // Limpa qualquer mensagem anterior
+
+            // Coleta os dados do formulário
+            const dadosFormulario = new FormData(e.target);
+            const dadosJson = Object.fromEntries(dadosFormulario.entries());
+            
+            // --- BLOCO DE VALIDAÇÃO DE CAMPOS VAZIOS (CORRIGIDO) ---
+            const camposParaValidar = {
+                'username': 'Nome de usuário',
+                'email': 'E-mail',
+                'password': 'Senha',
+                'password-confirm': 'Confirmar senha'
+            };
+
+            // Loop para verificar se algum campo está vazio
+            for (const [key, nomeAmigavel] of Object.entries(camposParaValidar)) {
+                if (!dadosJson[key] || dadosJson[key].trim() === "") {
+                    // Exibe a mensagem de erro específica e interrompe a função
+                    exibirFeedback(`❌ O campo "${nomeAmigavel}" é obrigatório.`, 'error');
+                    document.getElementById(key).focus(); 
+                    return; // Impede o envio do formulário
+                }
+            }
+            // --- FIM DA VALIDAÇÃO DE CAMPOS VAZIOS ---
+            
+            // --- VALIDAÇÃO DE SENHA IGUAL (CORRIGIDO) ---
+            const senha = dadosJson.password.trim();
+            const confirmacao = dadosJson['password-confirm'].trim();
+            
+            if (senha !== confirmacao) {
+                exibirFeedback("❌ As senhas digitadas não coincidem. Verifique a digitação.", 'error');
+                document.getElementById('password-confirm').focus(); 
+                return; 
+            }
+
+            // Se a validação passar:
+            dadosJson.password = senha; // Usa a senha limpa (sem espaços)
+            delete dadosJson['password-confirm']; // Remove a confirmação antes do envio
+
+            try {
+                // Faz a requisição POST para o backend
+                const response = await fetch(URL_BACKEND, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dadosJson),
+                });
+
+                // Tenta ler o corpo JSON da resposta (com tratamento seguro)
+                const contentType = response.headers.get('content-type');
+                const resultado = contentType && contentType.includes('application/json') 
+                    ? await response.json()
+                    : null; 
+
+                if (response.ok) { // Status 200-299 (SUCESSO)
+                    exibirFeedback("✅ Cadastro efetuado com sucesso! Você já pode fazer login.", 'success');
+                    e.target.reset(); // Limpa os campos do formulário
+                } else { // Status 4xx ou 5xx (ERRO)
+                    let mensagemErro;
+                    
+                    // Tratamento de Erro baseado na resposta JSON do backend
+                    if (resultado && (resultado.mensagem || resultado.error)) {
+                        mensagemErro = "❌ Erro: " + (resultado.mensagem || resultado.error);
+                    } else if (response.status === 409) { // 409 Conflict: E-mail/User já existe
+                        mensagemErro = "❌ Este e-mail ou nome de usuário já está cadastrado.";
+                    } else if (response.status === 400) { // 400 Bad Request: Dados inválidos
+                        mensagemErro = "❌ Dados Inválidos. Verifique o formato do e-mail ou a força da senha.";
+                    } else {
+                        mensagemErro = `❌ Ocorreu um erro no servidor (Status: ${response.status}). Tente novamente.`;
+                    }
+                    
+                    exibirFeedback(mensagemErro, 'error');
+                }
+
+            } catch (error) {
+                // Erro de rede (ex: servidor fora do ar)
+                console.error('Erro de conexão:', error);
+                exibirFeedback("❌ Falha na conexão com o servidor. Verifique sua rede.", 'error');
+            }
+        });
+    </script>
+</body>
+</html>
