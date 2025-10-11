@@ -4,163 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tela de Cadastro</title>
-</head>
-<style>
-    .headerUol {
-        background: rgb(38, 38, 38);
-        top: 0;
-        position: fixed;
-        width: 100%;
-        text-align: center;
-        font-size: xx-small;
-        height: 30px;
-        z-index: 100;
-    }
+    <style>
+        /* CSS Existente */
+        .headerUol {
+            background: rgb(38, 38, 38);
+            top: 0;
+            position: fixed;
+            width: 100%;
+            text-align: center;
+            font-size: xx-small;
+            height: 30px;
+            z-index: 100;
+        }
 
-    .h1Uol {
-        color: white;
-        margin: 0; 
-        padding-top: 5px; 
-    }
+        .h1Uol {
+            color: white;
+            margin: 0; 
+            padding-top: 5px; 
+        }
 
-    .headerJc {
-        background: rgb(217, 39, 46);
-        width: 100%;
-        height: 130px; 
-        margin-top: 30px; 
-        position: relative;
-    }
-    
-    .logoJc{
-        color: white;
-        text-align: center;
-    }
-    
-    .nomeJc{
-        color: white;
-        text-align: center;
-    }
-    
-    .headerNav {
-        background: rgb(167, 166, 166);
-        height: 40px; 
-        display: flex;
-        align-items: center; 
-        padding: 0 15px; 
-        margin: 0;
-    }
-    
-    body {
-        padding-top: 0; 
-        margin: 0;
-    }
-
-    .formulario {
-        flex-grow: 1; 
-        display: flex;
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center;
-        padding-top: 50px; 
-    }
-    
-    .formulario h2 {
-        margin-bottom: 20px;
-    }
-
-    .containerLogin {
-        background-color: rgb(217, 39, 46);
-        width: 380px;
-        padding: 30px;
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .input {
-        margin-bottom: 20px;
-    }
-    
-    .input label {
-        color: white;
-        font-weight: bold;
-        display: block; 
-        margin-bottom: 5px;
-        font-size: 14px;
-    }
-
-    .input input {
-        width: 100%;
-        padding: 10px;
-        border: none;
-        border-radius: 8px;
-        box-sizing: border-box;
-    }
-    
-    .botaoConfirmar {
-        background-color: #3770D0; 
-        color: white;
-        border: none;
-        border-radius: 20px; 
-        padding: 12px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        margin-top: 10px;
-        margin-bottom: 20px;
-        transition: background-color 0.2s ease, transform 0.1s ease; 
-    }
-
-    .botaoConfirmar:hover {
-        background-color: #4A83E0; 
-    }
-
-    .botaoConfirmar:active {
-        background-color: #2D61B5;
-        transform: translateY(1px);
-    }
-</style>
-<body>
-    <header class="headerUol">
-        <h1 class="h1Uol">Barra da Uol</h1>
-    </header>
-    <header class="headerJc">
-        <div>
-            <h1 class="logoJc">Logo do Jc</h1>
-            <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
-        </div>
-    </header>
-    <header class="headerNav">
-        <h1>Barra de navegação</h1>
-    </header>
-    <form class="formulario" action="/api/users" method=POST>
-        <h2>Cadastrar</h2> 
+        .headerJc {
+            background: rgb(217, 39, 46);
+            width: 100%;
+            height: 130px; 
+            margin-top: 30px; 
+            position: relative;
+        }
         
-        <div class="containerLogin">
-            <div class="input">
-                <label for="username">Nome de usuário</label>
-                <input type="text" id="username" name="username">
-            </div>
+        .logoJc{
+            color: white;
+            text-align: center;
+        }
+        
+        .nomeJc{
+            color: white;
+            text-align: center;
+        }
+        
+        .headerNav {
+            background: rgb(167, 166, 166);
+            height: 40px; 
+            display: flex;
+            align-items: center; 
+            padding: 0 15px; 
+            margin: 0;
+        }
+        
+        body {
+            padding-top: 0; 
+            margin: 0;
+        }
 
-            <div class="input">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" name="email">
-            </div>
-            
-            <div class="input">
-                <label for="password">Senha</label>
-                <input type="password" id="password" name="password">
-            </div>
-            
-            <div class="input">
-                <label for="password-confirm">Confirmar senha</label>
-                <input type="password" id="password-confirm" name="password-confirm">
-            </div>
-            
-            <button type="submit" class="botaoConfirmar">Confirmar</button>
-            
-            </div>
-    </form>
-</body>
-</html>
+        .formulario {
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            padding-top: 50px; 
+        }
+        
+        .formulario h2 {
+            margin-bottom: 20px;
+        }
+
+        .containerLogin {
+            background-color: rgb(217, 39, 46);
+            width: 380px;
+            padding: 30px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            position: relative;
+        }
+
+        .input {
+            margin-bottom: 20px;
+        }
+        
+        .input label {
+            color: white;
+            font-weight: bold;
+            display: block; 
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .input input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        
+        .botaoConfirmar {
+            background-color: #3770D0; 
+            color: white;
+            border: none;
+            border-radius: 20px; 
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            transition: background-color 0.2s ease, transform 0.1s ease; 
+        }
+
+        .botaoConfirmar:
