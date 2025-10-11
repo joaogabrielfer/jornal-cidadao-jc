@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- O backend ainda preenche os dados iniciais, o que é ótimo para SEO e para o primeiro carregamento -->
   <title>{{if .Charge.Title}}{{.Charge.Title}} – {{end}}Visualizar Charges</title>
   <style>
+    /* SEU CSS AQUI, SEM MUDANÇAS */
     .headerUol{background:#262626;top:0;position:fixed;width:100%;text-align:center;font-size:xx-small;height:30px;z-index:100}
     .h1Uol{color:#fff;margin:0;padding-top:5px}
     .headerJc{background:#d9272e;width:100%;height:130px;margin-top:30px;position:relative}
@@ -17,7 +19,7 @@
     .charge{width:400px;height:350px;background:#F0F0F0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;margin-bottom:15px;overflow:hidden}
     .charge img{max-width:100%;max-height:100%}
     .footerCharge{width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:0 10px}
-    .dataCharge{font-size:14px;color:#000}
+    .dataCharge{font-size:14px;color:#eaeaea}
     .botoesNavDaCharge{display:flex;gap:10px}
     .botaoNav{background:#F0F0F0;color:#333;border:1px solid #ccc;min-width:34px;height:34px;border-radius:5px;font-size:18px;font-weight:bold;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer}
     .botaoNav:hover{background:#E0E0E0}
@@ -29,21 +31,20 @@
   <header class="headerNav"><h1>Barra de navegação</h1></header>
 
   <main class="mainCharges">
-    <h2 class="tituloCharge">{{if .Charge.Title}}Charge – {{.Charge.Title}}{{else}}Charge{{end}}</h2>
+    <h2 class="tituloCharge">{{if .charge.Title}}Charge – {{.charge.Title}}{{else}}Charge{{end}}</h2>
 
     <div class="containerCharge">
       <div class="charge">
-        <img src="{{.Charge.URL}}" alt="{{or .Charge.Title `Charge`}}">
+        <img src="{{ .charge.URL }}" alt="{{or .charge.Title `charge`}}">
       </div>
 
       <div class="footerCharge">
-        <span class="dataCharge">{{.Charge.Date}}</span>
-        <span class="nomeCharge">{{.Charge.Author}}</span>
+        <span class="dataCharge">Data de publicação: {{.charge.Date.Format}}</span>
 
         <div class="botoesNavDaCharge">
-          <a class="botaoNav" href="/charge/{{.PrevID}}" aria-label="Anterior">&lt;</a>
+          <a class="botaoNav" id="btn-prev" href="#" aria-label="Anterior">&lt;</a>
           <button class="botaoNav" id="btn-random" aria-label="Aleatória">?</button>
-          <a class="botaoNav" href="/charge/{{.NextID}}" aria-label="Próxima">&gt;</a>
+          <a class="botaoNav" id="btn-next" href="#" aria-label="Próxima">&gt;</a>
         </div>
       </div>
     </div>
@@ -52,12 +53,62 @@
   <script>
     document.getElementById('btn-random')?.addEventListener('click', async () => {
       try {
-        const r = await fetch('/api/charges/random', { headers: {Accept: 'application/json'} });
+        const r = await fetch('/api/charges/random');
         if (!r.ok) throw new Error('HTTP '+r.status);
-        const data = await r.json();                 // { charge: { id, ... } }
-        const id = (data && data.charge && data.charge.id) ?? null;
-        if (id != null) window.location.href = '/charge/' + id;
+        const data = await r.json();
+        const charge = data?.charge;
+        if (charge?.id) {
+          window.location.href = '/charge/' + charge.id;
+        }
       } catch (e) { console.error(e); }
+    });
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const prevButton = document.getElementById('btn-prev');
+      const nextButton = document.getElementById('btn-next');
+
+      try {
+        const response = await fetch('/api/charges');
+        if (!response.ok) throw new Error('Falha ao buscar a lista de charges');
+        const allCharges = await response.json();
+
+        // A API já retorna as charges ordenadas da mais nova para a mais antiga.
+        // Se você quiser uma ordem diferente (ex: por ID), pode reordenar aqui com:
+
+		allCharges.sort((a, b) => a.id - b.id);
+        if (allCharges.length === 0) return; // Não faz nada se não houver charges
+
+        // 2. Descobre o ID da charge atual lendo a URL do navegador
+        const pathParts = window.location.pathname.split('/');
+        const currentId = parseInt(pathParts[pathParts.length - 1], 10);
+
+        // 3. Encontra o índice (a posição) da charge atual na lista
+        const currentIndex = allCharges.findIndex(charge => charge.id === currentId);
+
+        if (currentIndex === -1) {
+            console.error('Charge atual não encontrada na lista.');
+            return;
+        }
+
+        // 4. Calcula os índices da próxima e da anterior com a lógica de looping
+        // A mágica do operador de módulo (%) faz o loop acontecer automaticamente.
+        const prevIndex = (currentIndex - 1 + allCharges.length) % allCharges.length;
+        const nextIndex = (currentIndex + 1) % allCharges.length;
+
+        // 5. Pega o ID da charge anterior e da próxima
+        const prevChargeId = allCharges[prevIndex].id;
+        const nextChargeId = allCharges[nextIndex].id;
+
+        // 6. Atualiza os links dos botões na página dinamicamente
+        prevButton.href = `/charge/${prevChargeId}`;
+        nextButton.href = `/charge/${nextChargeId}`;
+
+      } catch (error) {
+        console.error('Erro ao configurar a navegação:', error);
+        // Em caso de erro, os botões simplesmente não funcionarão, o que é seguro.
+        prevButton.style.display = 'none';
+        nextButton.style.display = 'none';
+      }
     });
   </script>
 </body>

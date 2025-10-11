@@ -65,6 +65,36 @@ func (h *Handler) GetChargePage(c *gin.Context) {
 	})
 }
 
+func (h *Handler) GetNoIdChargePage(c *gin.Context) {
+	charges, err := h.Storage.GetAllCharges()
+	if err != nil{
+		log.Println("Erro obtendo charges: ", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Não foi possível obter charges",
+		})
+		return
+	}
+	
+	highest_id := -1
+	for _, charge := range charges{
+		if charge.ID > highest_id{
+			highest_id = charge.ID
+		}
+	}
+
+	if highest_id == -1{
+		log.Println("Erro obtendo ID de maior charge")
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Não foi possível obter id da charge",
+		})
+	} else{
+		highest_id_str := strconv.Itoa(highest_id)
+		c.Redirect(http.StatusSeeOther, "/charge/"+highest_id_str)
+	}
+
+}
+
+
 func (h *Handler) CreateUser(c *gin.Context) {
 	username := c.PostForm("username")
 	email := c.PostForm("email")

@@ -58,6 +58,7 @@ func main() {
 	}
 
 	router.GET("/charge/:id", httpHandler.GetChargePage)
+	router.GET("/charge", httpHandler.GetNoIdChargePage)
 	router.GET("/cadastro", httpHandler.GetSignupPage)
 	router.GET("/login", httpHandler.GetLoginPage)
 	router.GET("/", httpHandler.GetIndexPage)
