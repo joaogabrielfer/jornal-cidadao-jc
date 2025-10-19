@@ -62,6 +62,14 @@ func (h *Handler) GetUploadArticlePage(c *gin.Context) {
 	c.HTML(http.StatusOK, "escrever_materia.tmpl", nil)
 }
 
+func (h *Handler) GetUpdateArticlePage(c *gin.Context) {
+	c.HTML(http.StatusOK, "atualizar_materia.tmpl", nil)
+}
+
+func (h *Handler) GetArticlesPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "materias.tmpl", nil)
+}
+
 func (h *Handler) GetNoIdChargePage(c *gin.Context) {
 	charges, err := h.Storage.GetAllCharges()
 	if err != nil{
@@ -333,8 +341,106 @@ func (h *Handler) UploadArticle(c *gin.Context) {
 		})
 		return
 	}
+}
 
-	c.HTML(http.StatusOK, "adicionar_charge.tmpl", gin.H{
-		"message": "Charge '" + title + "' enviada com sucesso!",
-	})
+func (h *Handler) UpdateArticle(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil{
+		log.Println("erro convertendo id para inteiro: ", err)
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "Id inválido",
+		})
+	}
+
+	title := c.PostForm("title")
+	if title == "" {
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "O campo de título é obrigatório.",
+		})
+		return
+	}
+
+	author := c.PostForm("author")
+	if author == ""{
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "O autor da mensagem não pode estar em branco.",
+		})
+		return
+	}
+
+
+	body := c.PostForm("body")
+	if body == ""{
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "O corpo da mensagem não pode estar em branco.",
+		})
+		return
+	}
+
+	err = h.Storage.UpdateArticle(id, title, author, body)
+	if err != nil{
+		log.Println("Erro atualizando artigo no banco de dados: ", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Erro atualizando artigo no banco de dados",
+		})
+		return
+	}
+}
+
+func (h *Handler) GetArticles(c *gin.Context){
+	articles, err := h.Storage.GetArticles()
+	if err != nil{
+		log.Println("erro buscando artigos no banco de dados: ", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Erro buscando artigos no banco de dados",
+		})
+	}
+
+	c.JSON(http.StatusOK, articles)
+}
+
+func (h *Handler) GetArticleByID(c *gin.Context){
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil{
+		log.Println("erro convertendo id para inteiro: ", err)
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "Argumento de ID inválido",
+		})
+	}
+
+	article, err := h.Storage.GetArticleByID(id)
+	if err != nil{
+		log.Println("erro obtendo artigo", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Erro obtendo artigo",
+		})
+	}	
+
+	c.JSON(http.StatusOK, article)
+}
+
+func (h *Handler) DeleteArticle(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Println("Erro ao obter ID da matéria: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return 
+	}
+
+	article, err := h.Storage.GetArticleByID(id)
+	if err != nil {
+		log.Println("Erro ao obter matéria do banco de dados: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao obter matéria do banco de dados"})
+		return 
+	}
+
+	err = h.Storage.DeleteArticle(id)
+	if err != nil {
+		log.Println("Erro ao deletar matéria do banco de dados: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao deletar matéria do banco de dados"})
+		return 
+	}
+
+
+	c.JSON(http.StatusOK, gin.H{"message": "Matéria '" + article.Title + "' deletada com sucesso!"})
 }

@@ -176,3 +176,47 @@ func (s *Storage) CreateArticle(title, author, body string) error{
 	_, err := s.DB.Exec(insertSQL, title, author, body)
 	return err
 }
+
+func (s *Storage) UpdateArticle(id int, title, author, body string) error {
+	updateSQL := `UPDATE article SET title = ?, author = ?, body = ? WHERE id = ?`
+	
+	_, err := s.DB.Exec(updateSQL, title, author, body, id)
+	return err
+}
+
+func (s *Storage) GetArticles() ([]model.Article, error) {
+	query := `SELECT id, title, author, body FROM article`
+	rows, err := s.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var articles []model.Article
+	for rows.Next() {
+		var article model.Article
+		if err := rows.Scan(&article.ID, &article.Title, &article.Author, &article.Body); err != nil {
+			return nil, err
+		}
+		articles = append(articles, article)
+	}
+	return articles, nil
+}
+
+func (s *Storage) GetArticleByID(id int) (model.Article, error) {
+	var article model.Article
+
+	query := `SELECT id, title, author, body FROM article WHERE id = ?`
+	
+	err := s.DB.QueryRow(query, id).Scan(&article.ID, &article.Title, &article.Author, &article.Body)
+	if err != nil {
+		return model.Article{}, err
+	}
+	
+	return article, nil
+}
+
+func (s *Storage) DeleteArticle(id int) error {
+	_, err := s.DB.Exec("DELETE FROM article WHERE id = ?", id)
+	return err
+}

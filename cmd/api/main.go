@@ -52,27 +52,37 @@ func main() {
 	{
 		api.POST("/users", httpHandler.CreateUser)
 		api.GET("/users", httpHandler.GetUsers)
+
 		api.GET("/charges", httpHandler.GetChargesList)
 		api.GET("/charges/random", httpHandler.GetRandomCharge)
-		api.DELETE("/user/:id", httpHandler.DeleteUser)
+
+		api.GET("/materias", httpHandler.GetArticles)
+		api.GET("/materia/:id", httpHandler.GetArticleByID)
 	}
 
-	router.GET("/charge/:id", httpHandler.GetChargePage)
+	router.GET("/", httpHandler.GetIndexPage)
 	router.GET("/charge", httpHandler.GetNoIdChargePage)
+	router.GET("/charge/:id", httpHandler.GetChargePage)
 	router.GET("/cadastro", httpHandler.GetSignupPage)
 	router.GET("/login", httpHandler.GetLoginPage)
-	router.GET("/", httpHandler.GetIndexPage)
 
 	admin := router.Group("/admin")
 	{
 		admin.GET("/", httpHandler.GetAdminPage)
+
 		admin.GET("/adicionar-charge", httpHandler.GetUploadChargePage)
 		admin.GET("/charges", httpHandler.GetDeleteChargePage)
-		admin.DELETE("/charge/:id", httpHandler.DeleteCharge)
 		admin.POST("/charge", httpHandler.UploadCharge)
+		admin.DELETE("/charge/:id", httpHandler.DeleteCharge)
+
+		admin.DELETE("/user/:id", httpHandler.DeleteUser)
 		admin.GET("/users", httpHandler.GetUsersAdminPage)
+
 		admin.GET("/materia", httpHandler.GetUploadArticlePage)
+		admin.GET("/materias", httpHandler.GetArticlesPage)
 		admin.POST("/materia", httpHandler.UploadArticle)
+		admin.PUT("/materia/:id", httpHandler.UpdateArticle)
+		admin.DELETE("/materia/:id", httpHandler.DeleteArticle)
 	}
 
 	log.Printf("Servidor iniciando na porta %s", port)
