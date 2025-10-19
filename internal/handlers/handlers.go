@@ -34,35 +34,32 @@ func (h *Handler) GetIndexPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.tmpl", nil)
 }
 
-func (h *Handler) GetChargePage(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		log.Println("Erro convertendo ID para integer", err)
-		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
-			"error": "O ID fornecido na URL é inválido.",
-		})
-		return
-	}
+func (h *Handler) GetLoginPage(c *gin.Context) {
+    c.HTML(http.StatusOK, "login.tmpl", nil)
+}
 
-	charge, err := h.Storage.GetChargeByID(id)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.HTML(http.StatusNotFound, "error.tmpl", gin.H{
-				"error": "A charge com este ID não foi encontrada.",
-			})
-			return
-		}
-		log.Println("Erro obtendo charge do DB por ID: ", err)
-		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
-			"error": "Ocorreu um erro inesperado ao buscar a charge.",
-		})
-		return
-	}
+func (h *Handler) GetSignupPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "cadastro.tmpl", nil)
+}
 
-	charge.URL = filepath.Join("/static/images/charges", charge.Filename)
-	c.HTML(http.StatusOK, "vizualizar_charge.tmpl", gin.H{
-		"charge": charge,
-	})
+func (h *Handler) GetAdminPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "admin.tmpl", nil)
+}
+
+func (h *Handler) GetUsersAdminPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "admin_users.tmpl", nil)
+}
+
+func (h *Handler) GetUploadChargePage(c *gin.Context) {
+	c.HTML(http.StatusOK, "adicionar_charge.tmpl", nil)
+}
+
+func (h *Handler) GetDeleteChargePage(c *gin.Context) {
+	c.HTML(http.StatusOK, "deletar_charge.tmpl", nil)
+}
+
+func (h *Handler) GetUploadArticlePage(c *gin.Context) {
+	c.HTML(http.StatusOK, "escrever_materia.tmpl", nil)
 }
 
 func (h *Handler) GetNoIdChargePage(c *gin.Context) {
@@ -94,6 +91,36 @@ func (h *Handler) GetNoIdChargePage(c *gin.Context) {
 
 }
 
+func (h *Handler) GetChargePage(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Println("Erro convertendo ID para integer", err)
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "O ID fornecido na URL é inválido.",
+		})
+		return
+	}
+
+	charge, err := h.Storage.GetChargeByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.HTML(http.StatusNotFound, "error.tmpl", gin.H{
+				"error": "A charge com este ID não foi encontrada.",
+			})
+			return
+		}
+		log.Println("Erro obtendo charge do DB por ID: ", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Ocorreu um erro inesperado ao buscar a charge.",
+		})
+		return
+	}
+
+	charge.URL = filepath.Join("/static/images/charges", charge.Filename)
+	c.HTML(http.StatusOK, "vizualizar_charge.tmpl", gin.H{
+		"charge": charge,
+	})
+}
 
 func (h *Handler) CreateUser(c *gin.Context) {
 	username := c.PostForm("username")
@@ -124,14 +151,6 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		return
 	}
 	c.Redirect(http.StatusSeeOther, "/login?signup=success")
-}
-
-func (h *Handler) GetLoginPage(c *gin.Context) {
-    c.HTML(http.StatusOK, "login.tmpl", nil)
-}
-
-func (h *Handler) GetSignupPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "cadastro.tmpl", nil)
 }
 
 func (h *Handler) GetUsers(c *gin.Context) {
@@ -176,18 +195,6 @@ func (h *Handler) GetRandomCharge(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"charge": chosenCharge,
 	})
-}
-
-func (h *Handler) GetAdminPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "admin.tmpl", nil)
-}
-
-func (h *Handler) GetUsersAdminPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "admin_users.tmpl", nil)
-}
-
-func (h *Handler) GetUploadChargePage(c *gin.Context) {
-	c.HTML(http.StatusOK, "adicionar_charge.tmpl", nil)
 }
 
 func (h *Handler) UploadCharge(c *gin.Context) {
@@ -240,10 +247,6 @@ func (h *Handler) UploadCharge(c *gin.Context) {
 	})
 }
 
-func (h *Handler) GetDeleteChargePage(c *gin.Context) {
-	c.HTML(http.StatusOK, "deletar_charge.tmpl", nil)
-}
-
 func (h *Handler) DeleteCharge(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -294,4 +297,44 @@ func (h *Handler) DeleteUser(c *gin.Context) {
 
 
 	c.JSON(http.StatusOK, gin.H{"message": "Usuário '" + user.Username + "' deletada com sucesso!"})
+}
+
+func (h *Handler) UploadArticle(c *gin.Context) {
+	title := c.PostForm("title")
+	if title == "" {
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "O campo de título é obrigatório.",
+		})
+		return
+	}
+
+	author := c.PostForm("author")
+	if author == ""{
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "O autor da mensagem não pode estar em branco.",
+		})
+		return
+	}
+
+
+	body := c.PostForm("body")
+	if body == ""{
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "O corpo da mensagem não pode estar em branco.",
+		})
+		return
+	}
+
+	err := h.Storage.CreateArticle(title, author, body)
+	if err != nil{
+		log.Println("Erro salvando artigo no banco de dados: ", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Erro salvando artigo no banco de dados",
+		})
+		return
+	}
+
+	c.HTML(http.StatusOK, "adicionar_charge.tmpl", gin.H{
+		"message": "Charge '" + title + "' enviada com sucesso!",
+	})
 }

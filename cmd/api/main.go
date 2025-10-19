@@ -71,6 +71,8 @@ func main() {
 		admin.DELETE("/charge/:id", httpHandler.DeleteCharge)
 		admin.POST("/charge", httpHandler.UploadCharge)
 		admin.GET("/users", httpHandler.GetUsersAdminPage)
+		admin.GET("/materia", httpHandler.GetUploadArticlePage)
+		admin.POST("/materia", httpHandler.UploadArticle)
 	}
 
 	log.Printf("Servidor iniciando na porta %s", port)

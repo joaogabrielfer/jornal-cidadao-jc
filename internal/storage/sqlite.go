@@ -42,6 +42,20 @@ func (s *Storage) InitializeDatabase() {
 	}
 	statement.Exec()
 	log.Println("Tabela 'charges' foi criada com sucesso ou ja existe")
+
+		createArticleTableSQL := `CREATE TABLE IF NOT EXISTS article (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		title TEXT NOT NULL,
+		author TEXT NOT NULL,
+		body TEXT NOT NULL
+	);`
+	statement, err = s.DB.Prepare(createArticleTableSQL)
+	if err != nil {
+		log.Fatal("Erro preparando statement de criar tabela de artigos", err)
+	}
+	statement.Exec()
+	log.Println("Tabela 'article' foi criada com sucesso ou ja existe")
+
 }
 
 func (s *Storage) CreateUser(username, email, passwordHash string) error {
@@ -154,4 +168,11 @@ func (s *Storage) GetUserByID(id int) (model.User, error) {
 	}
 
 	return user, nil
+}
+
+func (s *Storage) CreateArticle(title, author, body string) error{
+	insertSQL := `INSERT INTO article (title, author, body) VALUES (?, ?, ?)`
+	
+	_, err := s.DB.Exec(insertSQL, title, author, body)
+	return err
 }
