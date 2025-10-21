@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para buscar e renderizar a lista de usuários
     async function fetchAndRenderUsers() {
         try {
-            const response = await fetch('/api/users');
+            const response = await fetch('/admin/api/users');
             if (!response.ok) throw new Error('Falha ao carregar usuários.');
             
             const users = await response.json();
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!confirm(`Tem certeza que deseja DELETAR PERMANENTEMENTE o usuário '${username}'?`)) return;
 
             try {
-                const response = await fetch(`/api/user/${userId}`, { method: 'DELETE' });
+                const response = await fetch(`/admin/api/user/${userId}`, { method: 'DELETE' });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error);
                 

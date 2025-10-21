@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Escrever matéria</title>
+	</head>
+	<body>
+		<form action="/admin/api/materia" method="POST">
+			<input type="text" name="title" placeholder="Título da Matéria" required>
+			<input type="text" name="author" placeholder="Autor" required>
+			<textarea name="body" placeholder="Corpo da matéria..." required></textarea>
+
+			<hr>
+
+			<h3>Enquete (Opcional)</h3>
+			<input type="text" name="poll_question" placeholder="Qual a pergunta da enquete?">
+
+			<div id="poll-options-container">
+			</div>
+
+			<button type="button" id="add-option-btn">Adicionar Opção</button>
+			<button type="submit">Salvar Matéria</button>
+		</form>
+	</body>
+	<script>
+		const container = document.getElementById('poll-options-container');
+		const addBtn = document.getElementById('add-option-btn');
+
+		addBtn.addEventListener('click', () => {
+			const optionWrapper = document.createElement('div');
+
+			const newInput = document.createElement('input');
+			newInput.type = 'text';
+			
+			// CORREÇÃO AQUI: de 'poll_options[]' para 'poll_options'
+			newInput.name = 'poll_options'; 
+			
+			newInput.placeholder = 'Texto da opção';
+
+			const removeBtn = document.createElement('button');
+			removeBtn.type = 'button';
+			removeBtn.textContent = 'Remover';
+			removeBtn.onclick = () => {
+				optionWrapper.remove();
+			};
+
+			optionWrapper.appendChild(newInput);
+			optionWrapper.appendChild(removeBtn);
+			container.appendChild(optionWrapper);
+		});
+	</script>
+</html>

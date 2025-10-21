@@ -19,7 +19,7 @@ func (ft FormattedTime) Format() string {
 }
 
 type User struct {
-	ID 		 string `json:"id"`
+	ID 		 int    `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }
@@ -32,3 +32,24 @@ type Charge struct {
 	Date	 	FormattedTime 	`json:"date"`
 }
 
+type Article struct{
+	ID 		int		`json:"id"`
+	Title 	string	`json:"title"`
+	Author 	string	`json:"author"`
+	Body 	string	`json:"body"`
+	Poll 	*Poll	`json:"poll,omitempty"`
+}
+
+type PollOption struct {
+	ID         int    `json:"id"`
+	OptionText string `json:"option_text"`
+	Votes      int    `json:"votes"`
+	PollID     int    `json:"-"` 
+}
+
+type Poll struct{
+	ID 			int				`json:"id"`
+	Question 	string			`json:"question"`
+	ArticleID 	int 			`json:"article_id"`
+	Options 	[]PollOption	`json:"options"`
+}

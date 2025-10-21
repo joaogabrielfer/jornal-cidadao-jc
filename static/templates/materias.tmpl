@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Matérias</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .materia { border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; padding: 15px; }
+        .materia-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .materia-header h2 { margin: 0; font-size: 20px; color: #d9272e; }
+        .materia-header .autor { font-style: italic; color: #666; }
+        .materia-body { color: #444; }
+        .enquete { margin-top: 15px; padding: 10px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: 4px; }
+        .enquete-pergunta { font-weight: bold; margin-bottom: 10px; }
+        .enquete-opcoes ul { list-style: none; padding: 0; margin: 0; }
+        .enquete-opcoes li { display: flex; justify-content: space-between; padding: 5px 0; }
+        .enquete-opcoes .votos { font-weight: bold; }
+        .no-enquete { color: #888; font-style: italic; }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            text-decoration: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-weight: normal;
+            transition: background-color 0.2s;
+        }
+        .edit-btn {
+            background-color: #3770D0;
+        }
+        .edit-btn:hover {
+            background-color: #2D61B5;
+        }
+        .delete-btn {
+            background-color: #d9272e; 
+        }
+        .delete-btn:hover {
+            background-color: #b02026;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Lista de Matérias</h1>
+
+        {{ if .Articles }}
+            {{ range .Articles }}
+            <div class="materia">
+                <div class="materia-header">
+                    <div>
+                        <h2>{{ .Title }}</h2>
+                        <span class="autor">Por: {{ .Author }}</span>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="/admin/materia/{{ .ID }}/edit" class="btn edit-btn">Editar</a>
+                        <button class="btn delete-btn" data-id="{{ .ID }}">Deletar</button>
+                    </div>
+                </div>
+                <div class="materia-body">
+                    <p>{{ .Body }}</p>
+                </div>
+
+                <!-- Lógica da enquete permanece a mesma -->
+                {{ if .Poll }}
+                    <div class="enquete">
+                        <div class="enquete-pergunta">{{ .Poll.Question }}</div>
+                        <div class="enquete-opcoes">
+                            <ul>
+                                {{ range .Poll.Options }}
+                                <li>
+                                    <span>{{ .OptionText }}</span>
+                                    <span class="votos">{{ .Votes }} votos</span>
+                                </li>
+                                {{ end }}
+                            </ul>
+                        </div>
+                    </div>
+                {{ else }}
+                    <div class="no-enquete">
+                        <p>Esta matéria não possui uma enquete.</p>
+                    </div>
+                {{ end }}
+            </div>
+            {{ end }}
+        {{ else }}
+            <p>Nenhuma matéria encontrada.</p>
+        {{ end }}
+    </div>
+
+    <script>
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const confirmed = confirm('Tem certeza que deseja deletar esta matéria? Esta ação não pode ser desfeita.');
+
+                if (!confirmed) {
+                    return; 
+                }
+                const articleId = event.target.dataset.id;
+                const endpoint = `/admin/api/materia/${articleId}`; 
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'DELETE',
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        event.target.closest('.materia').remove();
+                    } else {
+                        alert('Erro ao deletar: ' + (result.error || 'Ocorreu um problema no servidor.'));
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição de exclusão:', error);
+                    alert('Falha na conexão com o servidor. Verifique sua rede e tente novamente.');
+                }
+            });
+        });
+		</script>
+
+</body>
+</html>
