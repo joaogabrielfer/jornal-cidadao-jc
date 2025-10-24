@@ -1,53 +1,286 @@
 <!DOCTYPE html>
-<html lang="pt">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Escrever matéria</title>
-	</head>
-	<body>
-		<form action="/admin/api/materia" method="POST">
-			<input type="text" name="title" placeholder="Título da Matéria" required>
-			<input type="text" name="author" placeholder="Autor" required>
-			<textarea name="body" placeholder="Corpo da matéria..." required></textarea>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Escrever Matéria - Painel de Controle</title>
 
-			<hr>
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
-			<h3>Enquete (Opcional)</h3>
-			<input type="text" name="poll_question" placeholder="Qual a pergunta da enquete?">
+    <script>
+        tinymce.init({
+            selector: 'textarea#content', // Alvo: a textarea com id="content"
+            plugins: 'lists link image media table code help wordcount',
+            toolbar: 'undo redo | blocks | bold italic backcolor | \
+                    alignleft aligncenter alignright alignjustify | \
+                    bullist numlist outdent indent | removeformat | help',
+            menubar: false,
+            height: 400,
+            language: 'pt_BR' // Idioma do editor
+        });
+    </script>
 
-			<div id="poll-options-container">
-			</div>
+    <style>
+        /* Reset básico e Fonte Principal (do index.tmpl) */
+        * { font-family: Verdana, sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            /* padding-top: 0; */ /* Removido - não necessário com sticky header */
+            margin: 0; 
+            background-color: #f8f9fa; /* Fundo ligeiramente mais claro */
+            color: #333; /* Cor de texto padrão */
+            display: flex; /* Para o rodapé (se houver) ficar no final */
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-			<button type="button" id="add-option-btn">Adicionar Opção</button>
-			<button type="submit">Salvar Matéria</button>
-		</form>
-	</body>
-	<script>
-		const container = document.getElementById('poll-options-container');
-		const addBtn = document.getElementById('add-option-btn');
+        /* Cabeçalhos (Exatamente como no index.tmpl) */
+        .headerUol {
+            background: rgb(38, 38, 38);
+            top: 0;
+            position: sticky; /* Mantendo sticky */
+            width: 100%;
+            text-align: center;
+            font-size: xx-small;
+            height: 30px;
+            z-index: 100;
+        }
+        .h1Uol { color: white; margin: 0; padding-top: 5px; }
+        .headerJc {
+            background: rgb(217, 39, 46);
+            width: 100%;
+            height: 130px; 
+            position: relative;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            flex-direction: column; 
+        }
+        .logoJc{ color: white; text-align: center; margin: 5px 0; } /* Ajuste de margem */
+        .nomeJc{ color: white; text-align: center; margin: 5px 0; font-size: 1.2em;} /* Ajuste de margem e tamanho */
+        .headerNav {
+            background: rgb(167, 166, 166);
+            height: 40px; 
+            display: flex;
+            align-items: center; 
+            padding: 0 15px; 
+            margin: 0;
+        }
+        .headerNav nav ul {
+            margin: 0;
+            padding: 0;
+            list-style: none; 
+            display: flex; 
+            gap: 15px; 
+        }
+        .headerNav nav a {
+            text-decoration: none; 
+            color: #333; 
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 16px; 
+            border-radius: 5px; 
+            background-color: rgba(255, 255, 255, 0.4); 
+            transition: background-color 0.2s ease, color 0.2s ease; 
+        }
+        .headerNav nav a:hover {
+            background-color: #333; 
+            color: white; 
+        }
 
-		addBtn.addEventListener('click', () => {
-			const optionWrapper = document.createElement('div');
+        /* Container Principal do Conteúdo */
+        .mainContainer { 
+            max-width: 960px; /* Largura padrão */
+            margin: 2rem auto; /* Centralizado */
+            padding: 2rem; 
+            background-color: #fff; /* Fundo branco */
+            border-radius: 8px; /* Cantos arredondados */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Sombra suave */
+            flex-grow: 1; /* Ocupa o espaço restante */
+        }
+        .pageTitle { 
+            font-size: 1.75rem; 
+            margin-bottom: 2rem; 
+            border-bottom: 1px solid #eee; /* Linha divisória */
+            padding-bottom: 1rem; 
+            color: #333; /* Cor do título */
+        }
+        
+        /* Estilos para o Formulário */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1em; /* Tamanho ligeiramente menor */
+            color: #555; /* Cor cinza escuro */
+        }
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc; /* Borda cinza */
+            border-radius: 4px; /* Cantos levemente arredondados */
+            font-size: 1em;
+            color: #333;
+        }
+        /* A textarea original será escondida, mas o estilo é mantido para consistência */
+        .form-group textarea { 
+             width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        /* Botões */
+        .btn {
+            padding: 10px 16px;
+            border-radius: 4px; /* Menos arredondado para combinar com inputs */
+            border: none; /* Sem borda */
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: filter 0.2s, background-color 0.2s; /* Adicionando transição de cor */
+            color: #fff; 
+        }
+        .btn:hover { filter: brightness(0.9); } /* Escurece um pouco no hover */
+        .btnSucesso { background-color: #28a745; } /* Verde (Publicar) */
+        .btnSecundario { background: #6c757d; } /* Cinza (Adicionar Opção) */
+        .btnPerigo { background-color: #dc3545; } /* Vermelho (Remover) */
 
-			const newInput = document.createElement('input');
-			newInput.type = 'text';
-			
-			// CORREÇÃO AQUI: de 'poll_options[]' para 'poll_options'
-			newInput.name = 'poll_options'; 
-			
-			newInput.placeholder = 'Texto da opção';
+        /* Enquete */
+        #poll-options-container div {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        #poll-options-container input[type="text"] { flex-grow: 1; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 2rem 0; }
+        
+        /* Mensagem de Sucesso */
+        .success-message {
+            padding: 15px;
+            background-color: #d4edda; /* Verde mais suave */
+            border: 1px solid #c3e6cb;
+            color: #155724; /* Verde escuro */
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 1.5rem; 
+        }
+    </style>
+</head>
+<body>
 
-			const removeBtn = document.createElement('button');
-			removeBtn.type = 'button';
-			removeBtn.textContent = 'Remover';
-			removeBtn.onclick = () => {
-				optionWrapper.remove();
-			};
+    <header class="headerUol">
+        <h1 class="h1Uol">Barra da Uol</h1>
+    </header>
+    <header class="headerJc">
+        <div>
+            <h1 class="logoJc">Logo do Jc</h1>
+            <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
+        </div>
+    </header>
+    <header class="headerNav">
+        <nav>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/charge">Charges</a></li>
+                <li><a href="/admin">Admin</a></li>
+                </ul>
+        </nav>
+    </header>
+    <main class="mainContainer">
+        <h2 class="pageTitle">Escrever Nova Matéria</h2>
 
-			optionWrapper.appendChild(newInput);
-			optionWrapper.appendChild(removeBtn);
-			container.appendChild(optionWrapper);
-		});
-	</script>
+        {{ if .Success }}
+            <div class="success-message">{{ .Success }}</div>
+        {{ end }}
+
+        <form id="materiaForm" action="/admin/api/materia" method="POST">
+            
+            <div class="form-group">
+                <label for="title">Título:</label>
+                <input type="text" id="title" name="title" required />
+            </div>
+
+            <div class="form-group">
+                <label for="summary">Subtítulo / Descrição:</label>
+                <input type="text" id="summary" name="summary" required />
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Conteúdo:</label>
+                <textarea id="content" name="content"></textarea>
+            </div>
+            
+            <hr />
+
+            <h3>Enquete (Opcional)</h3>
+            <div class="form-group">
+                <label for="poll_question">Pergunta da Enquete:</label>
+                <input type="text" id="poll_question" name="poll_question" />
+            </div>
+            
+            <label>Opções da Enquete:</label>
+            <div id="poll-options-container"></div>
+            
+            <button type="button" id="add-option-btn" class="btn btnSecundario">+ Adicionar Opção</button>
+            
+            <hr />
+
+            <button type="submit" class="btn btnSucesso">Publicar Matéria</button>
+        </form>
+    </main>
+
+
+    <script>
+        const container = document.getElementById('poll-options-container'); 
+        const addBtn = document.getElementById('add-option-btn'); 
+        const form = document.querySelector('form');
+
+        addBtn.addEventListener('click', () => {
+            const optionWrapper = document.createElement('div');
+            
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.name = 'poll_options'; 
+            newInput.placeholder = 'Texto da opção';
+            newInput.required = true;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.textContent = 'Remover';
+            removeBtn.classList.add('btn', 'btnPerigo'); // Usando classes de estilo
+            removeBtn.onclick = () => {
+                optionWrapper.remove();
+            };
+
+            optionWrapper.appendChild(newInput);
+            optionWrapper.appendChild(removeBtn);
+            container.appendChild(optionWrapper);
+        });
+
+        // SCRIPT DE ENVIO (Sem alterações funcionais)
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault(); 
+            tinymce.triggerSave(); 
+            const formData = new FormData(form);
+            try {
+                const response = await fetch(form.action, { method: 'POST', body: formData });
+                if (response.ok) {
+                    const successHtml = await response.text();
+                    document.documentElement.innerHTML = successHtml;
+                } else {
+                    const errorData = await response.json().catch(() => ({ message: 'Ocorreu um erro.' }));
+                    alert(`Erro: ${errorData.message}`);
+                }
+            } catch (error) {
+                alert('Erro de conexão.');
+            }
+        });
+    </script>
+    
+</body>
 </html>
