@@ -7,22 +7,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github/jornal-cidadao-jc/internal/storage"
 	"github.com/gin-gonic/gin"
 )
-
-type Handler struct {
-	Storage    *storage.Storage
-	ChargesDir string
-}
-
-func NewHandler(s *storage.Storage, chargesDir string) *Handler {
-	return &Handler{
-		Storage:    s,
-		ChargesDir: chargesDir,
-	}
-}
-
 
 func (h *Handler) GetIndexPage(c *gin.Context) { c.HTML(http.StatusOK, "index.tmpl", nil) }
 func (h *Handler) GetLoginPage(c *gin.Context) { c.HTML(http.StatusOK, "login.tmpl", nil) }
