@@ -5,40 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Escrever Matéria - Painel de Controle</title>
 
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
-    <script>
-        tinymce.init({
-            selector: 'textarea#content', // Alvo: a textarea com id="content"
-            plugins: 'lists link image media table code help wordcount',
-            toolbar: 'undo redo | blocks | bold italic backcolor | \
-                    alignleft aligncenter alignright alignjustify | \
-                    bullist numlist outdent indent | removeformat | help',
-            menubar: false,
-            height: 400,
-            language: 'pt_BR' // Idioma do editor
-        });
-    </script>
-
     <style>
-        /* Reset básico e Fonte Principal (do index.tmpl) */
+        /* Reset básico e Fonte Principal */
         * { font-family: Verdana, sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
-            /* padding-top: 0; */ /* Removido - não necessário com sticky header */
             margin: 0; 
-            background-color: #f8f9fa; /* Fundo ligeiramente mais claro */
-            color: #333; /* Cor de texto padrão */
-            display: flex; /* Para o rodapé (se houver) ficar no final */
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* Cabeçalhos (Exatamente como no index.tmpl) */
+        /* Cabeçalhos */
         .headerUol {
             background: rgb(38, 38, 38);
             top: 0;
-            position: sticky; /* Mantendo sticky */
+            position: sticky;
             width: 100%;
             text-align: center;
             font-size: xx-small;
@@ -56,8 +40,8 @@
             justify-content: center; 
             flex-direction: column; 
         }
-        .logoJc{ color: white; text-align: center; margin: 5px 0; } /* Ajuste de margem */
-        .nomeJc{ color: white; text-align: center; margin: 5px 0; font-size: 1.2em;} /* Ajuste de margem e tamanho */
+        .logoJc{ color: white; text-align: center; margin: 5px 0; }
+        .nomeJc{ color: white; text-align: center; margin: 5px 0; font-size: 1.2em;}
         .headerNav {
             background: rgb(167, 166, 166);
             height: 40px; 
@@ -88,22 +72,21 @@
             color: white; 
         }
 
-        /* Container Principal do Conteúdo */
         .mainContainer { 
-            max-width: 960px; /* Largura padrão */
-            margin: 2rem auto; /* Centralizado */
+            max-width: 1140px; 
+            margin: 5rem;
             padding: 2rem; 
-            background-color: #fff; /* Fundo branco */
-            border-radius: 8px; /* Cantos arredondados */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Sombra suave */
-            flex-grow: 1; /* Ocupa o espaço restante */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            flex-grow: 1;
         }
         .pageTitle { 
             font-size: 1.75rem; 
             margin-bottom: 2rem; 
-            border-bottom: 1px solid #eee; /* Linha divisória */
+            border-bottom: 1px solid #eee;
             padding-bottom: 1rem; 
-            color: #333; /* Cor do título */
+            color: #333;
         }
         
         /* Estilos para o Formulário */
@@ -112,41 +95,33 @@
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
-            font-size: 1em; /* Tamanho ligeiramente menor */
-            color: #555; /* Cor cinza escuro */
+            color: #555;
         }
-        .form-group input[type="text"] {
+        .form-group input[type="text"], .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc; /* Borda cinza */
-            border-radius: 4px; /* Cantos levemente arredondados */
-            font-size: 1em;
-            color: #333;
-        }
-        /* A textarea original será escondida, mas o estilo é mantido para consistência */
-        .form-group textarea { 
-             width: 100%;
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 1em;
+            color: #333;
+            font-family: Verdana, sans-serif;
         }
         
         /* Botões */
         .btn {
             padding: 10px 16px;
-            border-radius: 4px; /* Menos arredondado para combinar com inputs */
-            border: none; /* Sem borda */
+            border-radius: 4px;
+            border: none;
             cursor: pointer;
             font-weight: bold;
             font-size: 0.95rem;
-            transition: filter 0.2s, background-color 0.2s; /* Adicionando transição de cor */
+            transition: filter 0.2s;
             color: #fff; 
         }
-        .btn:hover { filter: brightness(0.9); } /* Escurece um pouco no hover */
-        .btnSucesso { background-color: #28a745; } /* Verde (Publicar) */
-        .btnSecundario { background: #6c757d; } /* Cinza (Adicionar Opção) */
-        .btnPerigo { background-color: #dc3545; } /* Vermelho (Remover) */
+        .btn:hover { filter: brightness(0.9); }
+        .btnSucesso { background-color: #28a745; }
+        .btnSecundario { background: #6c757d; }
+        .btnPerigo { background-color: #dc3545; }
 
         /* Enquete */
         #poll-options-container div {
@@ -158,16 +133,18 @@
         #poll-options-container input[type="text"] { flex-grow: 1; }
         hr { border: 0; border-top: 1px solid #eee; margin: 2rem 0; }
         
-        /* Mensagem de Sucesso */
-        .success-message {
+        /* Mensagem de Feedback */
+        .feedback-message {
             padding: 15px;
-            background-color: #d4edda; /* Verde mais suave */
-            border: 1px solid #c3e6cb;
-            color: #155724; /* Verde escuro */
             border-radius: 4px;
             text-align: center;
             font-weight: bold;
             margin-bottom: 1.5rem; 
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
         }
     </style>
 </head>
@@ -188,14 +165,14 @@
                 <li><a href="/">Início</a></li>
                 <li><a href="/charge">Charges</a></li>
                 <li><a href="/admin">Admin</a></li>
-                </ul>
+            </ul>
         </nav>
     </header>
     <main class="mainContainer">
         <h2 class="pageTitle">Escrever Nova Matéria</h2>
 
-        {{ if .Success }}
-            <div class="success-message">{{ .Success }}</div>
+        {{ if .message }}
+            <div class="feedback-message success">{{ .message }}</div>
         {{ end }}
 
         <form id="materiaForm" action="/admin/api/materia" method="POST">
@@ -206,13 +183,13 @@
             </div>
 
             <div class="form-group">
-                <label for="summary">Subtítulo / Descrição:</label>
-                <input type="text" id="summary" name="summary" required />
+                <label for="author">Autor:</label>
+                <input type="text" id="author" name="author" required />
             </div>
             
             <div class="form-group">
-                <label for="content">Conteúdo:</label>
-                <textarea id="content" name="content"></textarea>
+                <label for="body">Conteúdo:</label>
+                <textarea id="body" name="body" rows="15"></textarea>
             </div>
             
             <hr />
@@ -234,12 +211,10 @@
         </form>
     </main>
 
-
     <script>
         const container = document.getElementById('poll-options-container'); 
         const addBtn = document.getElementById('add-option-btn'); 
-        const form = document.querySelector('form');
-
+        
         addBtn.addEventListener('click', () => {
             const optionWrapper = document.createElement('div');
             
@@ -247,12 +222,11 @@
             newInput.type = 'text';
             newInput.name = 'poll_options'; 
             newInput.placeholder = 'Texto da opção';
-            newInput.required = true;
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.textContent = 'Remover';
-            removeBtn.classList.add('btn', 'btnPerigo'); // Usando classes de estilo
+            removeBtn.classList.add('btn', 'btnPerigo');
             removeBtn.onclick = () => {
                 optionWrapper.remove();
             };
@@ -262,22 +236,23 @@
             container.appendChild(optionWrapper);
         });
 
-        // SCRIPT DE ENVIO (Sem alterações funcionais)
+        const form = document.getElementById('materiaForm');
         form.addEventListener('submit', async (event) => {
             event.preventDefault(); 
-            tinymce.triggerSave(); 
+            
             const formData = new FormData(form);
             try {
                 const response = await fetch(form.action, { method: 'POST', body: formData });
+                
                 if (response.ok) {
                     const successHtml = await response.text();
                     document.documentElement.innerHTML = successHtml;
                 } else {
-                    const errorData = await response.json().catch(() => ({ message: 'Ocorreu um erro.' }));
-                    alert(`Erro: ${errorData.message}`);
+                    const errorHtml = await response.text();
+                    document.documentElement.innerHTML = errorHtml;
                 }
             } catch (error) {
-                alert('Erro de conexão.');
+                alert('Erro de conexão. Verifique sua rede e tente novamente.');
             }
         });
     </script>

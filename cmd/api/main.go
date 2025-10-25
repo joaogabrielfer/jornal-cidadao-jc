@@ -18,7 +18,7 @@ func main() {
 	if err := godotenv.Load(); err != nil { log.Println("Aviso: Arquivo .env não encontrado.") }
 
 	port := os.Getenv("PORT")
-	if port == "" { port = "8080" }
+	if port == "" { port = "8000" }
 
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" { log.Fatal("DB_PATH não definido no arquivo .env") }

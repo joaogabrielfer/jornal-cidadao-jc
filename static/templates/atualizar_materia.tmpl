@@ -4,41 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Matéria</title>
+    <!-- Seus estilos CSS podem ser copiados do 'escrever_materia.tmpl' para consistência -->
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-        .container { max-width: 800px; margin: auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
-        div { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        body { font-family: Verdana, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container { max-width: 960px; margin: auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: #333; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 25px;}
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
         input[type="text"], textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             box-sizing: border-box; 
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 1em;
         }
-        textarea { height: 150px; }
-        button {
-            padding: 10px 15px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button[type="submit"] { background-color: #28a745; color: white; }
-        button[type="button"] { background-color: #007bff; color: white; }
-        #poll-options-container div { display: flex; margin-bottom: 8px; }
+        textarea { height: 250px; }
+        .btn { padding: 10px 16px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; font-size: 0.95rem; color: #fff; }
+        .btn-submit { background-color: #28a745; }
+        .btn-add { background-color: #007bff; }
+        .btn-remove { background-color: #dc3545; }
+        #poll-options-container div { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
         #poll-options-container input { flex-grow: 1; }
-        #poll-options-container button { margin-left: 10px; background-color: #dc3545; color: white; }
-        .success-message {
-            padding: 15px;
-            background-color: #e6ffed;
-            border: 1px solid #b8f0c2;
-            color: #22813a;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: bold;
-        }
+        hr { border: 0; border-top: 1px solid #eee; margin: 2rem 0; }
+        .feedback-message { padding: 15px; border-radius: 4px; text-align: center; font-weight: bold; margin-bottom: 1.5rem; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
     </style>
 </head>
 <body>
@@ -46,50 +36,54 @@
     <div class="container">
         <h1>Editar Matéria</h1>
 
-        {{ if .Success }}
-            <div class="success-message">{{ .Success }}</div>
+        <!-- O backend passará a variável 'message' em caso de sucesso -->
+        {{ if .message }}
+            <div class="feedback-message success">{{ .message }}</div>
         {{ end }}
 
-        <form id="materiaForm" method="POST">
+        <form id="materiaForm" method="POST"> <!-- O método e a ação serão definidos pelo JS -->
             
-            <div>
+            <div class="form-group">
                 <label for="title">Título:</label>
                 <input type="text" id="title" name="title" required />
             </div>
+
+            <!-- ADICIONADO: Campo 'author' que estava faltando -->
+            <div class="form-group">
+                <label for="author">Autor:</label>
+                <input type="text" id="author" name="author" required />
+            </div>
             
-            <div>
-                <label for="content">Conteúdo:</label>
-                <textarea id="content" name="content" required></textarea>
+            <!-- CORRIGIDO: 'id' e 'name' alterados de 'content' para 'body' -->
+            <div class="form-group">
+                <label for="body">Conteúdo:</label>
+                <textarea id="body" name="body" required></textarea>
             </div>
             
             <hr />
 
             <h3>Enquete (Opcional)</h3>
-            <div>
+            <div class="form-group">
                 <label for="poll_question">Pergunta da Enquete:</label>
                 <input type="text" id="poll_question" name="poll_question" />
             </div>
             
             <label>Opções da Enquete:</label>
-            <div id="poll-options-container">
-                </div>
+            <div id="poll-options-container"></div>
 
-            <button type="button" id="add-option-btn">+ Adicionar Opção</button>
+            <button type="button" id="add-option-btn" class="btn btn-add">+ Adicionar Opção</button>
             
             <hr />
 
-            <button type="submit">Atualizar Matéria</button>
+            <button type="submit" class="btn btn-submit">Atualizar Matéria</button>
         </form>
     </div>
 
-
     <script>
-        // Seletores
         const form = document.getElementById('materiaForm');
         const pollContainer = document.getElementById('poll-options-container');
         const addBtn = document.getElementById('add-option-btn');
         
-        // --- LÓGICA DE ADICIONAR OPÇÃO ---
         const addPollOption = (text = '') => {
             const optionWrapper = document.createElement('div');
             
@@ -97,12 +91,12 @@
             newInput.type = 'text';
             newInput.name = 'poll_options'; 
             newInput.placeholder = 'Texto da opção';
-            newInput.value = text; 
-            newInput.required = true;
+            newInput.value = text;
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button'; 
             removeBtn.textContent = 'Remover';
+            removeBtn.className = 'btn btn-remove'; // Adicionando classes para estilo
             removeBtn.onclick = () => optionWrapper.remove();
 
             optionWrapper.appendChild(newInput);
@@ -112,50 +106,38 @@
         
         addBtn.addEventListener('click', () => addPollOption());
 
-
-        // --- TAREFA T4UH6: CARREGAR DADOS DA MATÉRIA (CORRIGIDO) ---
-        
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // 1. Pegar o ID da URL
                 const pathParts = window.location.pathname.split('/');
                 const articleId = pathParts[pathParts.length - 2]; 
                 
                 if (!articleId || isNaN(parseInt(articleId))) {
-                    throw new Error('ID da matéria inválido ou não encontrado na URL.');
+                    throw new Error('ID da matéria inválido na URL.');
                 }
                 
-                // 2. Buscar os dados da matéria na API
                 const response = await fetch(`/api/materia/${articleId}`);
                 if (!response.ok) {
-                    throw new Error(`Falha ao buscar dados da matéria (Status: ${response.status})`);
+                    throw new Error(`Falha ao buscar dados (Status: ${response.status})`);
                 }
                 
-                const data = await response.json(); // data é o próprio artigo
+                const articleData = await response.json();
                 
-                // =================================
-                // A CORREÇÃO ESTÁ AQUI
-                // =================================
-                // 3. Preencher os campos do formulário (sem o .article)
-                document.getElementById('title').value = data.title;
-                document.getElementById('content').value = data.body;
+                // Preencher os campos do formulário com os dados recebidos
+                document.getElementById('title').value = articleData.title;
+                document.getElementById('author').value = articleData.author; // ADICIONADO
+                document.getElementById('body').value = articleData.body;     // CORRIGIDO
                 
-                // 4. Preencher a enquete (sem o .article)
-                if (data.poll) {
-                    document.getElementById('poll_question').value = data.poll.question;
+                if (articleData.poll) {
+                    document.getElementById('poll_question').value = articleData.poll.question;
                     
-                    // 5. Criar os campos de opção (sem o .article)
-                    if (data.poll.options) {
-                        data.poll.options.forEach(option => {
-                            addPollOption(option.option_text); // Usa a função helper
+                    if (articleData.poll.options) {
+                        articleData.poll.options.forEach(option => {
+                            addPollOption(option.option_text);
                         });
                     }
                 }
-                // =================================
-                // FIM DA CORREÇÃO
-                // =================================
                 
-                // 6. ATUALIZAR A AÇÃO DO FORMULÁRIO para o endpoint de 'PUT'
+                // Atualiza a ação do formulário para o endpoint de 'PUT' correto
                 form.action = `/admin/api/materia/${articleId}`;
 
             } catch (error) {
@@ -164,27 +146,22 @@
             }
         });
 
-
-        // --- LÓGICA DE SALVAR (ATUALIZAR) OS DADOS ---
-        
         form.addEventListener('submit', async (event) => {
             event.preventDefault(); 
             const formData = new FormData(form);
             
             try {
-                // Envia a requisição com o método 'PUT'
                 const response = await fetch(form.action, {
-                    method: 'PUT', // Método HTTP 'PUT' para atualização
-                    body: formData 
+                    method: 'PUT',
+                    body: new URLSearchParams(formData) // Envia como form-urlencoded, compatível com c.PostForm
                 });
 
                 if (response.ok) {
-                    // Sucesso! O servidor (Go) renderiza a página de sucesso
                     const successHtml = await response.text();
                     document.documentElement.innerHTML = successHtml;
                 } else {
-                    const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido.' }));
-                    alert(`Erro ao ATUALIZAR matéria: ${errorData.message}`);
+                    const errorHtml = await response.text();
+                    document.documentElement.innerHTML = errorHtml;
                 }
             } catch (error) {
                 console.error('Erro de rede:', error);
