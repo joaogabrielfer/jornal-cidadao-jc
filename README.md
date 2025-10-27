@@ -32,7 +32,7 @@ Além disso, percebemos que dividir as tarefas de forma individual e organizada 
 
 
 
-https://github.com/user-attachments/assets/1638ea49-35cf-495f-a058-c0a6ecee0cad
+<iframe width="560" height="315" src="https://www.youtube.com/embed/zJGdj5Hl8Qo?si=RAw1ZsSgi8eMnDdG" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 
 
