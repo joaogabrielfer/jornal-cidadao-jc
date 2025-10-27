@@ -27,14 +27,7 @@ Além disso, percebemos que dividir as tarefas de forma individual e organizada 
 
 ### Trello: https://trello.com/b/gAzfJzpM/grupo-6-projeto
 ### Figma: https://www.figma.com/design/drRbNAHoTNeLXgQbNmiNF8/Projeto-JC?node-id=0-1&t=5ofTcdFJieug9wfu-1
-
-### Screencast 
-
-
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/zJGdj5Hl8Qo?si=RAw1ZsSgi8eMnDdG" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-
+### Screencast : https://youtu.be/e4u6ryGnWV4?si=uSshWHcn1CXYn20q
 
 # Status do Projeto
 
