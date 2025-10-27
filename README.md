@@ -95,6 +95,8 @@ UH14 Denunciar conteudo do JC
 UH15 Reagir a notica do JC
 UH16 Login usuário
 
+#Quadro do trello atualizado
+<img src="./imgs/image.png" alt="diagrama de atividades" width="1000"/>
 
 # Diagrama de atividades por UH
 
