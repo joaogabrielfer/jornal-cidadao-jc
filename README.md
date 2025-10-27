@@ -27,8 +27,8 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 ✅ Identificação do Problema;  
 ✅ Escolha da solução;   
 ✅ Prototipação;  
-⌛ Início do desenvolvimento;  
-⌛ Teste das funcionalidades;  
+✅ Início do desenvolvimento;  
+✅ Teste das funcionalidades;  
 ⌛ Entrega do MVP;  
 
 # Equipe
