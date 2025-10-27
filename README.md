@@ -8,6 +8,12 @@
 
 O projeto se consiste em uma intervenção no site do SJCC visando um maior engagamento e tempo de permanencia no site.
 
+#Programação em Pares
+
+A equipe decidiu não realizar a programação em pares devido principalmente à disponibilidade de horários distintos entre os membros do grupo. Tivemos dificuldades em encontrar horários em que todos pudessem estar presentes ao mesmo tempo, o que tornaria a prática mais demorada e complicada.
+
+Além disso, percebemos que dividir as tarefas de forma individual e organizada trouxe maior produtividade e avanço mais rápido nas entregas. Cada membro teve como se concentrar em partes específicas do projeto de acordo com suas habilidades, o que facilitou a execução e a integração final do código.
+
 # Documentação da API
 
 [link do docs](./docs.md)
@@ -137,5 +143,6 @@ UH14
 UH15
 <img src="./imgs/UH15.png" alt="diagrama de atividades" width="500"/>
 
-UH16 - <img src="./imgs/UH16.png" alt="diagrama de atividades" width="500"/>
+UH16
+<img src="./imgs/UH16.png" alt="diagrama de atividades" width="500"/>
 
