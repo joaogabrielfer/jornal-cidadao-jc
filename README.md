@@ -71,26 +71,26 @@ Além disso, percebemos que dividir as tarefas de forma individual e organizada 
 
 #Sprints
 
-1º Sprint
+1º Sprint (29/set - 11/out)
 UH1 Visualizar Home
 UH2 Cadastrar Usuário 
 UH3 Aba de charges
 UH4 Visualizar painel ADM
 UH5 Gerenciamento de charge
 
-2ª Sprint
+2ª Sprint (13/out - 25/out)
 UH6 Escrever e editar matéria
 UH7 Visualizar matéria
 UH8 Criar enquetes
 UH9 Votar em enquetes
 
-3ª Sprint
+3ª Sprint (27/out - 15/nov)
 UH10 publicar noticia no Jornal Cidadão
 UH11 Visualizar Noticia no JC
 UH12 Notificação de status da publicação JC
 UH13 Moderação de noticias do JC
 
-4ª Sprint
+4ª Sprint (17/nov - 29/nov)
 UH14 Denunciar conteudo do JC
 UH15 Reagir a notica do JC
 UH16 Login usuário
