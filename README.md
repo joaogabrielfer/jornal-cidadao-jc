@@ -32,6 +32,10 @@ Além disso, percebemos que dividir as tarefas de forma individual e organizada 
 
 
 
+https://github.com/user-attachments/assets/1638ea49-35cf-495f-a058-c0a6ecee0cad
+
+
+
 # Status do Projeto
 
 ✅ Identificação do Problema;  
