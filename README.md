@@ -44,18 +44,23 @@ O projeto se consiste em uma intervenção no site do SJCC visando um maior enga
 
 # Histórias de Usuario 
 
-1. Cadastrar Usuário 
-1. Login de Usuário 
-1. Aba de charges
-1. Gerenciamento de charges
-1. Criar enquetes
-1. Votação na enquete
-1. Publicar notícias
-1. Moderação de notícias
-1. Notificação de status da publicação 
-1. Visualizar notícias dos usuários
-1. Reagir a notícias
-1. Denunciar conteúdos
+1. Visualizar Home
+2. Cadastrar Usuário 
+3. Aba de charges
+4. Visualizar painel ADM
+5. Gerenciamento de charge
+6. Escrever e editar matéria
+7. Visualizar matéria
+8. Criar enquetes
+9. Votar em enquetes
+10. publicar noticia no Jornal Cidadão
+11. Visualizar Noticia no JC
+12. Notificação de status da publicação JC
+13. Moderação de noticias do JC
+14. Denunciar conteudo do JC
+15. Reagir a notica do JC
+16. Login usuário
+    
 
 
 # Quadro de sprints
