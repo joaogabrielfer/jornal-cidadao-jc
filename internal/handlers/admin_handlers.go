@@ -1,16 +1,23 @@
 package handlers
 
-import(
-	"github.com/gin-gonic/gin"
-	"os"
-	"net/http"
-	"path/filepath"
-	"time"
-	"strings"
-	"log"
+import (
+	"database/sql"
 	"fmt"
+	"github/jornal-cidadao-jc/internal/model"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
+
+type UpdateStatusPayload struct {
+	Status string `json:"status" binding:"required"`
+}
 
 func (h *Handler) GetUsers(c *gin.Context) {
 	users, err := h.Storage.GetUsers()
@@ -182,3 +189,25 @@ func (h *Handler) UpdateArticle(c *gin.Context) {
 	})
 }
 
+func (h *Handler) UpdatePostStatus(c *gin.Context) {
+	postID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID do post inválido."})
+		return
+	}
+
+	newStatus := model.ToPostStatus(c.Param("status"))
+
+	err = h.Storage.UpdatePostStatus(postID, newStatus)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Post não encontrado."})
+			return
+		}
+		log.Println("Erro ao atualizar o status do post:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ocorreu um erro interno ao atualizar o status."})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Status do post atualizado com sucesso!"})
+}

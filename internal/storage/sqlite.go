@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"log"
+	"math"
 	"strings"
 	"time"
 
@@ -71,8 +72,7 @@ func (s *Storage) InitializeDatabase() {
 	statement.Exec()
 	log.Println("Tabela 'poll' foi criada com sucesso ou ja existe")
 
-
-    createOpcoesTableSQL := `CREATE TABLE IF NOT EXISTS poll_options (
+	createOpcoesTableSQL := `CREATE TABLE IF NOT EXISTS poll_options (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		option_text TEXT NOT NULL,
 		votes INTEGER NOT NULL DEFAULT 0,
@@ -86,6 +86,48 @@ func (s *Storage) InitializeDatabase() {
 	statement.Exec()
 	log.Println("Tabela 'poll_options' foi criada com sucesso ou ja existe")
 
+	alterPostsTableSQL := `ALTER TABLE posts ADD COLUMN ultima_atualizacao DATETIME;`
+	s.DB.Exec(alterPostsTableSQL) 
+
+	createPostsTableSQL := ` CREATE TABLE IF NOT EXISTS posts (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		title TEXT NOT NULL,
+		description TEXT,
+		media_url TEXT NOT NULL,
+		author_id INTEGER NOT NULL,
+		
+		-- 1: Em análise, 2: Aprovada, 3: Rejeitada
+		status INTEGER NOT NULL DEFAULT 1, 
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		ultima_atualizacao DATETIME,
+		
+		CHECK (status IN (1, 2, 3)), 
+		
+		FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+	);`
+
+	statement, err = s.DB.Prepare(createPostsTableSQL)
+	if err != nil {
+		log.Fatal("Erro preparando statement de criar tabela de posts", err)
+	}
+	statement.Exec()
+	log.Println("Tabela 'posts' foi criada com sucesso ou ja existe")
+
+	createLogsTableSQL := `
+	CREATE TABLE IF NOT EXISTS post_status_logs (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		post_id INTEGER NOT NULL,
+		old_status INTEGER NOT NULL,
+		new_status INTEGER NOT NULL,
+		changed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+	);`
+	statement, err = s.DB.Prepare(createLogsTableSQL)
+	if err != nil {
+		log.Fatal("Erro preparando statement de criar tabela de logs de status", err)
+	}
+	statement.Exec()
+	log.Println("Tabela 'post_status_logs' foi criada com sucesso ou ja existe")
 }
 
 func (s *Storage) CreateUser(username, email, passwordHash string) error {
@@ -164,12 +206,12 @@ func (s *Storage) GetChargeByID(id int) (model.Charge, error) {
 	var createdAt time.Time
 
 	query := `SELECT id, title, filename, created_at FROM charges WHERE id = ?`
-	
+
 	err := s.DB.QueryRow(query, id).Scan(&charge.ID, &charge.Title, &charge.Filename, &createdAt)
 	if err != nil {
 		return model.Charge{}, err
 	}
-	
+
 	charge.Date = model.FormattedTime(createdAt)
 	return charge, nil
 }
@@ -205,7 +247,7 @@ func (s *Storage) CreateArticleWithPoll(title, author, body, pollQuestion string
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback() 
+	defer tx.Rollback()
 
 	insertArticleSQL := `INSERT INTO article (title, author, body) VALUES (?, ?, ?)`
 	res, err := tx.Exec(insertArticleSQL, title, author, body)
@@ -235,7 +277,7 @@ func (s *Storage) CreateArticleWithPoll(title, author, body, pollQuestion string
 			if err != nil {
 				return err
 			}
-			
+
 			insertOptionSQL := `INSERT INTO poll_options (option_text, poll_id) VALUES (?, ?)`
 			for _, optionText := range validOptions {
 				if _, err := tx.Exec(insertOptionSQL, optionText, pollID); err != nil {
@@ -244,7 +286,7 @@ func (s *Storage) CreateArticleWithPoll(title, author, body, pollQuestion string
 			}
 		}
 	}
-	return tx.Commit() 
+	return tx.Commit()
 }
 
 func (s *Storage) UpdateArticleWithPoll(articleID int, title, author, body, pollQuestion string, pollOptions []string) error {
@@ -333,7 +375,7 @@ func (s *Storage) GetArticles() ([]model.Article, error) {
 				Body:   articleBody,
 			}
 		}
-		
+
 		article := articlesMap[articleID]
 		if pollID.Valid && article.Poll == nil {
 			article.Poll = &model.Poll{
@@ -382,14 +424,16 @@ func (s *Storage) GetArticleByID(id int) (model.Article, error) {
 	var hasData bool = false
 
 	for rows.Next() {
-		if !hasData { hasData = true }
+		if !hasData {
+			hasData = true
+		}
 
 		var pollID sql.NullInt64
 		var pollQuestion sql.NullString
 		var optionID sql.NullInt64
 		var optionText sql.NullString
 		var optionVotes sql.NullInt64
-		
+
 		if article.ID == 0 {
 			if err := rows.Scan(
 				&article.ID, &article.Title, &article.Author, &article.Body,
@@ -437,7 +481,7 @@ func (s *Storage) DeleteArticle(id int) error {
 	return err
 }
 
-func (s *Storage) VotePoll(optionID int ) error{
+func (s *Storage) VotePoll(optionID int) error {
 	updateVoteSQL := `UPDATE poll_options SET votes = votes + 1 WHERE id = ?`
 	res, err := s.DB.Exec(updateVoteSQL, optionID)
 	if err != nil {
@@ -451,7 +495,188 @@ func (s *Storage) VotePoll(optionID int ) error{
 	}
 
 	if rowsAffected == 0 {
-		return sql.ErrNoRows 
+		return sql.ErrNoRows
 	}
 
-	return nil}
+	return nil
+}
+
+func (s *Storage) CreatePost(title, description, mediaUrl string, authorID int, status model.PostStatus) error {
+	insertSQL := `INSERT INTO posts (title, description, media_url, author_id, status) VALUES (?, ?, ?, ?, ?)`
+	_, err := s.DB.Exec(insertSQL, title, description, mediaUrl, authorID, status)
+	return err
+}
+
+func (s *Storage) GetPostByID(id int) (model.Post, error) {
+	var post model.Post
+	var createdAt, updatedAt time.Time
+	query := `SELECT id, title, description, media_url, author_id, status, created_at, ultima_atualizacao FROM posts WHERE id = ?`
+
+	err := s.DB.QueryRow(query, id).Scan(
+		&post.ID,
+		&post.Title,
+		&post.Description,
+		&post.MediaURL,
+		&post.AuthorID,
+		&post.Status,
+		&createdAt,
+		&updatedAt,
+	)
+	if err != nil {
+		log.Println("Erro ao escanear um post:", err)
+		return model.Post{}, err
+	}
+
+	post.Date = model.FormattedTime(createdAt)
+	post.UltimaAtualizacao = model.FormattedTime(updatedAt)
+
+	return post, nil
+}
+
+func (s *Storage) GetApprovedPostsPaginated(page, pageSize int) ([]model.Post, model.Metadata, error) {
+	statusAprovada := model.StatusAprovado
+
+	countQuery := `SELECT COUNT(*) FROM posts WHERE status = ?`
+	
+	var totalRecords int
+	err := s.DB.QueryRow(countQuery, statusAprovada).Scan(&totalRecords)
+	if err != nil {
+		return nil, model.Metadata{}, err
+	}
+
+	query := `
+		SELECT id, title, description, media_url, author_id, status, created_at, ultima_atualizacao
+		FROM posts 
+		WHERE status = ? 
+		ORDER BY created_at DESC 
+		LIMIT ? OFFSET ?`
+
+	limit := pageSize
+	offset := (page - 1) * pageSize
+
+	rows, err := s.DB.Query(query, statusAprovada, limit, offset)
+	if err != nil {
+		return nil, model.Metadata{}, err
+	}
+	defer rows.Close()
+
+	var posts []model.Post
+	for rows.Next() {
+		var post model.Post
+		var createdAt, updatedAt time.Time
+		if err := rows.Scan(
+			&post.ID,
+			&post.Title,
+			&post.Description,
+			&post.MediaURL,
+			&post.AuthorID,
+			&post.Status,
+			&createdAt,
+			&updatedAt,
+		); err != nil {
+			return nil, model.Metadata{}, err
+		}
+		post.Date = model.FormattedTime(createdAt)
+		post.UltimaAtualizacao = model.FormattedTime(updatedAt)
+		posts = append(posts, post)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, model.Metadata{}, err
+	}
+
+	lastPage := 0
+	if totalRecords > 0 {
+		lastPage = int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+	}
+	
+	metadata := model.Metadata{
+		CurrentPage:  page,
+		PageSize:     pageSize,
+		FirstPage:    1,
+		LastPage:     lastPage,
+		TotalRecords: totalRecords,
+	}
+
+	return posts, metadata, nil
+}
+
+func (s *Storage) GetPostsByAuthorID(authorID int) ([]model.Post, error) {
+	query := `SELECT id, title, description, media_url, author_id, status, ultima_atualizacao, created_at FROM posts WHERE author_id = ? ORDER BY created_at DESC`
+
+	rows, err := s.DB.Query(query, authorID)
+	if err != nil {
+		log.Println("Erro ao buscar posts por autor:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []model.Post
+	
+	for rows.Next() {
+		var post model.Post
+		var createdAt, updatedAt time.Time
+
+		if err := rows.Scan(
+			&post.ID,
+			&post.Title,
+			&post.Description,
+			&post.MediaURL,
+			&post.AuthorID,
+			&post.Status,
+			&createdAt,
+			&updatedAt,
+		); err != nil {
+			log.Println("Erro ao escanear um post:", err)
+			return nil, err 
+		}
+
+		post.Date = model.FormattedTime(createdAt)
+		post.UltimaAtualizacao = model.FormattedTime(updatedAt)
+		
+		posts = append(posts, post)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Println("Erro durante a iteração dos posts por autor:", err)
+		return nil, err
+	}
+
+	return posts, nil
+}
+
+func (s *Storage) UpdatePostStatus(postID int, newStatus model.PostStatus) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var oldStatus model.PostStatus
+	queryOldStatus := `SELECT status FROM posts WHERE id = ?`
+	err = tx.QueryRow(queryOldStatus, postID).Scan(&oldStatus)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return sql.ErrNoRows 
+		}
+		return err
+	}
+
+	if oldStatus == newStatus {
+		return nil 
+	}
+
+	updateTime := time.Now()
+	updatePostSQL := `UPDATE posts SET status = ?, ultima_atualizacao = ? WHERE id = ?`
+	_, err = tx.Exec(updatePostSQL, newStatus, updateTime, postID)
+	if err != nil {
+		return err
+	}
+
+	insertLogSQL := `INSERT INTO post_status_logs (post_id, old_status, new_status) VALUES (?, ?, ?)`
+	_, err = tx.Exec(insertLogSQL, postID, oldStatus, newStatus)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}

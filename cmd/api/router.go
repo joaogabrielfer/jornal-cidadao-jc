@@ -16,7 +16,12 @@ func setupRoutes(router *gin.Engine, handler *handlers.Handler){
 		api.GET("/materias", handler.GetArticles)
 		api.GET("/materia/:id", handler.GetArticleByID)
 
+		api.GET("/posts-aprovados", handler.GetApprovedPosts)
+		api.GET("/post/:id", handler.GetPostByID)
+		api.GET("/status-noticias/:id", handler.GetPostByAuthorID)
+
 		api.POST("/enquete/votar/:id", handler.UpdateVoteCount)
+		api.POST("/post", handler.UploadPost)
 	}
 
 	router.GET("/", handler.GetIndexPage)
@@ -46,6 +51,8 @@ func setupRoutes(router *gin.Engine, handler *handlers.Handler){
 			adminApi.POST("/materia", handler.UploadArticle)
 			adminApi.PUT("/materia/:id", handler.UpdateArticle)
 			adminApi.DELETE("/materia/:id", handler.DeleteArticle)
+
+			adminApi.PUT("/post-status/:id/:status", handler.UpdatePostStatus)
 		}
 	}
 
