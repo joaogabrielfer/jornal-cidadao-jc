@@ -1,13 +1,19 @@
 package handlers
 
-import(
-	"github.com/gin-gonic/gin"
-	"math/rand/v2"
-	"strconv"
-	"path/filepath"
-	"golang.org/x/crypto/bcrypt"
-	"net/http"
+import (
+	"fmt"
+	"github/jornal-cidadao-jc/internal/model"
 	"log"
+	"math/rand/v2"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (h *Handler) CreateUser(c *gin.Context) {
@@ -76,10 +82,9 @@ func (h *Handler) GetRandomCharge(c *gin.Context) {
 	})
 }
 
-
-func (h *Handler) GetArticles(c *gin.Context){
+func (h *Handler) GetArticles(c *gin.Context) {
 	articles, err := h.Storage.GetArticles()
-	if err != nil{
+	if err != nil {
 		log.Println("erro buscando artigos no banco de dados: ", err)
 		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
 			"error": "Erro buscando artigos no banco de dados",
@@ -88,15 +93,10 @@ func (h *Handler) GetArticles(c *gin.Context){
 
 	c.JSON(http.StatusOK, articles)
 }
-func JornalCidadaoTest(c *gin.Context) {
-    c.HTML(http.StatusOK, "ultimas.tmpl", gin.H{
-        "AnoAtual": 2025,
-        "Artigos":  nil,
-    })
-}
-func (h *Handler) GetArticleByID(c *gin.Context){
+
+func (h *Handler) GetArticleByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil{
+	if err != nil {
 		log.Println("erro convertendo id para inteiro: ", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Argumento de ID inválido",
@@ -105,13 +105,13 @@ func (h *Handler) GetArticleByID(c *gin.Context){
 	}
 
 	article, err := h.Storage.GetArticleByID(id)
-	if err != nil{
+	if err != nil {
 		log.Println("erro obtendo artigo", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Erro obtendo artigo",
 		})
 		return
-	}	
+	}
 
 	c.JSON(http.StatusOK, article)
 }
@@ -121,40 +121,174 @@ func (h *Handler) DeleteArticle(c *gin.Context) {
 	if err != nil {
 		log.Println("Erro ao obter ID da matéria: ", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
-		return 
+		return
 	}
 
 	article, err := h.Storage.GetArticleByID(id)
 	if err != nil {
 		log.Println("Erro ao obter matéria do banco de dados: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao obter matéria do banco de dados"})
-		return 
+		return
 	}
 
 	err = h.Storage.DeleteArticle(id)
 	if err != nil {
 		log.Println("Erro ao deletar matéria do banco de dados: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao deletar matéria do banco de dados"})
-		return 
+		return
 	}
-
 
 	c.JSON(http.StatusOK, gin.H{"message": "Matéria '" + article.Title + "' deletada com sucesso!"})
 }
 
-func (h *Handler) UpdateVoteCount(c *gin.Context){
-	optionID, err :=strconv.Atoi(c.Param("id"))
-	if err != nil{
+func (h *Handler) UpdateVoteCount(c *gin.Context) {
+	optionID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
 		log.Println("Erro ao obter ID da opção da enquete: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ID inválido"})
-		return 
+		return
 	}
 
 	err = h.Storage.VotePoll(optionID)
-	if err != nil{
+	if err != nil {
 		log.Println("Erro registrando voto no banco de dados: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro registrando voto no banco de dados"})
-		return 
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Voto registrado com sucesso"})
+}
+
+func (h *Handler) UploadPost(c *gin.Context) {
+	title := c.PostForm("title")
+	description := c.PostForm("description")
+
+	if title == "" || description == "" {
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "Os campos de título e descrição são obrigatórios.",
+		})
+		return
+	}
+
+	//placeholder - como ainda não tem login
+	authorID := 1
+
+	file, err := c.FormFile("media_file")
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "Nenhum arquivo de mídia foi enviado.",
+		})
+		return
+	}
+
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	if ext != ".png" && ext != ".jpg" && ext != ".jpeg" && ext != ".gif" && ext != ".mp4" {
+		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+			"error": "Formato de arquivo inválido. Apenas imagens (png, jpg, jpeg, gif) e vídeos (mp4) são permitidos.",
+		})
+		return
+	}
+
+	uniqueFilename := fmt.Sprintf("%d-%s", time.Now().Unix(), file.Filename)
+	destinationPath := filepath.Join(h.PostsDir, uniqueFilename) 
+
+	if err := c.SaveUploadedFile(file, destinationPath); err != nil {
+		log.Println("Erro ao salvar o arquivo de mídia:", err)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "Não foi possível salvar o arquivo no servidor.",
+		})
+		return
+	}
+
+	mediaURL := filepath.ToSlash(filepath.Join("/static", "media", "posts", uniqueFilename))
+
+	if err := h.Storage.CreatePost(title, description, mediaURL, authorID, model.StatusEmAnalise); err != nil {
+		log.Println("Erro ao salvar metadados do post no banco:", err)
+		os.Remove(destinationPath)
+		c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{
+			"error": "O arquivo foi salvo, mas houve um erro ao registrar o post no banco de dados.",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "sucess",
+		"message": "Notícia enviada para a moderação.",
+	})
+}
+
+func (h *Handler) GetApprovedPosts(c *gin.Context) {
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		page = 1 
+	}
+
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if err != nil || limit < 1 || limit > 100 {
+		limit = 10 
+	}
+
+	posts, metadata, err := h.Storage.GetApprovedPostsPaginated(page, limit)
+	if err != nil {
+		log.Println("Erro ao buscar posts paginados no banco de dados:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao obter lista de posts."})
+		return
+	}
+
+	response := model.PaginatedPosts{
+		Posts:    posts,
+		Metadata: metadata,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *Handler) GetPostByID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Println("erro convertendo id para inteiro: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Argumento de ID inválido",
+		})
+		return
+	}
+
+	post, err := h.Storage.GetPostByID(id)
+	if err != nil {
+		log.Println("erro obtendo post", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Erro obtendo post",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, post)
+}
+
+func (h *Handler) GetPostByAuthorID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Println("erro convertendo id para inteiro: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Argumento de ID inválido",
+		})
+		return
+	}
+
+	posts, err := h.Storage.GetPostsByAuthorID(id)
+	if err != nil {
+		log.Println("erro obtendo post", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Erro obtendo posts do usuário",
+		})
+		return
+	}
+
+	if posts == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Usuario não encontrado",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, posts)
 }

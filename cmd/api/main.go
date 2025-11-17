@@ -54,7 +54,9 @@ func main() {
 	storageLayer.InitializeDatabase()
 
 	chargesDir := filepath.Join(staticPath, "images", "charges")
-	httpHandler := handlers.NewHandler(storageLayer, chargesDir)
+	postsDir := filepath.Join(staticPath, "media", "posts")
+	os.MkdirAll(postsDir, os.ModePerm)
+	httpHandler := handlers.NewHandler(storageLayer, chargesDir, postsDir)
 
 	router := gin.Default()
 	router.Static("/static", staticPath)
