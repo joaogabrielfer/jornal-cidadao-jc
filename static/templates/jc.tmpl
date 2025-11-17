@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Jornal Cidadão - Minhas Notícias</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS principal do site (mesmo da home) -->
+    <link rel="stylesheet" href="/static/css/jcstyle.css">
+
+    <!-- CSS específico do dashboard Jornal Cidadão + MENU LATERAL -->
+    <style>
+        /* ====== AJUSTES DO HEADER DO INDEX PARA ESTA PÁGINA ====== */
+
+        #header-top-container {
+            width: 100%;
+            background: #ffffff;
+        }
+
+        #wrapper-header-searchbar {
+            background: #ffffff;
+        }
+
+        #header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        #header .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #header .col-xs-4.col-md-4 {
+            flex: 0 0 33.3333%;
+            max-width: 33.3333%;
+        }
+
+        #header .edition,
+        #header .logo,
+        #header .options {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #header .edition h5 {
+            margin: 0 0 0 8px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        #header .logo figure {
+            margin: 0;
+            text-align: center;
+        }
+
+        #header .logo figcaption {
+            margin-top: 4px;
+            font-size: 14px;
+        }
+
+        #header .options {
+            gap: 16px;
+            justify-content: flex-end;
+        }
+
+        #header .btn-publicidade-legal {
+            font-size: 14px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            border: 1px solid #d9272e;
+            background: #ffffff;
+            color: #d9272e;
+            text-decoration: none;
+        }
+
+        #header .options img {
+            display: block;
+        }
+
+        /* =========================================
+           MENU LATERAL – MESMO VISUAL DO SITE
+           ========================================= */
+
+        /* overlay cinza atrás do menu */
+        .jc-menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 9998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .jc-menu-overlay.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* menu lateral vindo da direita */
+        body#jc .side-scroll.scroll-JC {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 345px;
+            max-width: 90%;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 9999;
+            overflow-y: auto;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        body#jc .side-scroll.scroll-JC.is-open {
+            transform: translateX(0);
+        }
+
+        /* topo: barra “AO VIVO” e X vermelho */
+        .jc-menu-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            background: #2c2c2c;
+            color: #ffffff;
+        }
+
+        .jc-menu-live-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 12px 16px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .jc-menu-close-btn {
+            width: 88px;
+            background: #d9272e;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        /* bloco AO VIVO (lista interna) */
+        .side-scroll.scroll-JC .lives {
+            padding: 0 18px 10px;
+        }
+
+        .side-scroll.scroll-JC .lives ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .side-scroll.scroll-JC .lives ul li a {
+            font-size: 14px;
+        }
+
+        /* lista principal de links */
+        .side-scroll.scroll-JC nav {
+            padding: 10px 24px 32px;
+        }
+
+        .side-scroll.scroll-JC nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .side-scroll.scroll-JC nav li {
+            margin: 10px 0;
+        }
+
+        .side-scroll.scroll-JC nav a {
+            display: block;
+            text-decoration: none;
+            color: #111111;
+            font-size: 16px;
+        }
+
+        .side-scroll.scroll-JC nav a:hover {
+            color: #d9272e;
+        }
+
+        /* ====== LAYOUT GERAL DO DASHBOARD ====== */
+
+        body#jc {
+            background: #ffffff;
+        }
+
+        main.jc-dashboard {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto 80px;
+            padding: 40px 120px;
+            display: flex;
+            gap: 32px;
+            background: #f4f4f4;
+            box-sizing: border-box;
+        }
+
+        .jc-main-column {
+            flex: 0 0 78%;
+        }
+
+        .jc-sidebar {
+            flex: 0 0 22%;
+        }
+
+        /* ====== HEADER DO DASHBOARD JORNAL CIDADÃO ====== */
+
+        .jc-dashboard-header {
+            background: #ffffff;
+            border-bottom: 1px solid #cccccc;
+        }
+
+        .jc-dashboard-header-inner {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .jc-nav-links {
+            display: flex;
+            gap: 18px;
+            font-size: 14px;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .jc-nav-link {
+            text-decoration: none;
+            color: #111111;
+            font-weight: bold;
+        }
+
+        .jc-nav-link-active {
+            border-bottom: 2px solid #d9272e;
+            padding-bottom: 2px;
+        }
+
+        .jc-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;         /* joga tudo pra direita */
+            justify-content: flex-end; /* garante alinhamento à direita */
+        }
+
+        .jc-btn-primary {
+            background: #d9272e;
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            border-radius: 0;
+        }
+
+        .jc-link-sair {
+            font-size: 13px;
+            color: #333333;
+            text-decoration: none;
+        }
+
+        /* ====== COLUNA ESQUERDA – MINHAS NOTÍCIAS ====== */
+
+        .jc-section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #111111;
+            margin: 0 0 12px;
+        }
+
+        .jc-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .jc-filter-btn {
+            border-radius: 0;
+            border: 1px solid transparent;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #ffffff;
+            color: #333333;
+        }
+
+        .jc-filter-btn[data-status="rascunho"] {
+            border-color: #4a90e2;
+            background: #e6f1ff;
+            color: #1f4f8f;
+        }
+
+        .jc-filter-btn[data-status="pendente"] {
+            border-color: #f5a623;
+            background: #fff3df;
+            color: #a96508;
+        }
+
+        .jc-filter-btn[data-status="publicada"] {
+            border-color: #4caf50;
+            background: #e7f6e8;
+            color: #256428;
+        }
+
+        .jc-filter-btn[data-status="rejeitada"] {
+            border-color: #d0021b;
+            background: #ffe6e8;
+            color: #8a0010;
+        }
+
+        .jc-filter-btn.jc-filter-active {
+            border-width: 2px;
+        }
+
+        .jc-news-list {
+            background: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 0;
+        }
+
+        .jc-news-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 12px;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .jc-news-item:last-child {
+            border-bottom: none;
+        }
+
+        .jc-news-thumb {
+            width: 90px;
+            height: 70px;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #666666;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .jc-news-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .jc-news-body {
+            flex: 1;
+        }
+
+        .jc-news-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #111111;
+            margin-bottom: 4px;
+        }
+
+        .jc-news-meta {
+            font-size: 11px;
+            color: #777777;
+            margin-bottom: 6px;
+        }
+
+        .jc-news-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .jc-status-tag {
+            font-size: 11px;
+            padding: 2px 4px;
+            border-radius: 0;
+            border: 1px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .jc-status-rascunho {
+            border-color: #4a90e2;
+            color: #1f4f8f;
+            background: #e6f1ff;
+        }
+
+        .jc-status-pendente {
+            border-color: #f5a623;
+            color: #a96508;
+            background: #fff3df;
+        }
+
+        .jc-status-publicada {
+            border-color: #4caf50;
+            color: #256428;
+            background: #e7f6e8;
+        }
+
+        .jc-status-rejeitada {
+            border-color: #d0021b;
+            color: #8a0010;
+            background: #ffe6e8;
+        }
+
+        .jc-news-actions {
+            font-size: 11px;
+            color: #555555;
+            display: flex;
+            gap: 10px;
+        }
+
+        .jc-news-actions a {
+            text-decoration: none;
+            color: #555555;
+        }
+
+        /* ====== SIDEBAR ====== */
+
+        .jc-card {
+            background: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 0;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+        }
+
+        .jc-card-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #111111;
+            margin: 0 0 10px;
+            border-bottom: 1px solid #dddddd;
+            padding-bottom: 4px;
+        }
+
+        .jc-sidebar-news-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .jc-sidebar-news-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .jc-sidebar-news-item:last-child {
+            border-bottom: none;
+        }
+
+        .jc-sidebar-thumb {
+            width: 60px;
+            height: 45px;
+            background: #e0e0e0;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .jc-sidebar-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .jc-sidebar-news-text {
+            font-size: 12px;
+        }
+
+        .jc-sidebar-news-text strong {
+            display: block;
+            color: #111111;
+        }
+
+        .jc-sidebar-news-text span {
+            font-size: 11px;
+            color: #777777;
+        }
+
+        .jc-stats-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .jc-stat {
+            flex: 1;
+            border-right: 1px solid #eeeeee;
+            padding-right: 10px;
+        }
+
+        .jc-stat:last-child {
+            border-right: none;
+            padding-right: 0;
+        }
+
+        .jc-stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #111111;
+        }
+
+        .jc-stat-label {
+            font-size: 11px;
+            color: #777777;
+        }
+
+        /* ====== RESPONSIVO ====== */
+
+        @media (max-width: 900px) {
+            main.jc-dashboard {
+                flex-direction: column;
+                padding: 20px 16px;
+            }
+
+            .jc-main-column,
+            .jc-sidebar {
+                flex: 1 1 auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            #header .row {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            #header .col-xs-4.col-md-4 {
+                max-width: 100%;
+                flex: 0 0 100%;
+                margin-bottom: 10px;
+            }
+
+            #header .options {
+                justify-content: center;
+            }
+
+            .jc-dashboard-header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .jc-header-actions {
+                align-self: stretch;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body id="jc">
+    <!-- overlay do menu -->
+    <div class="jc-menu-overlay" id="jc-menu-overlay"></div>
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W8GNLB"
+                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    </noscript>
+
+    <!-- HEADER DO INDEX -->
+    <div id="header-top-container">
+        <div id="wrapper-header-searchbar">
+            <header id="header">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-4 col-md-4">
+                            <a href="static/images/edicao.webp" class="edition">
+                                <img width="106" height="91" src="static/images/edicao.webp"
+                                     alt="Leia aqui a edição de hoje">
+                                <h5>Edição do dia</h5>
+                            </a>
+                        </div>
+
+                        <div class="col-xs-4 col-md-4">
+                            <a href="/" class="logo">
+                                <figure>
+                                   
+                                    <img width="140" height="70" src="static/images/logo.svg" alt="JC" title="JC">
+                                    
+                                </figure>
+                            </a>
+                        </div>
+
+                        <div class="col-xs-4 col-md-4">
+                            <div class="options">
+                                <a href="/publicidade-legal" class="btn btn-outline-danger btn-publicidade-legal">
+                                    Publicidade legal
+                                </a>
+                                <!-- ícone MENU (abre o menu lateral) -->
+                                <a href="#" class="toggle-menu-sidebar-menu-jc">
+                                    <img width="25" height="20" src="static/images/icon-menu.svg" alt="menu" title="menu">
+                                </a>
+                                <!-- ícone BUSCA (mantido como na home) -->
+                                <a href="#" class="toggle-search">
+                                    <img width="18" height="20" src="static/images/icon-busca.svg" alt="busca" title="busca">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        </div>
+    </div>
+
+    <!-- MENU LATERAL (copiado/ajustado do index) -->
+    <div class="side-scroll scroll-JC" id="jc-side-menu">
+        <div class="jc-menu-topbar">
+            <button class="jc-menu-live-btn">AO VIVO</button>
+            <div class="jc-menu-close-btn" id="jc-menu-close-btn">×</div>
+        </div>
+
+        <div class="lives">
+            <ul>
+                <li><a href="https://jc.uol.com.br/radio-jornal/ao-vivo">Rádio Jornal (RECIFE)</a></li>
+                <li><a href="https://interior.ne10.uol.com.br/radio-jornal/caruaru">Rádio Jornal (INTERIOR)</a></li>
+                <li><a href="https://tvjornal.com.br/ao-vivo">TV Jornal (RECIFE)</a></li>
+                <li><a href="https://interior.ne10.uol.com.br/tv-jornal/ao-vivo">TV Jornal (INTERIOR)</a></li>
+            </ul>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a href="https://digital.jc.uol.com.br/">JORNAL DIGITAL</a></li>
+                <li><a href="/ultimas">Jornal Cidadão</a></li>
+                <li><a href="/charges">Charges</a></li>
+                <li><a href="/jc">Enquetes</a></li>
+                <li><a href="/jc">Últimas</a></li>
+                <li><a href="/colunas">Colunas</a></li>
+                <li><a href="/pernambuco">Pernambuco</a></li>
+                <li><a href="/colunas/seguranca">Segurança</a></li>
+                <li><a href="/colunas/saude-e-bem-estar">Saúde e Bem-Estar</a></li>
+                <li><a href="/colunas/enem-e-educacao">Enem e Educação</a></li>
+                <li><a href="/colunas/mobilidade">Mobilidade</a></li>
+                <li><a href="/politica">Política</a></li>
+                <li><a href="/economia">Economia</a></li>
+                <li><a href="/cultura">Cultura</a></li>
+                <li><a href="https://jc.uol.com.br/mundo/">Mundo</a></li>
+                <li><a href="https://tvjornal.com.br/">TV Jornal</a></li>
+                <li><a href="https://radiojornal.com.br/">Rádio Jornal</a></li>
+                <li><a href="https://interior.ne10.uol.com.br/">Interior</a></li>
+                <li><a href="https://jc.uol.com.br/blog-do-torcedor/">Blog do Torcedor</a></li>
+                <li><a href="https://jc.uol.com.br/social1/">Social1</a></li>
+                <li><a href="https://receitadaboa.com.br/">Receita da Boa</a></li>
+                <li><a href="/opiniao">Opinião</a></li>
+                <li><a href="https://jc.uol.com.br/recall-de-marcas">Recall de Marcas</a></li>
+                <li><a href="https://ads.sjcc.com.br/">Anuncie aqui</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- HEADER DO DASHBOARD JORNAL CIDADÃO -->
+    <header class="jc-dashboard-header">
+        <div class="jc-dashboard-header-inner">
+            <nav class="jc-nav-links">
+                <a href="/" class="jc-nav-link">Início</a>
+                <a href="/charge" class="jc-nav-link">Charges</a>
+                <a href="/admin" class="jc-nav-link">Admin</a>
+                <a href="/ultimas" class="jc-nav-link jc-nav-link-active">Minhas Notícias</a>
+            </nav>
+
+            <div class="jc-header-actions">
+                <a href="/admin/materia" class="jc-btn-primary">Escrever nova notícia</a>
+                <a href="#" class="jc-link-sair">Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN: DUAS COLUNAS -->
+    <main class="jc-dashboard">
+        <section class="jc-main-column">
+            <h2 class="jc-section-title">Minhas Notícias</h2>
+
+            <div class="jc-filters">
+                <button class="jc-filter-btn jc-filter-active" data-status="todas">Todas</button>
+                <button class="jc-filter-btn" data-status="rascunho">Rascunhos</button>
+                <button class="jc-filter-btn" data-status="pendente">Pendentes</button>
+                <button class="jc-filter-btn" data-status="publicada">Publicadas</button>
+                <button class="jc-filter-btn" data-status="rejeitada">Rejeitadas</button>
+            </div>
+
+            <div id="lista-minhas-noticias" class="jc-news-list"></div>
+        </section>
+
+        <aside class="jc-sidebar">
+            <div class="jc-card">
+                <h3 class="jc-card-title">Últimas Notícias dos Cidadãos</h3>
+                <ul id="lista-ultimas" class="jc-sidebar-news-list"></ul>
+            </div>
+
+            <div class="jc-card">
+                <h3 class="jc-card-title">Estatísticas de Usuário</h3>
+                <div class="jc-stats-row">
+                    <div class="jc-stat">
+                        <div id="stat-views" class="jc-stat-number">0</div>
+                        <div class="jc-stat-label">Visualizações</div>
+                    </div>
+                    <div class="jc-stat">
+                        <div id="stat-comments" class="jc-stat-number">0</div>
+                        <div class="jc-stat-label">Comentários</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        // ===== MENU LATERAL (abre/fecha) =====
+        document.addEventListener("DOMContentLoaded", () => {
+            const menuBtn   = document.querySelector(".toggle-menu-sidebar-menu-jc");
+            const sideMenu  = document.getElementById("jc-side-menu");
+            const overlay   = document.getElementById("jc-menu-overlay");
+            const closeBtn  = document.getElementById("jc-menu-close-btn");
+
+            function openMenu(e) {
+                if (e) e.preventDefault();
+                sideMenu.classList.add("is-open");
+                overlay.classList.add("is-open");
+            }
+
+            function closeMenu(e) {
+                if (e) e.preventDefault();
+                sideMenu.classList.remove("is-open");
+                overlay.classList.remove("is-open");
+            }
+
+            if (menuBtn)  menuBtn.addEventListener("click", openMenu);
+            if (closeBtn) closeBtn.addEventListener("click", closeMenu);
+            if (overlay)  overlay.addEventListener("click", closeMenu);
+        });
+
+        // ===== DASHBOARD: CARREGAR NOTÍCIAS =====
+        document.addEventListener("DOMContentLoaded", async () => {
+            const listaMinhas   = document.getElementById("lista-minhas-noticias");
+            const listaUltimas  = document.getElementById("lista-ultimas");
+            const filterButtons = document.querySelectorAll(".jc-filter-btn");
+            let noticias = [];
+
+            function normalizarStatus(raw) {
+                if (!raw) return "pendente";
+                const s = raw.toString().toLowerCase();
+                if (s.startsWith("rascunho")) return "rascunho";
+                if (s.startsWith("pend"))    return "pendente";
+                if (s.startsWith("apro") || s.startsWith("publi")) return "publicada";
+                if (s.startsWith("rej"))     return "rejeitada";
+                return "pendente";
+            }
+
+            function renderMinhasNoticias(filtro) {
+                listaMinhas.innerHTML = "";
+                const filtradas = noticias.filter(n => {
+                    const status = normalizarStatus(n.status);
+                    if (filtro === "todas") return true;
+                    return status === filtro;
+                });
+
+                if (filtradas.length === 0) {
+                    listaMinhas.innerHTML =
+                        "<div style='padding:12px;font-size:13px;color:#555;'>Nenhuma notícia encontrada para esse filtro.</div>";
+                    return;
+                }
+
+                filtradas.forEach(n => {
+                    const status = normalizarStatus(n.status);
+                    const item = document.createElement("div");
+                    item.className = "jc-news-item";
+
+                    const data = n.date || n.created_at || "";
+                    const dataFormatada = data ? new Date(data).toLocaleDateString("pt-BR") : "";
+
+                    item.innerHTML = `
+                        <div class="jc-news-thumb">
+                            ${n.image_url ? `<img src="${n.image_url}" alt="${n.title}">` : "Sem imagem"}
+                        </div>
+                        <div class="jc-news-body">
+                            <div class="jc-news-title">${n.title || "(Sem título)"}</div>
+                            <div class="jc-news-meta">
+                                ${dataFormatada ? dataFormatada + " • " : ""}${n.author || "Autor desconhecido"}
+                            </div>
+                            <div class="jc-news-status-row">
+                                <span class="jc-status-tag jc-status-${status}">
+                                    ${status.charAt(0).toUpperCase() + status.slice(1)}
+                                </span>
+                                <div class="jc-news-actions">
+                                    <a href="/materia/${n.id || ""}">Visualizar</a>
+                                    <a href="#">Editar</a>
+                                    <a href="#">Apagar</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    listaMinhas.appendChild(item);
+                });
+            }
+
+            function renderUltimasNoticias() {
+                listaUltimas.innerHTML = "";
+                const ultimas = noticias.slice(0, 3);
+
+                if (ultimas.length === 0) {
+                    listaUltimas.innerHTML =
+                        "<li style='font-size:12px;color:#555;'>Nenhuma notícia disponível ainda.</li>";
+                    return;
+                }
+
+                ultimas.forEach(n => {
+                    const li = document.createElement("li");
+                    li.className = "jc-sidebar-news-item";
+
+                    const data = n.date || n.created_at || "";
+                    const dataFormatada = data ? new Date(data).toLocaleDateString("pt-BR") : "";
+
+                    li.innerHTML = `
+                        <div class="jc-sidebar-thumb">
+                            ${n.image_url ? `<img src="${n.image_url}" alt="${n.title}">` : ""}
+                        </div>
+                        <div class="jc-sidebar-news-text">
+                            <strong>${n.title || "(Sem título)"}</strong>
+                            <span>${dataFormatada}</span>
+                        </div>
+                    `;
+                    listaUltimas.appendChild(li);
+                });
+            }
+
+            function atualizarEstatisticas() {
+                const viewsEl     = document.getElementById("stat-views");
+                const commentsEl  = document.getElementById("stat-comments");
+                const total       = noticias.length;
+                viewsEl.textContent    = total * 120;
+                commentsEl.textContent = total * 8;
+            }
+
+            filterButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    filterButtons.forEach(b => b.classList.remove("jc-filter-active"));
+                    btn.classList.add("jc-filter-active");
+                    const status = btn.getAttribute("data-status");
+                    renderMinhasNoticias(status);
+                });
+            });
+
+            try {
+                const response = await fetch("/api/materias");
+                if (!response.ok) throw new Error("Falha ao carregar notícias.");
+                noticias = await response.json();
+                renderMinhasNoticias("todas");
+                renderUltimasNoticias();
+                atualizarEstatisticas();
+            } catch (err) {
+                console.error("Erro ao carregar notícias:", err);
+                listaMinhas.innerHTML =
+                    "<div style='padding:12px;font-size:13px;color:red;'>Erro ao carregar as notícias.</div>";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -88,7 +88,12 @@ func (h *Handler) GetArticles(c *gin.Context){
 
 	c.JSON(http.StatusOK, articles)
 }
-
+func JornalCidadaoTest(c *gin.Context) {
+    c.HTML(http.StatusOK, "ultimas.tmpl", gin.H{
+        "AnoAtual": 2025,
+        "Artigos":  nil,
+    })
+}
 func (h *Handler) GetArticleByID(c *gin.Context){
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil{

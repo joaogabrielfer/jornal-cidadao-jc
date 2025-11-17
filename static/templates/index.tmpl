@@ -604,285 +604,295 @@
     carrosel charges
     -------------------------------------------------------------->
 <style>
-    /* --- Variáveis de Design (Mais fácil de customizar) --- */
-    :root {
-      --widget-max-width: 900px;
-      --card-border-radius: 8px;
-      --arrow-size: 44px;
-      --arrow-bg: white;
-      --arrow-color: #333;
-      --color-primary: #D22C2C; /* Vermelho do seu site */
-    }
+  /* --- Variáveis de Design --- */
+  :root {
+    --widget-max-width: 900px;
+    --card-border-radius: 8px;
+    --arrow-size: 44px;
+    --arrow-bg: #ffffff;
+    --arrow-color: #333333;
+    --color-primary: #D22C2C;
+  }
 
-    /* --- Configuração Geral --- */
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #f4f4f5;
-      margin: 0;
-      padding: 40px 0;
-    }
+  /* --- Widget de Charges --- */
+  .charges-widget {
+    width: 100%;
+    max-width: var(--widget-max-width);
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+    box-sizing: border-box;
+  }
 
-    /* --- Estilos do Widget de Charges --- */
-    .charges-widget {
-      width: 100%;
-      max-width: var(--widget-max-width);
-      margin: 0 auto;
-      padding: 0 20px;
-      box-sizing: border-box;
-    }
+  .charges-widget h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #222;
+  margin: 0 auto 24px;             
+  padding-bottom: 8px;
+  border-bottom: 3px solid var(--color-primary);
+  display: inline-block;            
+}
 
-    .charges-widget h2 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 16px;
-      border-bottom: 3px solid var(--color-primary);
-      padding-bottom: 8px;
-    }
+.charges-widget {
+  width: 100%;
+  max-width: var(--widget-max-width);
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+  box-sizing: border-box;
+  text-align: center;               
+}
 
-    /* Wrapper: Posição relativa para ancorar as setas */
-    .carousel-wrapper {
-      position: relative;
-    }
+  /* Wrapper para posicionar as setas e esconder overflow */
+  .carousel-wrapper {
+    position: relative;
+    overflow: hidden;        
+  }
 
-    /* O Viewport do Carrossel */
-    .charges-carousel {
-      display: flex;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      scroll-snap-type: x mandatory;
-      
-      /* Espaçamento para as setas não ficarem em cima do conteúdo */
-      /* Ajuste de 40px + 20px de padding do container */
-      margin: 0 40px; 
-      padding: 10px 0; /* Espaço para a sombra não ser cortada */
+  
+  .charges-carousel {
+    display: flex;
+    margin: 0;               
+    padding: 10px 0;
+    box-sizing: border-box;
+    transition: transform 0.45s ease;  
+  }
 
-      /* Esconde a barra de rolagem */
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
-    }
-    .charges-carousel::-webkit-scrollbar {
-      display: none; /* Chrome/Safari */
-    }
+  /* Cada slide */
+  .charge-item {
+    flex: 0 0 calc(100% / 3);       
+    padding: 0 10px;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: inherit;
+    transform: scale(0.9);         
+    transition: transform 0.3s ease;
+  }
 
-    /* Cada Item (Charge) */
+  
+  .charge-item.is-center {
+    transform: scale(1.05);
+  }
+
+  .charge-item img {
+    width: 100%;
+    display: block;
+    border-radius: var(--card-border-radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  /* Setas */
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+
+    background: var(--arrow-bg);
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: var(--arrow-size);
+    height: var(--arrow-size);
+
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--arrow-color);
+
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .carousel-btn:hover {
+    background-color: #f9f9f9;
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  #charges-prev {
+    left: 10px;
+  }
+  #charges-next {
+    right: 10px;
+  }
+
+  /* Responsivo: tablet */
+  @media (max-width: 768px) {
     .charge-item {
-      /* 3 itens visíveis em desktop */
-      flex-basis: calc(100% / 3);
-      flex-shrink: 0;
-      
-      padding: 0 8px;
-      box-sizing: border-box;
-      scroll-snap-align: start; /* Trava no início de cada item */
-      
-      text-decoration: none;
-      color: inherit;
+      flex: 0 0 calc(100% / 2); 
     }
+  }
 
-    .charge-item img {
-      width: 100%;
-      height: 250px; /* Altura fixa para as charges */
-      object-fit: cover; /* Garante que a imagem cubra sem distorcer */
-      display: block;
-      border-radius: var(--card-border-radius);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* Responsivo: celular */
+  @media (max-width: 500px) {
+    .charge-item {
+      flex: 0 0 80%;           
     }
+  }
+</style>
 
-    .charge-item:hover img {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    }
+<section class="charges-widget">
+  <h2>Charges</h2>
 
-    /* As Setas de Navegação */
-    .carousel-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 10;
-      
-      background: var(--arrow-bg);
-      border: 1px solid #ddd;
-      border-radius: 50%;
-      width: var(--arrow-size);
-      height: var(--arrow-size);
-      
-      font-size: 28px;
-      font-weight: bold;
-      color: var(--arrow-color);
-      
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-      transition: all 0.2s ease;
-      
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  <div class="carousel-wrapper">
 
-    .carousel-btn:hover {
-      background-color: #f9f9f9;
-      transform: translateY(-50%) scale(1.05);
-    }
+    <button id="charges-prev" class="carousel-btn" aria-label="Charge anterior">
+      &#x2039;
+    </button>
 
-    .carousel-btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-      transform: translateY(-50%) scale(0.95);
-    }
+    <div class="charges-carousel" id="charges-carousel">
+      <!-- seus slides originais -->
+      <a href="#charge1" class="charge-item">
+        <img src="static/images/charges/1760196071-Gemini_Generated_Image_td0ie8td0ie8td0i.png"
+             alt="Descrição da Charge 1">
+      </a>
 
-    #charges-prev {
-      left: 0;
-    }
-    #charges-next {
-      right: 0;
-    }
+      <a href="#charge2" class="charge-item">
+        <img src="static/images/charges/1760196078-Gemini_Generated_Image_td0ie8td0ie8td0i(1).png"
+             alt="Descrição da Charge 2">
+      </a>
 
-    /* --- Responsividade --- */
-    
-    /* Telas Médias (Tablets) */
-    @media (max-width: 768px) {
-      .charges-carousel {
-        margin: 0; /* Remove a margem para as setas */
-      }
-      .charge-item {
-        /* Mostra 2 itens */
-        flex-basis: calc(100% / 2);
-      }
-      #charges-prev { left: 8px; }
-      #charges-next { right: 8px; }
-    }
+      <a href="#charge3" class="charge-item">
+        <img src="static/images/charges/1760196088-Gemini_Generated_Image_td0ie8td0ie8td0i(2).png"
+             alt="Descrição da Charge 3">
+      </a>
 
-    /* Telas Pequenas (Celulares) */
-    @media (max-width: 500px) {
-      .charge-item {
-        /* Mostra 1 item + pedaço do próximo */
-        flex-basis: 80%;
-        scroll-snap-align: center; /* Centraliza o item ativo */
-      }
-    }
+      <a href="#charge4" class="charge-item">
+        <img src="static/images/charges/1760196097-Gemini_Generated_Image_td0ie8td0ie8td0i(3).png"
+             alt="Descrição da Charge 4">
+      </a>
 
-  </style>
-</head>
-<body>
+      <a href="#charge5" class="charge-item">
+        <img src="static/images/charges/1760196108-Gemini_Generated_Image_td0ie8td0ie8td0i(4).png"
+             alt="Descrição da Charge 5">
+      </a>
 
-  <section class="charges-widget">
-    
-    <h2>Charges</h2>
-    
-    <div class="carousel-wrapper">
-      
-      <button id="charges-prev" class="carousel-btn" aria-label="Charge anterior">
-        &#x2039;
-      </button>
-      
-      <div class="charges-carousel" id="charges-carousel">
-        
-        <a href="#charge1" class="charge-item">
-          <img src="static\images\charges\1760196071-Gemini_Generated_Image_td0ie8td0ie8td0i.png" alt="Descrição da Charge 1">
-        </a>
-        
-        <a href="#charge2" class="charge-item">
-          <img src="static\images\charges\1760196078-Gemini_Generated_Image_td0ie8td0ie8td0i(1).png" alt="Descrição da Charge 2">
-        </a>
-        
-        <a href="#charge3" class="charge-item">
-          <img src="static\images\charges\1760196088-Gemini_Generated_Image_td0ie8td0ie8td0i(2).png" alt="Descrição da Charge 3">
-        </a>
-        
-        <a href="#charge4" class="charge-item">
-          <img src="static\images\charges\1760196097-Gemini_Generated_Image_td0ie8td0ie8td0i(3).png" alt="Descrição da Charge 4">
-        </a>
+      <a href="#charge6" class="charge-item">
+        <img src="static/images/charges/1760196088-Gemini_Generated_Image_td0ie8td0ie8td0i(2).png"
+             alt="Descrição da Charge 6">
+      </a>
+    </div>
 
-        <a href="#charge5" class="charge-item">
-          <img src="static\images\charges\1760196108-Gemini_Generated_Image_td0ie8td0ie8td0i(4).png" alt="Descrição da Charge 5">
-        </a>
+    <button id="charges-next" class="carousel-btn" aria-label="Próxima charge">
+      &#x203A;
+    </button>
 
-        <a href="#charge6" class="charge-item">
-          <img src="static\images\charges\1760196088-Gemini_Generated_Image_td0ie8td0ie8td0i(2).png" alt="Descrição da Charge 6">
-        </a>
-        
-      </div> <button id="charges-next" class="carousel-btn" aria-label="Próxima charge">
-        &#x203A;
-      </button>
-      
-    </div> </section>
+  </div>
+</section>
 
-  <script>
-    // Espera o documento carregar para rodar o script
-    document.addEventListener('DOMContentLoaded', () => {
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const carousel = document.getElementById('charges-carousel');
+    const prevBtn  = document.getElementById('charges-prev');
+    const nextBtn  = document.getElementById('charges-next');
 
-      // Seleciona os elementos do carrossel
-      const carousel = document.getElementById('charges-carousel');
-      const prevBtn = document.getElementById('charges-prev');
-      const nextBtn = document.getElementById('charges-next');
+    if (!carousel || !prevBtn || !nextBtn) return;
 
-      // Se qualquer elemento essencial não for encontrado, para a execução.
-      if (!carousel || !prevBtn || !nextBtn) {
-        console.error("Erro: Elementos do carrossel (HTML) não foram encontrados. Verifique os IDs.");
-        return;
-      }
+    const visible = 3; // queremos trabalhar com a lógica de 3 itens visíveis
 
-      // Função para checar e (des)habilitar setas
-      function checkArrowVisibility() {
-        // scrollLeft: o quanto já rolamos para a esquerda
-        const scrollLeft = carousel.scrollLeft;
-        // maxScroll: o ponto máximo que podemos rolar
-        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
-        
-        // Usamos uma tolerância de 5px para evitar erros de arredondamento
-        prevBtn.disabled = scrollLeft < 5;
-        nextBtn.disabled = (scrollLeft > maxScroll - 5);
-      }
+    // itens originais
+    const originalItems = Array.from(carousel.querySelectorAll('.charge-item'));
+    const originalCount = originalItems.length;
+    if (originalCount === 0) return;
 
-      // Função para rolar o carrossel
-      function scrollCarousel(direction) {
-        // Pega o primeiro item para saber sua largura total
-        const firstItem = carousel.querySelector('.charge-item');
-        if (!firstItem) return;
-
-        // Calcula a largura do item. Em telas menores, queremos rolar 1 item.
-        // Em telas maiores, queremos rolar 3 itens (largura do viewport).
-        let scrollAmount;
-        if (window.innerWidth <= 768) {
-          // Em telas menores, rola 1 item de cada vez
-          scrollAmount = firstItem.offsetWidth;
-        } else {
-          // Em telas maiores, rola o "bloco" visível (3 itens)
-          scrollAmount = carousel.clientWidth - firstItem.offsetWidth; 
-        }
-
-        carousel.scrollBy({ 
-          left: scrollAmount * direction, // direction será 1 (próximo) ou -1 (anterior)
-          behavior: 'smooth' 
-        });
-      }
-
-      // --- Event Listeners (Ouvintes de Ação) ---
-
-      // Clique no botão PRÓXIMO
-      nextBtn.addEventListener('click', () => {
-        scrollCarousel(1);
-      });
-
-      // Clique no botão ANTERIOR
-      prevBtn.addEventListener('click', () => {
-        scrollCarousel(-1);
-      });
-
-      // Atualiza os botões sempre que o usuário rolar (com mouse ou dedo)
-      let scrollTimer;
-      carousel.addEventListener('scroll', () => {
-        // O 'debounce' (setTimeout) evita que a função rode mil vezes por segundo
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(checkArrowVisibility, 100);
-      });
-
-      // Verifica os botões ao carregar a página e ao redimensionar a janela
-      checkArrowVisibility();
-      window.addEventListener('resize', checkArrowVisibility);
+    originalItems.forEach((item, idx) => {
+      item.dataset.index = idx;
     });
-  </script>
+
+    // clones no FINAL (pra avançar infinito)
+    for (let i = 0; i < visible; i++) {
+      const clone = originalItems[i].cloneNode(true);
+      clone.classList.add('clone');
+      clone.dataset.index = i;
+      carousel.appendChild(clone);
+    }
+
+    // clones no INÍCIO (pra voltar infinito)
+    for (let i = 0; i < visible; i++) {
+      const srcIndex = originalCount - visible + i;
+      const clone = originalItems[srcIndex].cloneNode(true);
+      clone.classList.add('clone');
+      clone.dataset.index = srcIndex;
+      carousel.insertBefore(clone, carousel.firstChild);
+    }
+
+    const allItems = Array.from(carousel.querySelectorAll('.charge-item'));
+
+    let currentIndex = visible; // começa no primeiro "real"
+    let itemWidth = allItems[0].getBoundingClientRect().width;
+
+    function updateItemWidth() {
+      itemWidth = allItems[0].getBoundingClientRect().width;
+    }
+
+    function setTransition(on) {
+      carousel.style.transition = on ? 'transform 0.45s ease' : 'none';
+    }
+
+    function applyTransform() {
+      const offset = -currentIndex * itemWidth;
+      carousel.style.transform = `translateX(${offset}px)`;
+    }
+
+    function updateCenterHighlight() {
+      allItems.forEach(item => item.classList.remove('is-center'));
+      const centerDomIndex = currentIndex + 1; // o do meio (3 visíveis)
+      if (allItems[centerDomIndex]) {
+        allItems[centerDomIndex].classList.add('is-center');
+      }
+    }
+
+    function goTo(index) {
+      currentIndex = index;
+      setTransition(true);
+      applyTransform();
+      updateCenterHighlight();
+    }
+
+    // posição inicial
+    updateItemWidth();
+    setTransition(false);
+    applyTransform();
+    updateCenterHighlight();
+
+    nextBtn.addEventListener('click', () => {
+      goTo(currentIndex + 1);
+    });
+
+    prevBtn.addEventListener('click', () => {
+      goTo(currentIndex - 1);
+    });
+
+    // corrige o "loop infinito" quando chega nos clones
+    carousel.addEventListener('transitionend', () => {
+      const maxIndex = visible + originalCount; // começo dos clones do fim
+
+      if (currentIndex === maxIndex) {
+        // passou do último real -> volta pro primeiro real
+        setTransition(false);
+        currentIndex = visible;
+        applyTransform();
+        updateCenterHighlight();
+      } else if (currentIndex === 0) {
+        // voltou antes do primeiro real -> vai pro último real
+        setTransition(false);
+        currentIndex = originalCount;
+        applyTransform();
+        updateCenterHighlight();
+      }
+    });
+
+    // reajusta largura quando a janela muda (responsivo)
+    window.addEventListener('resize', () => {
+      updateItemWidth();
+      setTransition(false);
+      applyTransform();
+      updateCenterHighlight();
+    });
+  });
+</script>
 <!--------------------------------------------------------------
     # charges fim
     -------------------------------------------------------------->

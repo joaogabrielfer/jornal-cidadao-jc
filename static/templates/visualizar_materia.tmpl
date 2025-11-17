@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jornal Cidadão JC</title>
+
+  <!-- 🌐 Estilo global -->
+  <link rel="stylesheet" href="/static/css/jcstyle.css">
+
+  <!-- 🎨 Estilo específico da página -->
+  <style>
+    /* -------- Conteúdo da Matéria -------- */
+    .mainArtigo {
+      flex-grow: 1;
+      max-width: 800px;
+      width: 90%;
+      margin: 2rem auto;
+    }
+
+    .article-container {
+      padding: 2.5rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .article-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .article-summary {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .article-body {
+      font-size: 1.05rem;
+      color: #333;
+      line-height: 1.8;
+    }
+
+    .article-body p { margin-bottom: 1.4rem; }
+    .article-body img { max-width: 100%; height: auto; border-radius: 6px; margin: 10px 0; }
+    .article-body a { color: #007bff; text-decoration: none; }
+    .article-body a:hover { text-decoration: underline; }
+
+    hr { border: 0; border-top: 1px solid #eee; margin: 2rem 0; }
+
+    /* -------- Enquete -------- */
+    .poll-component {
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .poll-question {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .poll-options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .poll-option-btn {
+      width: 100%;
+      padding: 14px 20px;
+      background-color: #fff;
+      border: 1px solid #007bff;
+      color: #007bff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .poll-option-btn:hover {
+      background-color: #007bff;
+      color: white;
+      transform: scale(1.01);
+    }
+
+    .poll-results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .poll-result-item { width: 100%; }
+
+    .result-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+
+    .result-text { font-weight: bold; color: #333; }
+    .result-percent { font-weight: bold; color: #555; }
+
+    .result-bar-background {
+      height: 22px;
+      background-color: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .result-bar-fill {
+      height: 100%;
+      background-color: #007bff;
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.6s ease-out;
+    }
+
+    .total-votes {
+      text-align: right;
+      font-size: 0.9rem;
+      color: #6c757d;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* -------- Responsividade -------- */
+    @media (max-width: 768px) {
+      .article-container { padding: 1.5rem; }
+      .article-title { font-size: 1.6rem; }
+      .poll-component { padding: 18px; }
+      .poll-option-btn { font-size: 0.95rem; }
+    }
+
+    @media (max-width: 480px) {
+      .article-title { font-size: 1.4rem; }
+      .article-summary { font-size: 1rem; }
+      .article-body { font-size: 0.95rem; }
+      .poll-question { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="headerUol"><h1 class="h1Uol">Barra da Uol</h1></header>
+
+  <header class="headerJc">
+    <h1 class="logoJc">Logo do JC</h1>
+    <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
+  </header>
+
+  <header class="headerNav">
+    <nav>
+      <ul>
+        <li><a href="/">Início</a></li>
+        <li><a href="/charge">Charges</a></li>
+        <li><a href="/admin">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="mainArtigo">
+    <div class="article-container">
+      <h1 class="article-title" id="article-title-text">Carregando matéria...</h1>
+      <p class="article-summary" id="article-summary-text"></p>
+      <div class="article-body" id="article-body-content"></div>
+      <hr />
+
+      <div class="poll-component" id="poll-container" style="display:none;">
+        <h3 class="poll-question" id="poll-question-text"></h3>
+        <div class="poll-options-list" id="poll-options-view"></div>
+        <div class="poll-results-list hidden" id="poll-results-view"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const articleTitle = document.getElementById('article-title-text');
+      const articleSummary = document.getElementById('article-summary-text');
+      const articleBody = document.getElementById('article-body-content');
+
+      const pollContainer = document.getElementById('poll-container');
+      const pollQuestionText = document.getElementById('poll-question-text');
+      const optionsView = document.getElementById('poll-options-view');
+      const resultsView = document.getElementById('poll-results-view');
+
+      const getArticleIdFromURL = () => {
+        const pathParts = window.location.pathname.split('/');
+        const id = parseInt(pathParts[pathParts.length - 1], 10);
+        return isNaN(id) ? null : id;
+      };
+
+      const renderPollResults = (pollData) => {
+        resultsView.innerHTML = '';
+        let totalVotes = pollData.options.reduce((acc, opt) => acc + opt.votes, 0);
+
+        pollData.options.forEach(option => {
+          const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
+          const item = document.createElement('div');
+          item.className = 'poll-result-item';
+          item.innerHTML = `
+            <div class="result-label">
+              <span class="result-text">${option.option_text}</span>
+              <span class="result-percent">${percentage.toFixed(0)}% (${option.votes})</span>
+            </div>
+            <div class="result-bar-background">
+              <div class="result-bar-fill" style="width: ${percentage}%"></div>
+            </div>
+          `;
+          resultsView.appendChild(item);
+        });
+
+        const totalEl = document.createElement('p');
+        totalEl.className = 'total-votes';
+        totalEl.textContent = \`Total de \${totalVotes} votos\`;
+        resultsView.appendChild(totalEl);
+
+        optionsView.classList.add('hidden');
+        resultsView.classList.remove('hidden');
+      };
+
+      const handleVoteClick = async (optionId, pollId, articleId) => {
+        try {
+          const voteResponse = await fetch(\`/api/enquete/votar/\${optionId}\`, { method: 'POST' });
+          if (!voteResponse.ok) throw new Error('Falha ao registrar o voto.');
+          localStorage.setItem(\`voted_poll_\${pollId}\`, 'true');
+
+          const updatedResponse = await fetch(\`/api/materia/\${articleId}\`);
+          const updatedData = await updatedResponse.json();
+          if (updatedData.poll) renderPollResults(updatedData.poll);
+        } catch (error) {
+          alert('Não foi possível registrar seu voto.');
+          console.error(error);
+        }
+      };
+
+      const renderPollOptions = (pollData, articleId) => {
+        optionsView.innerHTML = '';
+        pollData.options.forEach(option => {
+          const button = document.createElement('button');
+          button.className = 'poll-option-btn';
+          button.textContent = option.option_text;
+          button.addEventListener('click', () => handleVoteClick(option.id, pollData.id, articleId));
+          optionsView.appendChild(button);
+        });
+      };
+
+      const articleId = getArticleIdFromURL();
+      if (!articleId) {
+        articleTitle.textContent = 'Erro: Matéria não encontrada';
+        return;
+      }
+
+      try {
+        const response = await fetch(\`/api/materia/\${articleId}\`);
+        if (!response.ok) throw new Error(\`Matéria não encontrada (Status: \${response.status})\`);
+        const data = await response.json();
+
+        articleTitle.textContent = data.title;
+        articleSummary.textContent = data.summary || '';
+        articleBody.innerHTML = data.body;
+        document.title = \`\${data.title} - Jornal Cidadão JC\`;
+
+        if (data.poll && data.poll.options?.length > 0) {
+          pollQuestionText.textContent = data.poll.question;
+          pollContainer.style.display = 'block';
+          const votedKey = \`voted_poll_\${data.poll.id}\`;
+          localStorage.getItem(votedKey)
+            ? renderPollResults(data.poll)
+            : renderPollOptions(data.poll, data.id);
+        }
+      } catch (error) {
+        articleTitle.textContent = 'Erro ao carregar matéria';
+        articleSummary.textContent = error.message;
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
