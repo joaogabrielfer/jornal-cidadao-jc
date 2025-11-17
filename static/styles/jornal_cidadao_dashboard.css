@@ -1,0 +1,424 @@
+/* Paleta baseada no site principal */
+:root {
+    --jc-red: #c00000;       /* destaque tipo “OPERAÇÃO CONTENÇÃO” */
+    --jc-black: #111111;
+    --jc-grey-dark: #444444;
+    --jc-grey: #777777;
+    --jc-border: #dddddd;
+    --jc-bg-page: #f4f4f4;
+    --jc-bg-card: #ffffff;
+
+    --jc-blue: #0050b3;
+    --jc-green: #10893e;
+    --jc-orange: #d97706;
+}
+
+/* Reset básico coerente com estilo jornal */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--jc-black);
+    background: var(--jc-bg-page);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.jc-topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #cccccc;
+}
+
+.jc-topbar-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.jc-logo-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.jc-logo-marca {
+    font-weight: bold;
+    font-size: 18px;
+    color: var(--jc-red);
+    border: 2px solid var(--jc-red);
+    padding: 2px 6px;
+    text-transform: uppercase;
+}
+
+.jc-logo-text {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Navegação */
+
+.jc-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    justify-content: center;
+}
+
+.jc-nav-link {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--jc-black);
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent;
+}
+
+.jc-nav-link-active {
+    border-bottom-color: var(--jc-red);
+}
+
+/* Ações do header */
+
+.jc-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.jc-btn {
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--jc-black);
+    cursor: pointer;
+}
+
+.jc-btn-primary {
+    background: var(--jc-red);
+    color: #ffffff;
+    border-color: var(--jc-red);
+}
+
+.jc-btn-primary:hover {
+    background: #900000;
+    border-color: #900000;
+}
+
+.jc-link-sair {
+    text-decoration: none;
+    font-size: 13px;
+    color: var(--jc-grey);
+}
+
+/* =========================================================
+   LAYOUT PRINCIPAL – duas colunas
+========================================================= */
+
+.jc-main {
+    padding: 20px 0 40px;
+}
+
+.jc-main-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 2.2fr) minmax(260px, 1fr);
+    gap: 20px;
+}
+
+/* Coluna esquerda */
+
+.jc-col-left {
+    background: var(--jc-bg-card);
+    border: 1px solid var(--jc-border);
+    padding: 16px;
+}
+
+.jc-section-title {
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: none;
+}
+
+/* Filtros de status */
+
+.jc-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.jc-filter {
+    border: 1px solid transparent;
+    background: #f5f5f5;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--jc-grey-dark);
+    text-transform: none;
+}
+
+/* Cada filtro com cor leve, quadrado, tipo tag editorial */
+
+.jc-filter-draft {
+    background: #e0ecff;
+    border-color: #99c2ff;
+    color: #003a8c;
+}
+
+.jc-filter-pending {
+    background: #fff4e0;
+    border-color: #ffc266;
+    color: #92400e;
+}
+
+.jc-filter-published {
+    background: #e4f4e8;
+    border-color: #8fd19a;
+    color: #14532d;
+}
+
+.jc-filter-rejected {
+    background: #ffe5e5;
+    border-color: #ff9999;
+    color: #7f1d1d;
+}
+
+/* Filtro ativo: borda em vermelho destaque */
+
+.jc-filter-active {
+    border-color: var(--jc-red);
+}
+
+/* Lista de notícias do usuário */
+
+.jc-list {
+    margin-top: 4px;
+}
+
+.jc-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--jc-border);
+}
+
+.jc-item:first-child {
+    border-top: none;
+}
+
+.jc-item-thumb img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Conteúdo do item */
+
+.jc-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.jc-item-title {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.jc-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--jc-grey);
+}
+
+/* Tags de status */
+
+.jc-badge {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border: 1px solid transparent;
+}
+
+.jc-badge-published {
+    background: #e4f4e8;
+    border-color: #8fd19a;
+    color: #14532d;
+}
+
+.jc-badge-pending {
+    background: #fff4e0;
+    border-color: #ffc266;
+    color: #92400e;
+}
+
+.jc-badge-rejected {
+    background: #ffe5e5;
+    border-color: #ff9999;
+    color: #7f1d1d;
+}
+
+/* Ações do item */
+
+.jc-item-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.jc-item-link {
+    font-size: 12px;
+    color: var(--jc-red);
+    text-decoration: none;
+}
+
+.jc-item-link:hover {
+    text-decoration: underline;
+}
+
+.jc-item-icons {
+    display: flex;
+    gap: 4px;
+}
+
+.jc-icon-btn {
+    border: 1px solid var(--jc-border);
+    background: #f5f5f5;
+    font-size: 11px;
+    padding: 2px 6px;
+    cursor: pointer;
+    color: var(--jc-grey-dark);
+}
+
+/* Coluna direita */
+
+.jc-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Cards da sidebar */
+
+.jc-card {
+    background: var(--jc-bg-card);
+    border: 1px solid var(--jc-border);
+    padding: 12px;
+}
+
+.jc-card-title {
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* Últimas notícias dos cidadãos */
+
+.jc-citizen-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-top: 1px solid var(--jc-border);
+}
+
+.jc-citizen-item:first-child {
+    border-top: none;
+}
+
+.jc-citizen-thumb img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    display: block;
+}
+
+.jc-citizen-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.jc-citizen-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.jc-citizen-date {
+    font-size: 11px;
+    color: var(--jc-grey);
+}
+
+/* Botão pequeno na sidebar */
+
+.jc-icon-btn-small {
+    font-size: 10px;
+    padding: 2px 4px;
+}
+
+/* Estatísticas de usuário */
+
+.jc-card-stats {
+    margin-top: 4px;
+}
+
+.jc-stats-grid {
+    display: flex;
+    gap: 12px;
+}
+
+.jc-stat {
+    flex: 1;
+    border: 1px solid var(--jc-border);
+    padding: 10px;
+    text-align: left;
+}
+
+.jc-stat-number {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.jc-stat-label {
+    font-size: 12px;
+    color: var(--jc-grey);
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 900px) {
+    .jc-main-inner {
+        grid-template-columns: 1fr;
+    }
+
+    .jc-topbar-inner {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .jc-nav {
+        order: 3;
+    }
+}

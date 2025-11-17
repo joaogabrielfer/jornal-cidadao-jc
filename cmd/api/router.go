@@ -29,6 +29,7 @@ func setupRoutes(router *gin.Engine, handler *handlers.Handler){
 	router.GET("/charge/:id", handler.GetChargePage)
 	router.GET("/cadastro", handler.GetSignupPage)
 	router.GET("/login", handler.GetLoginPage)
+	router.GET("/ultimas", handler.ShowJornalCidadaoDashboard)
 
 	admin := router.Group("/admin")
 	{

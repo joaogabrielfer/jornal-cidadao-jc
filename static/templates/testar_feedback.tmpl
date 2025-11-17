@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste do Componente de Feedback</title>
+
+  <!-- 🌐 Estilo global -->
+  <link rel="stylesheet" href="/static/css/jcstyle.css">
+
+  <!-- 🎨 Estilo específico do componente -->
+  <style>
+    main {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 2rem;
+    }
+
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 15px;
+    }
+
+    label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #3770D0;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    button:hover { background-color: #2D61B5; }
+
+    /* --- Feedback --- */
+    #feedback {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .loading {
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      color: #856404;
+    }
+
+    .success {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    @media (max-width: 600px) {
+      form {
+        width: 90%;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="headerUol"><h1 class="h1Uol">Barra da Uol</h1></header>
+
+  <header class="headerJc">
+    <h1 class="logoJc">Logo do JC</h1>
+    <h1 class="nomeJc">Sistema Jornal do Commercio</h1>
+  </header>
+
+  <header class="headerNav">
+    <nav>
+      <ul>
+        <li><a href="/">Início</a></li>
+        <li><a href="/charge">Charges</a></li>
+        <li><a href="/admin">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <form id="testeForm">
+      <label for="titulo">Título da Publicação:</label>
+      <input type="text" id="titulo" name="titulo" placeholder="Digite algo...">
+
+      <button type="submit">Publicar</button>
+
+      <div id="feedback"></div>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById("testeForm");
+    const feedback = document.getElementById("feedback");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      // Estado: enviando
+      feedback.textContent = "⏳ Enviando...";
+      feedback.className = "loading";
+      feedback.style.display = "block";
+
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simula tempo de envio
+
+      // Sorteia sucesso ou erro
+      const sucesso = Math.random() > 0.5;
+
+      if (sucesso) {
+        feedback.textContent = "✅ Publicação enviada com sucesso!";
+        feedback.className = "success";
+      } else {
+        feedback.textContent = "❌ Erro ao enviar a publicação.";
+        feedback.className = "error";
+      }
+
+      // Some depois de 5s
+      setTimeout(() => { feedback.style.display = "none"; }, 5000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notícias dos Usuários - Jornal Cidadão JC</title>
+
+  <!-- 🌐 Estilo global -->
+  <link rel="stylesheet" href="/static/css/jcstyle.css">
+
+  <!-- 🎨 Estilo específico da página -->
+  <style>
+    main {
+      flex-grow: 1;
+      padding: 40px 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      color: #d9272e;
+      margin-bottom: 30px;
+    }
+
+    .noticias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .noticia-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease;
+    }
+
+    .noticia-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .noticia-img {
+      width: 100%;
+      height: 180px;
+      background-color: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #666;
+      overflow: hidden;
+    }
+
+    .noticia-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .noticia-content {
+      padding: 15px 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .noticia-titulo {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .noticia-resumo {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 15px;
+      flex-grow: 1;
+    }
+
+    .noticia-info {
+      font-size: 0.85rem;
+      color: #777;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 600px) {
+      .noticia-img { height: 150px; }
+      main { padding: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="headerUol"><h1 class="h1Uol">Barra da Uol</h1></header>
+
+  <header class="headerJc">
+    <h1 class="logoJc">Logo do JC</h1>
+    <h1 class="nomeJc">Sistema Jornal do Commercio de Comunicação</h1>
+  </header>
+
+  <header class="headerNav">
+    <nav>
+      <ul>
+        <li><a href="/">Início</a></li>
+        <li><a href="/charge">Charges</a></li>
+        <li><a href="/admin">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Notícias Publicadas pelos Usuários</h2>
+    <div class="noticias-grid" id="noticias-container"></div>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const container = document.getElementById("noticias-container");
+
+      try {
+        const response = await fetch("/api/materias");
+        if (!response.ok) throw new Error("Falha ao carregar notícias.");
+
+        const noticias = await response.json();
+        container.innerHTML = "";
+
+        if (noticias.length === 0) {
+          container.innerHTML = "<p style='text-align:center;'>Nenhuma notícia aprovada ainda.</p>";
+          return;
+        }
+
+        noticias.forEach(noticia => {
+          const card = document.createElement("div");
+          card.className = "noticia-card";
+          card.innerHTML = `
+            <div class="noticia-img">
+              ${noticia.image_url ? `<img src="${noticia.image_url}" alt="${noticia.title}">` : "Sem imagem"}
+            </div>
+            <div class="noticia-content">
+              <div>
+                <div class="noticia-titulo">${noticia.title}</div>
+                <div class="noticia-resumo">${noticia.summary || noticia.body.substring(0, 100) + "..."}</div>
+              </div>
+              <div class="noticia-info">
+                <span>${noticia.author}</span>
+                <span>${new Date(noticia.date).toLocaleDateString("pt-BR")}</span>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (error) {
+        console.error("Erro ao carregar notícias:", error);
+        container.innerHTML = "<p style='text-align:center; color:red;'>Erro ao carregar as notícias.</p>";
+      }
+    });
+  </script>
+</body>
+</html>
