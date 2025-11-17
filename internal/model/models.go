@@ -97,7 +97,7 @@ type Post struct {
 	AuthorID          int           `json:"author_id"`
 	Status            PostStatus    `json:"status"`
 	Date              FormattedTime `json:"date"`
-	UltimaAtualizacao FormattedTime `json:"ultima_atualizacao,omitempty"`
+	UltimaAtualizacao *FormattedTime `json:"ultima_atualizacao,omitempty"`
 }
 
 type PostStatusLog struct {

@@ -36,7 +36,6 @@ func main() {
 	if templatesPath == "" {
 		templatesPath = "../../static/templates"
 	}
-	// Convert to absolute path to avoid issues with relative paths
 	if !filepath.IsAbs(templatesPath) {
 		absPath, err := filepath.Abs(templatesPath)
 		if err == nil {
@@ -60,14 +59,10 @@ func main() {
 
 	router := gin.Default()
 	router.Static("/static", staticPath)
-	// Load only .tmpl files to avoid trying to load directories like Styles/
-	// Clean the path and ensure no trailing slash or existing glob patterns
 	templatesPath = filepath.Clean(templatesPath)
 	templatesPath = strings.TrimSuffix(templatesPath, string(filepath.Separator))
-	// Remove any existing glob patterns (* or **) from the path
 	templatesPath = strings.TrimSuffix(templatesPath, "/*")
 	templatesPath = strings.TrimSuffix(templatesPath, "/**")
-	// Use forward slashes for glob pattern (works on all platforms)
 	templatesPattern := fmt.Sprintf("%s/*.tmpl", strings.ReplaceAll(templatesPath, "\\", "/"))
 	log.Printf("Loading templates from pattern: %s", templatesPattern)
 	router.LoadHTMLGlob(templatesPattern)

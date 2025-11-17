@@ -189,7 +189,7 @@ func (h *Handler) UploadPost(c *gin.Context) {
 	}
 
 	uniqueFilename := fmt.Sprintf("%d-%s", time.Now().Unix(), file.Filename)
-	destinationPath := filepath.Join(h.PostsDir, uniqueFilename) 
+	destinationPath := filepath.Join(h.PostsDir, uniqueFilename)
 
 	if err := c.SaveUploadedFile(file, destinationPath); err != nil {
 		log.Println("Erro ao salvar o arquivo de mídia:", err)
@@ -211,7 +211,7 @@ func (h *Handler) UploadPost(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"status": "sucess",
+		"status":  "sucess",
 		"message": "Notícia enviada para a moderação.",
 	})
 }
@@ -219,12 +219,12 @@ func (h *Handler) UploadPost(c *gin.Context) {
 func (h *Handler) GetApprovedPosts(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil || page < 1 {
-		page = 1 
+		page = 1
 	}
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	if err != nil || limit < 1 || limit > 100 {
-		limit = 10 
+		limit = 10
 	}
 
 	posts, metadata, err := h.Storage.GetApprovedPostsPaginated(page, limit)
@@ -291,4 +291,23 @@ func (h *Handler) GetPostByAuthorID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, posts)
+}
+
+func (h *Handler) GetChargeDoDia(c *gin.Context) {
+	charges, err := h.Storage.GetAllCharges()
+	if err != nil {
+		log.Println("Erro ao buscar charges:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao obter charge do dia."})
+		return
+	}
+
+	if len(charges) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Nenhuma charge encontrada."})
+		return
+	}
+
+	chargeDoDia := charges[0] 
+	chargeDoDia.URL = filepath.Join("/static/images/charges", chargeDoDia.Filename)
+
+	c.JSON(http.StatusOK, chargeDoDia)
 }

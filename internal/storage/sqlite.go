@@ -509,7 +509,9 @@ func (s *Storage) CreatePost(title, description, mediaUrl string, authorID int, 
 
 func (s *Storage) GetPostByID(id int) (model.Post, error) {
 	var post model.Post
-	var createdAt, updatedAt time.Time
+	var createdAt time.Time
+	var updatedAt sql.NullTime 
+
 	query := `SELECT id, title, description, media_url, author_id, status, created_at, ultima_atualizacao FROM posts WHERE id = ?`
 
 	err := s.DB.QueryRow(query, id).Scan(
@@ -520,7 +522,7 @@ func (s *Storage) GetPostByID(id int) (model.Post, error) {
 		&post.AuthorID,
 		&post.Status,
 		&createdAt,
-		&updatedAt,
+		&updatedAt, 
 	)
 	if err != nil {
 		log.Println("Erro ao escanear um post:", err)
@@ -528,7 +530,10 @@ func (s *Storage) GetPostByID(id int) (model.Post, error) {
 	}
 
 	post.Date = model.FormattedTime(createdAt)
-	post.UltimaAtualizacao = model.FormattedTime(updatedAt)
+	if updatedAt.Valid { 
+		formattedUpdate := model.FormattedTime(updatedAt.Time)
+		post.UltimaAtualizacao = &formattedUpdate
+	}
 
 	return post, nil
 }
@@ -554,7 +559,7 @@ func (s *Storage) GetApprovedPostsPaginated(page, pageSize int) ([]model.Post, m
 	limit := pageSize
 	offset := (page - 1) * pageSize
 
-	rows, err := s.DB.Query(query, statusAprovada, limit, offset)
+		rows, err := s.DB.Query(query, statusAprovada, limit, offset)
 	if err != nil {
 		return nil, model.Metadata{}, err
 	}
@@ -563,7 +568,8 @@ func (s *Storage) GetApprovedPostsPaginated(page, pageSize int) ([]model.Post, m
 	var posts []model.Post
 	for rows.Next() {
 		var post model.Post
-		var createdAt, updatedAt time.Time
+		var createdAt time.Time
+		var updatedAt sql.NullTime 
 		if err := rows.Scan(
 			&post.ID,
 			&post.Title,
@@ -572,14 +578,18 @@ func (s *Storage) GetApprovedPostsPaginated(page, pageSize int) ([]model.Post, m
 			&post.AuthorID,
 			&post.Status,
 			&createdAt,
-			&updatedAt,
+			&updatedAt, 
 		); err != nil {
 			return nil, model.Metadata{}, err
 		}
 		post.Date = model.FormattedTime(createdAt)
-		post.UltimaAtualizacao = model.FormattedTime(updatedAt)
+		if updatedAt.Valid { 
+			formattedUpdate := model.FormattedTime(updatedAt.Time)
+			post.UltimaAtualizacao = &formattedUpdate
+		}
 		posts = append(posts, post)
 	}
+
 	if err = rows.Err(); err != nil {
 		return nil, model.Metadata{}, err
 	}
@@ -601,7 +611,7 @@ func (s *Storage) GetApprovedPostsPaginated(page, pageSize int) ([]model.Post, m
 }
 
 func (s *Storage) GetPostsByAuthorID(authorID int) ([]model.Post, error) {
-	query := `SELECT id, title, description, media_url, author_id, status, ultima_atualizacao, created_at FROM posts WHERE author_id = ? ORDER BY created_at DESC`
+	query := `SELECT id, title, description, media_url, author_id, status, created_at, ultima_atualizacao FROM posts WHERE author_id = ? ORDER BY created_at DESC`
 
 	rows, err := s.DB.Query(query, authorID)
 	if err != nil {
@@ -614,7 +624,8 @@ func (s *Storage) GetPostsByAuthorID(authorID int) ([]model.Post, error) {
 	
 	for rows.Next() {
 		var post model.Post
-		var createdAt, updatedAt time.Time
+		var createdAt time.Time
+		var updatedAt sql.NullTime
 
 		if err := rows.Scan(
 			&post.ID,
@@ -626,12 +637,15 @@ func (s *Storage) GetPostsByAuthorID(authorID int) ([]model.Post, error) {
 			&createdAt,
 			&updatedAt,
 		); err != nil {
-			log.Println("Erro ao escanear um post:", err)
+			log.Println("Erro ao escanear um post do autor:", err) 
 			return nil, err 
 		}
 
 		post.Date = model.FormattedTime(createdAt)
-		post.UltimaAtualizacao = model.FormattedTime(updatedAt)
+		if updatedAt.Valid {
+			formattedUpdate := model.FormattedTime(updatedAt.Time)
+			post.UltimaAtualizacao = &formattedUpdate
+		}
 		
 		posts = append(posts, post)
 	}

@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"database/sql"
+	"html/template"
+	"encoding/json"
 	"log"
 	"net/http"
 	"path/filepath"
 	"strconv"
 
+	"github/jornal-cidadao-jc/internal/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +18,7 @@ func (h *Handler) GetLoginPage(c *gin.Context)      { c.HTML(http.StatusOK, "log
 func (h *Handler) GetSignupPage(c *gin.Context)     { c.HTML(http.StatusOK, "cadastro.tmpl", nil) }
 func (h *Handler) GetAdminPage(c *gin.Context)      { c.HTML(http.StatusOK, "admin.tmpl", nil) }
 func (h *Handler) GetUsersAdminPage(c *gin.Context) { c.HTML(http.StatusOK, "admin_users.tmpl", nil) }
+
 func (h *Handler) GetUploadChargePage(c *gin.Context) {
 	c.HTML(http.StatusOK, "adicionar_charge.tmpl", nil)
 }
@@ -24,10 +28,6 @@ func (h *Handler) GetDeleteChargePage(c *gin.Context) {
 func (h *Handler) GetUploadArticlePage(c *gin.Context) {
 	c.HTML(http.StatusOK, "escrever_materia.tmpl", nil)
 }
-func (h *Handler) ShowJornalCidadaoDashboard(c *gin.Context) {
-	c.HTML(http.StatusOK, "jc.tmpl", gin.H{})
-}
-
 func (h *Handler) GetUpdateArticlePage(c *gin.Context) {
 	c.HTML(http.StatusOK, "atualizar_materia.tmpl", nil)
 }
@@ -43,6 +43,24 @@ func (h *Handler) GetArticlesPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "materias.tmpl", gin.H{
 		"Articles": articles,
 	})
+}
+
+func (h *Handler) ShowJornalCidadaoDashboard(c *gin.Context) {
+    authorID := 1 
+    posts, err := h.Storage.GetPostsByAuthorID(authorID)
+    if err != nil && err != sql.ErrNoRows {
+        log.Println("Erro ao buscar posts do autor:", err)
+        c.HTML(http.StatusInternalServerError, "error.tmpl", gin.H{"error": "Não foi possível carregar suas notícias."})
+        return
+    }
+    
+    if posts == nil {
+        posts = []model.Post{}
+    }
+
+    c.HTML(http.StatusOK, "jc.tmpl", gin.H{
+        "Posts": posts, 
+    })
 }
 
 func (h *Handler) GetNoIdChargePage(c *gin.Context) {

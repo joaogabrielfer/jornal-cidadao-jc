@@ -12,6 +12,7 @@ func setupRoutes(router *gin.Engine, handler *handlers.Handler){
 
 		api.GET("/charges", handler.GetChargesList)
 		api.GET("/charges/random", handler.GetRandomCharge)
+		api.GET("/charge-do-dia", handler.GetChargeDoDia)
 
 		api.GET("/materias", handler.GetArticles)
 		api.GET("/materia/:id", handler.GetArticleByID)
@@ -26,6 +27,7 @@ func setupRoutes(router *gin.Engine, handler *handlers.Handler){
 
 	router.GET("/", handler.GetIndexPage)
 	router.GET("/charge", handler.GetNoIdChargePage)
+	router.GET("/charges", handler.GetNoIdChargePage)
 	router.GET("/charge/:id", handler.GetChargePage)
 	router.GET("/cadastro", handler.GetSignupPage)
 	router.GET("/login", handler.GetLoginPage)

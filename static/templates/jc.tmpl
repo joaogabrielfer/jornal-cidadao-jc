@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <title>Jornal Cidadão - Minhas Notícias</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- CSS principal do site (mesmo da home) -->
     <link rel="stylesheet" href="/static/css/jcstyle.css">
-
-    <!-- CSS específico do dashboard Jornal Cidadão + MENU LATERAL -->
+    <!-- COPIE E COLE SEU BLOCO <style> GIGANTE AQUI -->
     <style>
+        /* ... SEU BLOCO <style> ORIGINAL VAI AQUI ... */
         /* ====== AJUSTES DO HEADER DO INDEX PARA ESTA PÁGINA ====== */
 
         #header-top-container {
@@ -203,6 +201,7 @@
             margin: 0 auto 80px;
             padding: 40px 120px;
             display: flex;
+            flex-wrap: wrap; /* Permite que o carrossel quebre a linha */
             gap: 32px;
             background: #f4f4f4;
             box-sizing: border-box;
@@ -304,31 +303,27 @@
             background: #ffffff;
             color: #333333;
         }
-
-        .jc-filter-btn[data-status="rascunho"] {
-            border-color: #4a90e2;
-            background: #e6f1ff;
-            color: #1f4f8f;
-        }
-
-        .jc-filter-btn[data-status="pendente"] {
+        
+        /* CORREÇÃO: Status de acordo com o Model do Go */
+        .jc-filter-btn[data-status="Em análise"],
+        .jc-status-Em_análise {
             border-color: #f5a623;
             background: #fff3df;
             color: #a96508;
         }
-
-        .jc-filter-btn[data-status="publicada"] {
+        .jc-filter-btn[data-status="Aprovado"],
+        .jc-status-Aprovado {
             border-color: #4caf50;
             background: #e7f6e8;
             color: #256428;
         }
-
-        .jc-filter-btn[data-status="rejeitada"] {
+        .jc-filter-btn[data-status="Rejeitada"],
+        .jc-status-Rejeitada {
             border-color: #d0021b;
             background: #ffe6e8;
             color: #8a0010;
         }
-
+        
         .jc-filter-btn.jc-filter-active {
             border-width: 2px;
         }
@@ -362,8 +357,8 @@
             margin-right: 12px;
             flex-shrink: 0;
         }
-
-        .jc-news-thumb img {
+        
+        .jc-news-thumb img, .jc-news-thumb video {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -399,30 +394,6 @@
             border: 1px solid transparent;
             text-transform: uppercase;
             letter-spacing: 0.03em;
-        }
-
-        .jc-status-rascunho {
-            border-color: #4a90e2;
-            color: #1f4f8f;
-            background: #e6f1ff;
-        }
-
-        .jc-status-pendente {
-            border-color: #f5a623;
-            color: #a96508;
-            background: #fff3df;
-        }
-
-        .jc-status-publicada {
-            border-color: #4caf50;
-            color: #256428;
-            background: #e7f6e8;
-        }
-
-        .jc-status-rejeitada {
-            border-color: #d0021b;
-            color: #8a0010;
-            background: #ffe6e8;
         }
 
         .jc-news-actions {
@@ -529,9 +500,27 @@
             font-size: 11px;
             color: #777777;
         }
+        
+        /* ====== ESTILOS DO CARROSSEL DE CHARGES (COPIADO DO INDEX) ====== */
+        :root {
+            --widget-max-width: 900px; --card-border-radius: 8px; --arrow-size: 44px;
+            --arrow-bg: #ffffff; --arrow-color: #333333; --color-primary: #D22C2C;
+        }
+        .charges-widget { width: 100%; max-width: var(--widget-max-width); margin: 0 auto; padding: 0 0 30px 0; box-sizing: border-box; text-align: center; }
+        .charges-widget h2 { font-size: 32px; font-weight: 700; color: #222; margin: 0 auto 24px; padding-bottom: 8px; border-bottom: 3px solid var(--color-primary); display: inline-block; }
+        .carousel-wrapper { position: relative; overflow: hidden; }
+        .charges-carousel { display: flex; margin: 0; padding: 10px 0; box-sizing: border-box; transition: transform 0.45s ease; }
+        .charge-item { flex: 0 0 calc(100% / 3); padding: 0 10px; box-sizing: border-box; text-decoration: none; color: inherit; transform: scale(0.9); transition: transform 0.3s ease; }
+        .charge-item.is-center { transform: scale(1.05); }
+        .charge-item img { width: 100%; display: block; border-radius: var(--card-border-radius); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 10; background: var(--arrow-bg); border: 1px solid #ddd; border-radius: 50%; width: var(--arrow-size); height: var(--arrow-size); font-size: 22px; font-weight: bold; color: var(--arrow-color); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
+        .carousel-btn:hover { background-color: #f9f9f9; transform: translateY(-50%) scale(1.05); }
+        #charges-prev { left: 10px; }
+        #charges-next { right: 10px; }
+        @media (max-width: 768px) { .charge-item { flex: 0 0 calc(100% / 2); } }
+        @media (max-width: 500px) { .charge-item { flex: 0 0 80%; } }
 
         /* ====== RESPONSIVO ====== */
-
         @media (max-width: 900px) {
             main.jc-dashboard {
                 flex-direction: column;
@@ -541,6 +530,8 @@
             .jc-main-column,
             .jc-sidebar {
                 flex: 1 1 auto;
+                width: 100%;
+                flex-basis: auto; /* Garante que não tenham base fixa */
             }
         }
 
@@ -574,15 +565,7 @@
     </style>
 </head>
 <body id="jc">
-    <!-- overlay do menu -->
-    <div class="jc-menu-overlay" id="jc-menu-overlay"></div>
-
-    <!-- Google Tag Manager (noscript) -->
-    <noscript>
-        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W8GNLB"
-                height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
-
+    <!-- ... (seu header e menu lateral aqui, sem alterações) ... -->
     <!-- HEADER DO INDEX -->
     <div id="header-top-container">
         <div id="wrapper-header-searchbar">
@@ -674,7 +657,6 @@
         </nav>
     </div>
 
-    <!-- HEADER DO DASHBOARD JORNAL CIDADÃO -->
     <header class="jc-dashboard-header">
         <div class="jc-dashboard-header-inner">
             <nav class="jc-nav-links">
@@ -683,7 +665,6 @@
                 <a href="/admin" class="jc-nav-link">Admin</a>
                 <a href="/ultimas" class="jc-nav-link jc-nav-link-active">Minhas Notícias</a>
             </nav>
-
             <div class="jc-header-actions">
                 <a href="/admin/materia" class="jc-btn-primary">Escrever nova notícia</a>
                 <a href="#" class="jc-link-sair">Sair</a>
@@ -691,28 +672,44 @@
         </div>
     </header>
 
-    <!-- MAIN: DUAS COLUNAS -->
     <main class="jc-dashboard">
+        <!-- INÍCIO: CARROSSEL DE CHARGES DINÂMICO -->
+        <section class="charges-widget" style="flex: 1 1 100%; margin-bottom: 20px;">
+            <h2>Charges</h2>
+            <div class="carousel-wrapper">
+                <button id="charges-prev" class="carousel-btn" aria-label="Charge anterior">&#x2039;</button>
+                <div class="charges-carousel" id="charges-carousel"></div>
+                <button id="charges-next" class="carousel-btn" aria-label="Próxima charge">&#x203A;</button>
+            </div>
+        </section>
+        <!-- FIM: CARROSSEL DE CHARGES DINÂMICO -->
+
         <section class="jc-main-column">
             <h2 class="jc-section-title">Minhas Notícias</h2>
-
             <div class="jc-filters">
                 <button class="jc-filter-btn jc-filter-active" data-status="todas">Todas</button>
-                <button class="jc-filter-btn" data-status="rascunho">Rascunhos</button>
-                <button class="jc-filter-btn" data-status="pendente">Pendentes</button>
-                <button class="jc-filter-btn" data-status="publicada">Publicadas</button>
-                <button class="jc-filter-btn" data-status="rejeitada">Rejeitadas</button>
+                <button class="jc-filter-btn" data-status="Em análise">Pendentes</button>
+                <button class="jc-filter-btn" data-status="Aprovado">Publicadas</button>
+                <button class="jc-filter-btn" data-status="Rejeitada">Rejeitadas</button>
             </div>
-
             <div id="lista-minhas-noticias" class="jc-news-list"></div>
         </section>
 
         <aside class="jc-sidebar">
+            <div id="charge-do-dia-container" class="jc-card">
+                <h3 class="jc-card-title">Charge do Dia</h3>
+                <a href="#">
+                    <figure><img id="charge-image" loading="lazy" style="width:100%;" alt="Charge do dia"></figure>
+                </a>
+                <div class="jc-news-meta" style="text-align:center; margin-top: 8px;">
+                    Autor: <span id="charge-author">Carregando...</span>
+                </div>
+            </div>
+            
             <div class="jc-card">
                 <h3 class="jc-card-title">Últimas Notícias dos Cidadãos</h3>
                 <ul id="lista-ultimas" class="jc-sidebar-news-list"></ul>
             </div>
-
             <div class="jc-card">
                 <h3 class="jc-card-title">Estatísticas de Usuário</h3>
                 <div class="jc-stats-row">
@@ -729,155 +726,222 @@
         </aside>
     </main>
 
+    <script id="posts-data" type="application/json">
+        {{ .Posts }}
+    </script>
+    
     <script>
-        // ===== MENU LATERAL (abre/fecha) =====
-        document.addEventListener("DOMContentLoaded", () => {
-            const menuBtn   = document.querySelector(".toggle-menu-sidebar-menu-jc");
-            const sideMenu  = document.getElementById("jc-side-menu");
-            const overlay   = document.getElementById("jc-menu-overlay");
-            const closeBtn  = document.getElementById("jc-menu-close-btn");
+    document.addEventListener("DOMContentLoaded", () => {
+        // ===== MENU LATERAL =====
+        const menuBtn   = document.querySelector(".toggle-menu-sidebar-menu-jc");
+        const sideMenu  = document.getElementById("jc-side-menu");
+        const overlay   = document.getElementById("jc-menu-overlay");
+        const closeBtn  = document.getElementById("jc-menu-close-btn");
+        if (menuBtn) menuBtn.addEventListener("click", (e) => { e.preventDefault(); sideMenu.classList.add("is-open"); overlay.classList.add("is-open"); });
+        if (closeBtn) closeBtn.addEventListener("click", (e) => { e.preventDefault(); sideMenu.classList.remove("is-open"); overlay.classList.remove("is-open"); });
+        if (overlay) overlay.addEventListener("click", (e) => { e.preventDefault(); sideMenu.classList.remove("is-open"); overlay.classList.remove("is-open"); });
 
-            function openMenu(e) {
-                if (e) e.preventDefault();
-                sideMenu.classList.add("is-open");
-                overlay.classList.add("is-open");
-            }
+        // ===== LÓGICA DO DASHBOARD E CHARGES =====
+        const listaMinhasEl     = document.getElementById("lista-minhas-noticias");
+        const listaUltimasEl    = document.getElementById("lista-ultimas");
+        const filterButtons     = document.querySelectorAll(".jc-filter-btn");
 
-            function closeMenu(e) {
-                if (e) e.preventDefault();
-                sideMenu.classList.remove("is-open");
-                overlay.classList.remove("is-open");
-            }
+        // CORREÇÃO: Lê os dados de uma tag script, garantindo que sejam um array
+        let todasMinhasNoticias = [];
+        try {
+            // O Go vai injetar o objeto diretamente aqui, sem aspas.
+            todasMinhasNoticias = {{ .Posts }};
+        } catch (e) {
+            console.error("Não foi possível carregar os posts do servidor.", e);
+        }
 
-            if (menuBtn)  menuBtn.addEventListener("click", openMenu);
-            if (closeBtn) closeBtn.addEventListener("click", closeMenu);
-            if (overlay)  overlay.addEventListener("click", closeMenu);
-        });
 
-        // ===== DASHBOARD: CARREGAR NOTÍCIAS =====
-        document.addEventListener("DOMContentLoaded", async () => {
-            const listaMinhas   = document.getElementById("lista-minhas-noticias");
-            const listaUltimas  = document.getElementById("lista-ultimas");
-            const filterButtons = document.querySelectorAll(".jc-filter-btn");
-            let noticias = [];
+        function getStatusString(statusInt) {
+            return {1: "Em análise", 2: "Aprovado", 3: "Rejeitada"}[statusInt] || "Desconhecido";
+        }
+        
+        function renderMinhasNoticias(filtro) {
+            if(!listaMinhasEl) return;
+            listaMinhasEl.innerHTML = "";
 
-            function normalizarStatus(raw) {
-                if (!raw) return "pendente";
-                const s = raw.toString().toLowerCase();
-                if (s.startsWith("rascunho")) return "rascunho";
-                if (s.startsWith("pend"))    return "pendente";
-                if (s.startsWith("apro") || s.startsWith("publi")) return "publicada";
-                if (s.startsWith("rej"))     return "rejeitada";
-                return "pendente";
-            }
+            // Garante que 'todasMinhasNoticias' é sempre um array
+            const posts = Array.isArray(todasMinhasNoticias) ? todasMinhasNoticias : [];
 
-            function renderMinhasNoticias(filtro) {
-                listaMinhas.innerHTML = "";
-                const filtradas = noticias.filter(n => {
-                    const status = normalizarStatus(n.status);
-                    if (filtro === "todas") return true;
-                    return status === filtro;
-                });
-
-                if (filtradas.length === 0) {
-                    listaMinhas.innerHTML =
-                        "<div style='padding:12px;font-size:13px;color:#555;'>Nenhuma notícia encontrada para esse filtro.</div>";
-                    return;
-                }
-
-                filtradas.forEach(n => {
-                    const status = normalizarStatus(n.status);
-                    const item = document.createElement("div");
-                    item.className = "jc-news-item";
-
-                    const data = n.date || n.created_at || "";
-                    const dataFormatada = data ? new Date(data).toLocaleDateString("pt-BR") : "";
-
-                    item.innerHTML = `
-                        <div class="jc-news-thumb">
-                            ${n.image_url ? `<img src="${n.image_url}" alt="${n.title}">` : "Sem imagem"}
-                        </div>
-                        <div class="jc-news-body">
-                            <div class="jc-news-title">${n.title || "(Sem título)"}</div>
-                            <div class="jc-news-meta">
-                                ${dataFormatada ? dataFormatada + " • " : ""}${n.author || "Autor desconhecido"}
-                            </div>
-                            <div class="jc-news-status-row">
-                                <span class="jc-status-tag jc-status-${status}">
-                                    ${status.charAt(0).toUpperCase() + status.slice(1)}
-                                </span>
-                                <div class="jc-news-actions">
-                                    <a href="/materia/${n.id || ""}">Visualizar</a>
-                                    <a href="#">Editar</a>
-                                    <a href="#">Apagar</a>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    listaMinhas.appendChild(item);
-                });
-            }
-
-            function renderUltimasNoticias() {
-                listaUltimas.innerHTML = "";
-                const ultimas = noticias.slice(0, 3);
-
-                if (ultimas.length === 0) {
-                    listaUltimas.innerHTML =
-                        "<li style='font-size:12px;color:#555;'>Nenhuma notícia disponível ainda.</li>";
-                    return;
-                }
-
-                ultimas.forEach(n => {
-                    const li = document.createElement("li");
-                    li.className = "jc-sidebar-news-item";
-
-                    const data = n.date || n.created_at || "";
-                    const dataFormatada = data ? new Date(data).toLocaleDateString("pt-BR") : "";
-
-                    li.innerHTML = `
-                        <div class="jc-sidebar-thumb">
-                            ${n.image_url ? `<img src="${n.image_url}" alt="${n.title}">` : ""}
-                        </div>
-                        <div class="jc-sidebar-news-text">
-                            <strong>${n.title || "(Sem título)"}</strong>
-                            <span>${dataFormatada}</span>
-                        </div>
-                    `;
-                    listaUltimas.appendChild(li);
-                });
-            }
-
-            function atualizarEstatisticas() {
-                const viewsEl     = document.getElementById("stat-views");
-                const commentsEl  = document.getElementById("stat-comments");
-                const total       = noticias.length;
-                viewsEl.textContent    = total * 120;
-                commentsEl.textContent = total * 8;
-            }
-
-            filterButtons.forEach(btn => {
-                btn.addEventListener("click", () => {
-                    filterButtons.forEach(b => b.classList.remove("jc-filter-active"));
-                    btn.classList.add("jc-filter-active");
-                    const status = btn.getAttribute("data-status");
-                    renderMinhasNoticias(status);
-                });
+            const filtradas = posts.filter(n => {
+                const status = getStatusString(n.status);
+                return filtro === "todas" || status === filtro;
             });
 
-            try {
-                const response = await fetch("/api/materias");
-                if (!response.ok) throw new Error("Falha ao carregar notícias.");
-                noticias = await response.json();
-                renderMinhasNoticias("todas");
-                renderUltimasNoticias();
-                atualizarEstatisticas();
-            } catch (err) {
-                console.error("Erro ao carregar notícias:", err);
-                listaMinhas.innerHTML =
-                    "<div style='padding:12px;font-size:13px;color:red;'>Erro ao carregar as notícias.</div>";
+            if (filtradas.length === 0) {
+                listaMinhasEl.innerHTML = "<div style='padding:12px;font-size:13px;color:#555;'>Nenhuma notícia encontrada para esse filtro.</div>";
+                return;
             }
+
+            filtradas.forEach(n => {
+                const status = getStatusString(n.status);
+                const statusClass = status.replace(' ', '_');
+                const item = document.createElement("div");
+                item.className = "jc-news-item";
+                const dataFormatada = new Date(n.date).toLocaleDateString("pt-BR", {timeZone: 'UTC'});
+                
+                let mediaElement = '<div class="jc-news-thumb">Sem mídia</div>';
+                if (n.media_url) {
+                    mediaElement = n.media_url.endsWith('.mp4') 
+                        ? `<div class="jc-news-thumb"><video src="${n.media_url}" muted loop autoplay playsinline></video></div>`
+                        : `<div class="jc-news-thumb"><img src="${n.media_url}" alt="${n.titulo}"></div>`;
+                }
+
+                item.innerHTML = `
+                    ${mediaElement}
+                    <div class="jc-news-body">
+                        <div class="jc-news-title">${n.titulo || "(Sem título)"}</div>
+                        <div class="jc-news-meta">${dataFormatada}</div>
+                        <div class="jc-news-status-row">
+                            <span class="jc-status-tag jc-status-${statusClass}">${status}</span>
+                            <div class="jc-news-actions">
+                                <a href="/post/${n.id || ""}">Visualizar</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                listaMinhasEl.appendChild(item);
+            });
+        }
+        
+        async function carregarUltimasNoticias() {
+            if(!listaUltimasEl) return;
+            try {
+                const response = await fetch("/api/posts-aprovados?limit=3");
+                if (!response.ok) throw new Error("Falha ao carregar.");
+                const data = await response.json();
+                const posts = data.posts || [];
+                listaUltimasEl.innerHTML = "";
+                if (posts.length === 0) {
+                    listaUltimasEl.innerHTML = "<li style='font-size:12px;color:#555;'>Nenhuma notícia.</li>";
+                    return;
+                }
+                posts.forEach(n => {
+                    const li = document.createElement("li");
+                    li.className = "jc-sidebar-news-item";
+                    const dataFormatada = new Date(n.date).toLocaleDateString("pt-BR", {timeZone: 'UTC'});
+                    li.innerHTML = `
+                        <div class="jc-sidebar-thumb">
+                            ${n.media_url ? `<img src="${n.media_url}" alt="${n.titulo}">` : ""}
+                        </div>
+                        <div class="jc-sidebar-news-text">
+                            <strong>${n.titulo || "(Sem título)"}</strong>
+                            <span>${dataFormatada}</span>
+                        </div>`;
+                    listaUltimasEl.appendChild(li);
+                });
+            } catch (err) {
+                listaUltimasEl.innerHTML = "<li style='font-size:12px;color:red;'>Erro ao carregar.</li>";
+            }
+        }
+        
+        function inicializarCarrosselDeCharges() {
+            const carouselContainer = document.getElementById('charges-carousel');
+            if (!carouselContainer) return;
+            fetch('/api/charges')
+                .then(res => res.json())
+                .then(charges => {
+                    if (!charges || charges.length === 0) return;
+                    charges.forEach(c => {
+                        carouselContainer.innerHTML += `
+                            <a href="/charge/${c.id}" class="charge-item">
+                                <img src="${c.url}" alt="${c.title}" loading="lazy">
+                            </a>`;
+                    });
+                    ativarLogicaCarrosselInfinito();
+                }).catch(console.error);
+        }
+
+        function ativarLogicaCarrosselInfinito() {
+            const carousel = document.getElementById('charges-carousel');
+            const prevBtn = document.getElementById('charges-prev');
+            const nextBtn = document.getElementById('charges-next');
+            if (!carousel || !prevBtn || !nextBtn) return;
+            
+            const originalItems = Array.from(carousel.querySelectorAll('.charge-item'));
+            const originalCount = originalItems.length;
+            if (originalCount === 0) return;
+
+            const visible = Math.min(3, originalCount);
+            let clonesPrefixCount = 0;
+
+            for (let i = 0; i < visible; i++) {
+                carousel.appendChild(originalItems[i % originalCount].cloneNode(true));
+            }
+            for (let i = 0; i < visible; i++) {
+                carousel.prepend(originalItems[originalCount - 1 - (i % originalCount)].cloneNode(true));
+                clonesPrefixCount++;
+            }
+
+            const allItems = Array.from(carousel.querySelectorAll('.charge-item'));
+            let currentIndex = clonesPrefixCount;
+            let itemWidth = allItems[0].getBoundingClientRect().width;
+
+            const setTransition = on => carousel.style.transition = on ? 'transform 0.45s ease' : 'none';
+            const applyTransform = () => carousel.style.transform = `translateX(${-currentIndex * itemWidth}px)`;
+
+            const goTo = index => {
+                currentIndex = index;
+                setTransition(true);
+                applyTransform();
+            };
+
+            carousel.addEventListener('transitionend', () => {
+                if (currentIndex >= originalCount + clonesPrefixCount) {
+                    setTransition(false);
+                    currentIndex = clonesPrefixCount;
+                    applyTransform();
+                }
+                if (currentIndex < clonesPrefixCount) {
+                    setTransition(false);
+                    currentIndex = originalCount + clonesPrefixCount - 1;
+                    applyTransform();
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                itemWidth = allItems[0].getBoundingClientRect().width;
+                setTransition(false);
+                applyTransform();
+            });
+
+            setTransition(false);
+            applyTransform();
+            nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
+            prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+        }
+        
+        function carregarChargeDoDia() {
+            const container = document.getElementById('charge-do-dia-container');
+            if (!container) return;
+            fetch('/api/charge-do-dia')
+                .then(response => response.json())
+                .then(charge => {
+                    container.querySelector('a').href = `/charge/${charge.id}`;
+                    container.querySelector('img').src = charge.url;
+                    container.querySelector('img').alt = charge.title;
+                    container.querySelector('#charge-author').textContent = "Thiago Lucas"; // Placeholder
+                }).catch(console.error);
+        }
+
+        // --- INICIALIZAÇÃO ---
+        filterButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                filterButtons.forEach(b => b.classList.remove("jc-filter-active"));
+                btn.classList.add("jc-filter-active");
+                renderMinhasNoticias(btn.getAttribute("data-status"));
+            });
         });
+
+        if(listaMinhasEl) renderMinhasNoticias("todas");
+        carregarUltimasNoticias();
+        inicializarCarrosselDeCharges();
+        carregarChargeDoDia();
+    });
     </script>
 </body>
 </html>
