@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"html/template"
-	"encoding/json"
 	"log"
 	"net/http"
 	"path/filepath"
