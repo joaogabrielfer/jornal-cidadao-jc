@@ -1,288 +1,195 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- O backend ainda preenche os dados iniciais, o que é ótimo para SEO e para o primeiro carregamento -->
-  <title>{{if .Charge.Title}}{{.Charge.Title}} – {{end}}Visualizar Charges</title>
+  <meta charset="utf-8">
+  <title>{{ if .charge.Title }}{{ .charge.Title }} — Charges | JC{{ else }}Charge — JC{{ end }}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <!-- CSS global do site -->
+  <link rel="stylesheet" href="/static/css/jcstyle.css">
+
+  <!-- Pequenos ajustes locais (mantendo o visual da home) -->
   <style>
-    /* SEU CSS AQUI, SEM MUDANÇAS */
-    .headerUol{background:#262626;top:0;position:fixed;width:100%;text-align:center;font-size:xx-small;height:30px;z-index:100}
-    .h1Uol{color:#fff;margin:0;padding-top:5px}
-    .headerJc{background:#d9272e;width:100%;height:130px;margin-top:30px;position:relative}
-    .logoJc,.nomeJc{color:#fff;text-align:center}
-        .headerNav {
-            background: rgb(167, 166, 166);
-            height: 40px; 
-            display: flex;
-            align-items: center; 
-            padding: 0 15px; 
-            margin: 0;
-        }
+    /* HEADER idêntico ao da home */
+    #header-top-container{width:100%;background:#fff}
+    #wrapper-header-searchbar{background:#fff}
+    #header .container{max-width:1200px;margin:0 auto}
+    #header .row{display:flex;align-items:center;justify-content:space-between}
+    #header .col-xs-4.col-md-4{flex:0 0 33.333%;max-width:33.333%}
+    #header .edition,#header .logo,#header .options{display:flex;align-items:center;justify-content:center}
+    #header .edition h5{margin:0 0 0 8px;font-size:16px;font-weight:700}
+    #header .options{gap:16px;justify-content:flex-end}
+    #header .btn-publicidade-legal{
+      font-size:14px;padding:6px 16px;border-radius:999px;border:1px solid #d9272e;
+      background:#fff;color:#d9272e;text-decoration:none
+    }
 
-		.headerNav nav ul {
-            margin: 0;
-            padding: 0;
-            list-style: none; 
-            display: flex; 
-            gap: 15px; 
-        }
-        
-        
-        .headerNav nav a {
-            text-decoration: none; 
-            color: #333; 
-            font-weight: bold;
-            font-size: 14px;
-            padding: 8px 16px; 
-            border-radius: 5px; 
-            background-color: rgba(255, 255, 255, 0.4); 
-            transition: background-color 0.2s ease, color 0.2s ease; 
-        }
+    /* LATERAL (mesmo desenho do site) */
+    .jc-menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9998;opacity:0;pointer-events:none;transition:opacity .3s}
+    .jc-menu-overlay.is-open{opacity:1;pointer-events:auto}
+    body#jc .side-scroll.scroll-JC{position:fixed;top:0;right:0;width:345px;max-width:90%;height:100vh;background:#fff;z-index:9999;overflow-y:auto;box-shadow:-2px 0 8px rgba(0,0,0,.3);transform:translateX(100%);transition:transform .3s}
+    body#jc .side-scroll.scroll-JC.is-open{transform:translateX(0)}
+    .jc-menu-topbar{display:flex;justify-content:space-between;align-items:stretch;background:#2c2c2c;color:#fff}
+    .jc-menu-live-btn{flex:1;border:0;background:transparent;color:#fff;font-weight:700;padding:12px 16px;text-align:left;cursor:pointer}
+    .jc-menu-close-btn{width:88px;background:#d9272e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer}
+    .side-scroll.scroll-JC .lives{padding:0 18px 10px}
+    .side-scroll.scroll-JC nav{padding:10px 24px 32px}
+    .side-scroll.scroll-JC nav ul{list-style:none;margin:0;padding:0}
+    .side-scroll.scroll-JC nav li{margin:10px 0}
 
-        .headerNav nav a:hover {
-            background-color: #333; 
-            color: white; 
-        }
-    body{padding-top:0;margin:0;min-height:100vh;display:flex;flex-direction:column;font-family:Verdana, sans-serif}
-    .mainCharges{flex-grow:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0}
-    .tituloCharge{text-align:center;margin-bottom:20px;font-size:24px;font-weight:500;color:#333}
-    .containerCharge{padding:20px;background:#d9272e;border-radius:10px;box-shadow:0 4px 8px rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;width:450px}
-    .charge{width:400px;height:350px;background:#F0F0F0;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;margin-bottom:15px;overflow:hidden}
-    .charge img{max-width:100%;max-height:100%}
-    .footerCharge{width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:0 10px}
-    .dataCharge{font-size:14px;color:#eaeaea}
-    .botoesNavDaCharge{display:flex;gap:10px}
-    .botaoNav{background:#F0F0F0;color:#333;border:1px solid #ccc;min-width:34px;height:34px;border-radius:5px;font-size:18px;font-weight:bold;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer}
-    .botaoNav:hover{background:#E0E0E0}
+    /* PÁGINA DA CHARGE */
+    html,body{background:#fff;color:#141414}
+    main.charge-wrap{max-width:1100px;margin:28px auto 96px;padding:0 20px}
+    .back-link{display:inline-flex;align-items:center;gap:8px;border:1px solid #e5e7eb;border-radius:999px;padding:8px 14px;font-weight:700;text-decoration:none;color:#111;background:#fff}
+    .back-link:hover{border-color:#d0d5dc}
+    .title{font-size:2.25rem;line-height:1.2;font-weight:800;letter-spacing:-.02em;margin:12px 0 18px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-left:6px solid #d9272e;border-radius:12px;box-shadow:0 1px 0 rgba(0,0,0,.02);overflow:hidden}
+    .card .media{background:#f7f7f8}
+    .card img{display:block;width:100%;height:auto}
+    .meta{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;color:#6b7280;font-size:.95rem}
+    .nav{display:flex;gap:8px}
+    .btn{appearance:none;border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:700}
+    .btn:hover{border-color:#d0d5dc}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    @media (max-width:720px){.title{font-size:1.75rem}}
   </style>
 </head>
-<style>
-    .headerUol {
-        background: rgb(38, 38, 38);
-        top: 0;
-        position: fixed;
-        width: 100%;
-        text-align: center;
-        font-size: xx-small;
-        height: 30px;
-        z-index: 100;
-    }
+<body id="jc">
+  <!-- overlay do menu -->
+  <div class="jc-menu-overlay" id="jc-menu-overlay"></div>
 
-    .h1Uol {
-        color: white;
-        margin: 0; 
-        padding-top: 5px; 
-    }
+  <!-- ===== HEADER (igual ao da home) ===== -->
+  <div id="header-top-container">
+    <div id="wrapper-header-searchbar">
+      <header id="header">
+        <div class="container">
+          <div class="row">
+            <div class="col-xs-4 col-md-4">
+              <a href="/static/images/edicao.webp" class="edition">
+                <img width="106" height="91" src="/static/images/edicao.webp" alt="Leia aqui a edição de hoje">
+                <h5>Edição do dia</h5>
+              </a>
+            </div>
+            <div class="col-xs-4 col-md-4">
+              <a href="/" class="logo">
+                <figure>
+                  <img width="140" height="70" src="/static/images/logo.svg" alt="JC" title="JC">
+                </figure>
+              </a>
+            </div>
+            <div class="col-xs-4 col-md-4">
+              <div class="options">
+                <a href="/publicidade-legal" class="btn btn-outline-danger btn-publicidade-legal">Publicidade legal</a>
+                <a href="#" class="toggle-menu-sidebar-menu-jc">
+                  <img width="25" height="20" src="/static/images/icon-menu.svg" alt="menu" title="menu">
+                </a>
+                <a href="#" class="toggle-search">
+                  <img width="18" height="20" src="/static/images/icon-busca.svg" alt="busca" title="busca">
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+    </div>
+  </div>
 
-    .headerJc {
-        background: rgb(217, 39, 46);
-        width: 100%;
-        height: 130px; 
-        margin-top: 30px; 
-        position: relative;
-    }
-    
-    .logoJc{
-        color: white;
-        text-align: center;
-    }
-    
-    .nomeJc{
-        color: white;
-        text-align: center;
-    }
-    
-    .headerNav {
-        background: rgb(167, 166, 166);
-        height: 40px; 
-        display: flex;
-        align-items: center; 
-        padding: 0 15px; 
-        margin: 0;
-    }
-    
-    body {
-        padding-top: 0; 
-        margin: 0;
-        min-height: 100vh; 
-        display: flex;
-        flex-direction: column;
-        font-family: Verdana, sans-serif;
-    }
-    
-    .mainCharges {
-        flex-grow: 1; 
-        display: flex;
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center;
-        padding: 40px 0;
-    }
-    
-    .tituloCharge {
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 24px;
-        font-weight: 500;
-        color: #333;
-    }
-    
-    .containerCharge {
-        padding: 20px; 
-        background-color: rgb(217, 39, 46); 
-        border-radius: 10px; 
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 450px;
-    }
+  <!-- ===== MENU LATERAL ===== -->
+  <div class="side-scroll scroll-JC" id="jc-side-menu">
+    <div class="jc-menu-topbar">
+      <button class="jc-menu-live-btn">AO VIVO</button>
+      <div class="jc-menu-close-btn" id="jc-menu-close-btn">×</div>
+    </div>
 
-    .charge {
-        width: 400px;
-        height: 350px; 
-        background-color: #F0F0F0;
-        border: 1px solid #ccc;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        font-weight: bold;
-        color: #666;
-        text-align: center;
-        margin-bottom: 15px;
-    }
-    
-    .footerCharge {
-        width: 100%;
-        display: flex;
-        justify-content: space-between; 
-        align-items: center;
-        margin-top: 10px;
-        padding: 0 10px;
-    }
-    
-    .dataCharge {
-        font-size: 14px;
-        color: #000000;
-    }
-    
-    .botoesNavDaCharge {
-        display: flex;
-        gap: 10px; 
-    }
-    
-    .botaoNav {
-        background-color: #F0F0F0; 
-        color: #333;
-        border: 1px solid #ccc;
-        width: 30px;
-        height: 30px;
-        border-radius: 5px;
-        font-size: 18px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.2s;
-    }
-    
-    .botaoNav:hover {
-        background-color: #E0E0E0;
-    }
-</style>
-<body>
-  <header class="headerUol"><h1 class="h1Uol">Barra da Uol</h1></header>
-  <header class="headerJc"><div><h1 class="logoJc">Logo do Jc</h1><h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1></div></header>
-	<header class="headerNav">
-		<nav>
-			<ul>
-				<li><a href="/">Início</a></li>
-				<li><a href="/charge">Charges</a></li>
-				<li><a href="/admin">Admin</a></li>
-			</ul>
-		</nav>
-	</header>
+    <div class="lives">
+      <ul>
+        <li><a href="https://jc.uol.com.br/radio-jornal/ao-vivo">Rádio Jornal (RECIFE)</a></li>
+        <li><a href="https://interior.ne10.uol.com.br/radio-jornal/caruaru">Rádio Jornal (INTERIOR)</a></li>
+        <li><a href="https://tvjornal.com.br/ao-vivo">TV Jornal (RECIFE)</a></li>
+        <li><a href="https://interior.ne10.uol.com.br/tv-jornal/ao-vivo">TV Jornal (INTERIOR)</a></li>
+      </ul>
+    </div>
 
-  <main class="mainCharges">
-    <h2 class="tituloCharge">{{if .charge.Title}}Charge – {{.charge.Title}}{{else}}Charge{{end}}</h2>
+    <nav>
+      <ul>
+        <li><a href="https://digital.jc.uol.com.br/">JORNAL DIGITAL</a></li>
+        <li><a href="/ultimas">Jornal Cidadão</a></li>
+        <li><a href="/charges">Charges</a></li>
+        <li><a href="/politica">Política</a></li>
+        <li><a href="/economia">Economia</a></li>
+        <li><a href="/cultura">Cultura</a></li>
+      </ul>
+    </nav>
+  </div>
 
-    <div class="containerCharge">
-      <div class="charge">
-        <img src="{{ .charge.URL }}" alt="{{or .charge.Title `charge`}}">
+  <!-- ===== CONTEÚDO ===== -->
+  <main class="charge-wrap">
+    <a class="back-link" href="/charges">← Ver todas as charges</a>
+    <h1 class="title">{{ if .charge.Title }}{{ .charge.Title }}{{ else }}Charge{{ end }}</h1>
+
+    <article class="card">
+      <div class="media">
+        <img src="{{ .charge.URL }}" alt="{{ if .charge.Title }}{{ .charge.Title }}{{ else }}Charge{{ end }}">
       </div>
-
-      <div class="footerCharge">
-        <span class="dataCharge">Data de publicação: {{.charge.Date.Format}}</span>
-
-        <div class="botoesNavDaCharge">
-          <a class="botaoNav" id="btn-prev" href="#" aria-label="Anterior">&lt;</a>
-          <button class="botaoNav" id="btn-random" aria-label="Aleatória">?</button>
-          <a class="botaoNav" id="btn-next" href="#" aria-label="Próxima">&gt;</a>
+      <div class="meta">
+        <span>Publicado: {{ .charge.Date.Format }}</span>
+        <div class="nav">
+          <a class="btn" id="btn-prev" href="#" aria-label="Anterior">←</a>
+          <button class="btn" id="btn-random" aria-label="Aleatória">?</button>
+          <a class="btn" id="btn-next" href="#" aria-label="Próxima">→</a>
         </div>
       </div>
-    </div>
+    </article>
   </main>
 
+  <!-- ===== SCRIPTS ===== -->
   <script>
+    // Header: abrir/fechar menu lateral
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuBtn  = document.querySelector(".toggle-menu-sidebar-menu-jc");
+      const sideMenu = document.getElementById("jc-side-menu");
+      const overlay  = document.getElementById("jc-menu-overlay");
+      const closeBtn = document.getElementById("jc-menu-close-btn");
+      function openMenu(e){ if(e) e.preventDefault(); sideMenu.classList.add("is-open"); overlay.classList.add("is-open"); }
+      function closeMenu(e){ if(e) e.preventDefault(); sideMenu.classList.remove("is-open"); overlay.classList.remove("is-open"); }
+      menuBtn && menuBtn.addEventListener("click", openMenu);
+      closeBtn && closeBtn.addEventListener("click", closeMenu);
+      overlay && overlay.addEventListener("click", closeMenu);
+    });
+
+    // Botão aleatório (mantém render por ID no backend)
     document.getElementById('btn-random')?.addEventListener('click', async () => {
       try {
         const r = await fetch('/api/charges/random');
         if (!r.ok) throw new Error('HTTP '+r.status);
         const data = await r.json();
         const charge = data?.charge;
-        if (charge?.id) {
-          window.location.href = '/charge/' + charge.id;
-        }
+        if (charge?.id) location.href = '/charge/' + charge.id;
       } catch (e) { console.error(e); }
     });
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    // Prev/Next calculados no front, roteando para /charge/:id
+    (function(){
       const prevButton = document.getElementById('btn-prev');
       const nextButton = document.getElementById('btn-next');
+      const currentId  = parseInt((location.pathname.split('/').pop()||'0'),10);
+      if (!prevButton || !nextButton || !Number.isFinite(currentId)) return;
 
-      try {
-        const response = await fetch('/api/charges');
-        if (!response.ok) throw new Error('Falha ao buscar a lista de charges');
-        const allCharges = await response.json();
-
-        // A API já retorna as charges ordenadas da mais nova para a mais antiga.
-        // Se você quiser uma ordem diferente (ex: por ID), pode reordenar aqui com:
-
-		allCharges.sort((a, b) => a.id - b.id);
-        if (allCharges.length === 0) return; // Não faz nada se não houver charges
-
-        // 2. Descobre o ID da charge atual lendo a URL do navegador
-        const pathParts = window.location.pathname.split('/');
-        const currentId = parseInt(pathParts[pathParts.length - 1], 10);
-
-        // 3. Encontra o índice (a posição) da charge atual na lista
-        const currentIndex = allCharges.findIndex(charge => charge.id === currentId);
-
-        if (currentIndex === -1) {
-            console.error('Charge atual não encontrada na lista.');
-            return;
-        }
-
-        // 4. Calcula os índices da próxima e da anterior com a lógica de looping
-        // A mágica do operador de módulo (%) faz o loop acontecer automaticamente.
-        const prevIndex = (currentIndex - 1 + allCharges.length) % allCharges.length;
-        const nextIndex = (currentIndex + 1) % allCharges.length;
-
-        // 5. Pega o ID da charge anterior e da próxima
-        const prevChargeId = allCharges[prevIndex].id;
-        const nextChargeId = allCharges[nextIndex].id;
-
-        // 6. Atualiza os links dos botões na página dinamicamente
-        prevButton.href = `/charge/${prevChargeId}`;
-        nextButton.href = `/charge/${nextChargeId}`;
-
-      } catch (error) {
-        console.error('Erro ao configurar a navegação:', error);
-        // Em caso de erro, os botões simplesmente não funcionarão, o que é seguro.
-        prevButton.style.display = 'none';
-        nextButton.style.display = 'none';
-      }
-    });
+      fetch('/api/charges')
+        .then(r => r.json())
+        .then(list => {
+          if (!Array.isArray(list) || list.length === 0) return;
+          // garanta ordem por id crescente
+          const ids = list.map(x => x.id).filter(Number.isFinite).sort((a,b)=>a-b);
+          const idx = ids.indexOf(currentId);
+          if (idx === -1) { prevButton.disabled = true; nextButton.disabled = true; return; }
+          const prev = ids[(idx - 1 + ids.length) % ids.length];
+          const next = ids[(idx + 1) % ids.length];
+          prevButton.href = '/charge/' + prev;
+          nextButton.href = '/charge/' + next;
+        })
+        .catch(() => { prevButton.disabled = true; nextButton.disabled = true; });
+    })();
   </script>
 </body>
 </html>
