@@ -311,3 +311,41 @@ func (h *Handler) GetChargeDoDia(c *gin.Context) {
 
 	c.JSON(http.StatusOK, chargeDoDia)
 }
+
+func (h *Handler) ReportPost(c *gin.Context) {
+	postID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID do post inválido"})
+		return
+	}
+
+	var payload struct {
+		Reason string `json:"reason" form:"reason"`
+	}
+
+	if err := c.ShouldBind(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato inválido"})
+		return
+	}
+
+	if payload.Reason == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "O motivo da denúncia é obrigatório"})
+		return
+	}
+
+	// Verifica se o post existe antes de denunciar
+	_, err = h.Storage.GetPostByID(postID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Post não encontrado"})
+		return
+	}
+
+	err = h.Storage.CreatePostReport(postID, payload.Reason)
+	if err != nil {
+		log.Println("Erro ao criar denúncia:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao registrar denúncia"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Denúncia enviada com sucesso. Obrigado pela colaboração."})
+}

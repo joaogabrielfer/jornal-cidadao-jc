@@ -128,6 +128,21 @@ func (s *Storage) InitializeDatabase() {
 	}
 	statement.Exec()
 	log.Println("Tabela 'post_status_logs' foi criada com sucesso ou ja existe")
+
+	createReportsTableSQL := `
+	CREATE TABLE IF NOT EXISTS post_reports (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		post_id INTEGER NOT NULL,
+		reason TEXT NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+	);`
+	statement, err = s.DB.Prepare(createReportsTableSQL)
+	if err != nil {
+		log.Fatal("Erro preparando statement de criar tabela de denúncias", err)
+	}
+	statement.Exec()
+	log.Println("Tabela 'post_reports' foi criada com sucesso ou ja existe")
 }
 
 func (s *Storage) CreateUser(username, email, passwordHash string) error {
@@ -693,4 +708,10 @@ func (s *Storage) UpdatePostStatus(postID int, newStatus model.PostStatus) error
 	}
 
 	return tx.Commit()
+}
+
+func (s *Storage) CreatePostReport(postID int, reason string) error {
+	insertSQL := `INSERT INTO post_reports (post_id, reason) VALUES (?, ?)`
+	_, err := s.DB.Exec(insertSQL, postID, reason)
+	return err
 }

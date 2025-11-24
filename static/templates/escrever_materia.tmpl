@@ -1,53 +1,271 @@
 <!DOCTYPE html>
-<html lang="pt">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Escrever matéria</title>
-	</head>
-	<body>
-		<form action="/admin/api/materia" method="POST">
-			<input type="text" name="title" placeholder="Título da Matéria" required>
-			<input type="text" name="author" placeholder="Autor" required>
-			<textarea name="body" placeholder="Corpo da matéria..." required></textarea>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Jornal Cidadão — Nova Matéria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-			<hr>
+  <!-- CSS principal do site (mesmo da home) -->
+  <link rel="stylesheet" href="/static/css/jcstyle.css">
 
-			<h3>Enquete (Opcional)</h3>
-			<input type="text" name="poll_question" placeholder="Qual a pergunta da enquete?">
+  <!-- Estilos adicionais da página (menu lateral + form) -->
+  <style>
+    /* ====== AJUSTES DO HEADER DO INDEX PARA ESTA PÁGINA ====== */
+    #header-top-container { width: 100%; background: #ffffff; }
+    #wrapper-header-searchbar { background: #ffffff; }
+    #header .container { max-width: 1200px; margin: 0 auto; }
+    #header .row { display: flex; align-items: center; justify-content: space-between; }
+    #header .col-xs-4.col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; }
+    #header .edition, #header .logo, #header .options { display: flex; align-items: center; justify-content: center; }
+    #header .edition h5 { margin: 0 0 0 8px; font-size: 16px; font-weight: bold; }
+    #header .logo figure { margin: 0; text-align: center; }
+    #header .options { gap: 16px; justify-content: flex-end; }
+    #header .btn-publicidade-legal {
+      font-size: 14px; padding: 6px 16px; border-radius: 999px;
+      border: 1px solid #d9272e; background: #ffffff; color: #d9272e; text-decoration: none;
+    }
+    #header .options img { display: block; }
 
-			<div id="poll-options-container">
-			</div>
+    /* ====== MENU LATERAL (mesmo visual do site) ====== */
+    .jc-menu-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      z-index: 9998; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .jc-menu-overlay.is-open { opacity: 1; pointer-events: auto; }
 
-			<button type="button" id="add-option-btn">Adicionar Opção</button>
-			<button type="submit">Salvar Matéria</button>
-		</form>
-	</body>
-	<script>
-		const container = document.getElementById('poll-options-container');
-		const addBtn = document.getElementById('add-option-btn');
+    body#jc .side-scroll.scroll-JC {
+      position: fixed; top: 0; right: 0; width: 345px; max-width: 90%;
+      height: 100vh; background: #ffffff; z-index: 9999; overflow-y: auto;
+      box-shadow: -2px 0 8px rgba(0,0,0,0.3); transform: translateX(100%); transition: transform 0.3s ease;
+    }
+    body#jc .side-scroll.scroll-JC.is-open { transform: translateX(0); }
 
-		addBtn.addEventListener('click', () => {
-			const optionWrapper = document.createElement('div');
+    .jc-menu-topbar{ display:flex; justify-content:space-between; align-items:stretch; background:#2c2c2c; color:#fff; }
+    .jc-menu-live-btn{ flex:1; border:none; background:transparent; color:#fff; font-weight:bold; padding:12px 16px; text-align:left; cursor:pointer; }
+    .jc-menu-close-btn{ width:88px; background:#d9272e; color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; cursor:pointer; }
+    .side-scroll.scroll-JC .lives{ padding:0 18px 10px; }
+    .side-scroll.scroll-JC .lives ul{ margin:0; padding-left:18px; }
+    .side-scroll.scroll-JC nav{ padding:10px 24px 32px; }
+    .side-scroll.scroll-JC nav ul{ list-style:none; margin:0; padding:0; }
+    .side-scroll.scroll-JC nav li{ margin:10px 0; }
+    .side-scroll.scroll-JC nav a{ display:block; text-decoration:none; color:#111; font-size:16px; }
+    .side-scroll.scroll-JC nav a:hover{ color:#d9272e; }
 
-			const newInput = document.createElement('input');
-			newInput.type = 'text';
-			
-			// CORREÇÃO AQUI: de 'poll_options[]' para 'poll_options'
-			newInput.name = 'poll_options'; 
-			
-			newInput.placeholder = 'Texto da opção';
+    /* ====== Layout do formulário ====== */
+    html,body{ background:#fff; color:#141414; font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"; }
+    main.page-wrap{ max-width:1100px; margin:28px auto 80px; padding:0 20px; }
+    .page-title{ font-size:2.25rem; line-height:1.2; font-weight:800; letter-spacing:-.02em; margin:8px 0 4px; }
+    .page-sub{ color:#6b7280; margin-bottom:26px; }
+    .card{ background:#fff; border:1px solid #e5e7eb; border-left:6px solid #d9272e; border-radius:10px; padding:22px; box-shadow:0 1px 0 rgba(0,0,0,.02); }
+    .form-grid{ display:grid; grid-template-columns:1fr 260px; gap:16px; }
+    .field{ display:flex; flex-direction:column; gap:8px; }
+    .label{ font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#555; }
+    input[type="text"], textarea{ border:1px solid #e5e7eb; border-radius:10px; padding:14px; font-size:1rem; outline:none; background:#fff; }
+    input[type="text"]:focus, textarea:focus{ border-color:#d6d9df; box-shadow:0 0 0 3px rgba(217,39,46,.08); }
+    textarea[name="body"]{ min-height:180px; resize:vertical; }
+    .section-title{ margin:22px 0 10px; font-size:1.25rem; font-weight:800; }
+    .muted{ color:#6b7280; font-size:.95rem; }
+    .poll{ border:1px solid #e5e7eb; border-radius:12px; padding:16px; background:#f7f7f8; }
+    .poll__options{ display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+    .poll-option{ display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; }
+    .btn{ appearance:none; border:1px solid transparent; border-radius:999px; padding:10px 16px; font-weight:700; cursor:pointer; transition:.2s ease; background:#fff; color:#141414; }
+    .btn--primary{ background:#d9272e; color:#fff; border-color:#d9272e; }
+    .btn--primary:hover{ filter:brightness(.95); }
+    .btn--ghost{ border-color:#e5e7eb; }
+    .btn--ghost:hover{ border-color:#d0d5dc; background:#fff; }
+    .btn--danger{ border-color:#ef4444; color:#ef4444; background:#fff; }
+    .btn--danger:hover{ background:#fff5f5; }
+    .actions{ position:sticky; bottom:0; margin-top:22px; background:linear-gradient(180deg,rgba(255,255,255,0),#fff 60%); padding-top:18px; display:flex; gap:12px; justify-content:flex-end; border-top:1px solid #e5e7eb; }
+    @media (max-width:880px){ .form-grid{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body id="jc">
+  <!-- overlay do menu -->
+  <div class="jc-menu-overlay" id="jc-menu-overlay"></div>
 
-			const removeBtn = document.createElement('button');
-			removeBtn.type = 'button';
-			removeBtn.textContent = 'Remover';
-			removeBtn.onclick = () => {
-				optionWrapper.remove();
-			};
+  <noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W8GNLB" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
 
-			optionWrapper.appendChild(newInput);
-			optionWrapper.appendChild(removeBtn);
-			container.appendChild(optionWrapper);
-		});
-	</script>
+  <!-- ===== HEADER ===== -->
+  <div id="header-top-container">
+    <div id="wrapper-header-searchbar">
+      <header id="header">
+        <div class="container">
+          <div class="row">
+            <div class="col-xs-4 col-md-4">
+              <a href="/static/images/edicao.webp" class="edition">
+                <img width="106" height="91" src="/static/images/edicao.webp" alt="Leia aqui a edição de hoje">
+                <h5>Edição do dia</h5>
+              </a>
+            </div>
+            <div class="col-xs-4 col-md-4">
+              <a href="/" class="logo">
+                <figure>
+                  <img width="140" height="70" src="/static/images/logo.svg" alt="JC" title="JC">
+                </figure>
+              </a>
+            </div>
+            <div class="col-xs-4 col-md-4">
+              <div class="options">
+                <a href="/publicidade-legal" class="btn btn-outline-danger btn-publicidade-legal">Publicidade legal</a>
+                <a href="#" class="toggle-menu-sidebar-menu-jc">
+                  <img width="25" height="20" src="/static/images/icon-menu.svg" alt="menu" title="menu">
+                </a>
+                <a href="#" class="toggle-search">
+                  <img width="18" height="20" src="/static/images/icon-busca.svg" alt="busca" title="busca">
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+    </div>
+  </div>
+
+  <!-- ===== MENU LATERAL ===== -->
+  <div class="side-scroll scroll-JC" id="jc-side-menu">
+    <div class="jc-menu-topbar">
+      <button class="jc-menu-live-btn">AO VIVO</button>
+      <div class="jc-menu-close-btn" id="jc-menu-close-btn">×</div>
+    </div>
+
+    <div class="lives">
+      <ul>
+        <li><a href="https://jc.uol.com.br/radio-jornal/ao-vivo">Rádio Jornal (RECIFE)</a></li>
+        <li><a href="https://interior.ne10.uol.com.br/radio-jornal/caruaru">Rádio Jornal (INTERIOR)</a></li>
+        <li><a href="https://tvjornal.com.br/ao-vivo">TV Jornal (RECIFE)</a></li>
+        <li><a href="https://interior.ne10.uol.com.br/tv-jornal/ao-vivo">TV Jornal (INTERIOR)</a></li>
+      </ul>
+    </div>
+
+    <nav>
+      <ul>
+        <li><a href="https://digital.jc.uol.com.br/">JORNAL DIGITAL</a></li>
+        <li><a href="/ultimas">Jornal Cidadão</a></li>
+        <li><a href="/charges">Charges</a></li>
+        <li><a href="/jc">Enquetes</a></li>
+        <li><a href="/jc">Últimas</a></li>
+        <li><a href="/colunas">Colunas</a></li>
+        <li><a href="/pernambuco">Pernambuco</a></li>
+        <li><a href="/colunas/seguranca">Segurança</a></li>
+        <li><a href="/colunas/saude-e-bem-estar">Saúde e Bem-Estar</a></li>
+        <li><a href="/colunas/enem-e-educacao">Enem e Educação</a></li>
+        <li><a href="/colunas/mobilidade">Mobilidade</a></li>
+        <li><a href="/politica">Política</a></li>
+        <li><a href="/economia">Economia</a></li>
+        <li><a href="/cultura">Cultura</a></li>
+        <li><a href="https://jc.uol.com.br/mundo/">Mundo</a></li>
+        <li><a href="https://tvjornal.com.br/">TV Jornal</a></li>
+        <li><a href="https://radiojornal.com.br/">Rádio Jornal</a></li>
+        <li><a href="https://interior.ne10.uol.com.br/">Interior</a></li>
+        <li><a href="https://jc.uol.com.br/blog-do-torcedor/">Blog do Torcedor</a></li>
+        <li><a href="https://jc.uol.com.br/social1/">Social1</a></li>
+        <li><a href="https://receitadaboa.com.br/">Receita da Boa</a></li>
+        <li><a href="/opiniao">Opinião</a></li>
+        <li><a href="https://jc.uol.com.br/recall-de-marcas">Recall de Marcas</a></li>
+        <li><a href="https://ads.sjcc.com.br/">Anuncie aqui</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- ===== CONTEÚDO ===== -->
+  <main class="page-wrap">
+    <h1 class="page-title">Nova matéria</h1>
+    <p class="page-sub">Preencha os campos e publique. A enquete é opcional.</p>
+
+    <section class="card">
+      <form action="/admin/api/materia" method="POST" id="article-form">
+        <div class="form-grid">
+          <div class="field">
+            <label class="label" for="title">Título da matéria</label>
+            <input type="text" id="title" name="title" placeholder="Ex.: Sobe para 64 o número de..." required>
+          </div>
+
+          <div class="field">
+            <label class="label" for="author">Autor</label>
+            <input type="text" id="author" name="author" placeholder="Nome do autor" required>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label class="label" for="body">Corpo</label>
+          <textarea id="body" name="body" placeholder="Escreva o texto da matéria..." required></textarea>
+        </div>
+
+        <h2 class="section-title">Enquete <span class="muted">(opcional)</span></h2>
+        <div class="poll">
+          <div class="field">
+            <label class="label" for="poll_question">Pergunta</label>
+            <input type="text" id="poll_question" name="poll_question" placeholder="Qual é a pergunta da enquete?">
+          </div>
+
+          <div class="poll__options" id="poll-options-container"></div>
+
+          <div style="margin-top:10px; display:flex; gap:10px;">
+            <button type="button" class="btn btn--ghost" id="add-option-btn">Adicionar opção</button>
+            <button type="button" class="btn btn--ghost" id="clear-options-btn">Limpar opções</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn--primary">Salvar matéria</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    // MENU LATERAL (abre/fecha)
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuBtn   = document.querySelector(".toggle-menu-sidebar-menu-jc");
+      const sideMenu  = document.getElementById("jc-side-menu");
+      const overlay   = document.getElementById("jc-menu-overlay");
+      const closeBtn  = document.getElementById("jc-menu-close-btn");
+
+      function openMenu(e){ if(e) e.preventDefault(); sideMenu.classList.add("is-open"); overlay.classList.add("is-open"); }
+      function closeMenu(e){ if(e) e.preventDefault(); sideMenu.classList.remove("is-open"); overlay.classList.remove("is-open"); }
+
+      if (menuBtn)  menuBtn.addEventListener("click", openMenu);
+      if (closeBtn) closeBtn.addEventListener("click", closeMenu);
+      if (overlay)  overlay.addEventListener("click", closeMenu);
+    });
+
+    // ENQUETE (opções dinâmicas)
+    const container = document.getElementById('poll-options-container');
+    const addBtn = document.getElementById('add-option-btn');
+    const clearBtn = document.getElementById('clear-options-btn');
+
+    function addOption(value = '') {
+      const row = document.createElement('div');
+      row.className = 'poll-option';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.name = 'poll_options[]';
+      input.placeholder = 'Digitar opção...';
+      input.value = value;
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'btn btn--danger';
+      remove.textContent = 'Remover';
+      remove.addEventListener('click', () => row.remove());
+
+      row.appendChild(input);
+      row.appendChild(remove);
+      container.appendChild(row);
+    }
+
+    if (addBtn) addBtn.addEventListener('click', () => addOption());
+    if (clearBtn) clearBtn.addEventListener('click', () => { container.innerHTML = ''; });
+
+    // Sugerir 2 inputs quando o usuário focar na pergunta
+    const q = document.getElementById('poll_question');
+    if (q) q.addEventListener('focus', () => {
+      if (container.children.length === 0) { addOption(); addOption(); }
+    });
+  </script>
+</body>
 </html>
