@@ -2,7 +2,7 @@
 
 Esta documentação descreve todos os endpoints, tanto as páginas web renderizadas quanto a API REST, disponíveis no projeto.
 
-**URL Base**: `http://localhost:8080`
+**URL Base**: `http://localhost:8000`
 
 ---
 
@@ -122,6 +122,22 @@ Estes endpoints fornecem dados em formato JSON e são consumidos principalmente 
 - **Respostas**:
     - **`200 OK`**: Sucesso. Retorna um array de objetos `Post`.
     - **`404 Not Found`**: Usuário não encontrado ou não possui posts.
+
+#### Denunciar um Post
+- **Endpoint**: `POST /api/post/:id/report`
+- **Descrição**: Permite que um usuário denuncie um post por conteúdo impróprio ou outras razões.
+- **Parâmetros da URL**: `:id` (int) - O ID do post a ser denunciado.
+- **Corpo da Requisição (JSON)**:
+    ```json
+    {
+      "reason": "Motivo da denúncia..."
+    }
+    ```
+- **Respostas**:
+    - **`200 OK`**: Sucesso. Retorna `{ "message": "Denúncia enviada com sucesso. Obrigado pela colaboração." }`.
+    - **`400 Bad Request`**: Motivo não fornecido ou ID inválido.
+    - **`404 Not Found`**: Post não encontrado.
+    - **`500 Internal Server Error`**: Erro ao registrar no banco de dados.
 
 ### Endpoints de Enquetes (Polls)
 

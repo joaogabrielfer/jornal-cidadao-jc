@@ -22,7 +22,7 @@ Além disso, percebemos que dividir as tarefas de forma individual e organizada 
 
 - Trello e Miro: Gestão do projeto e Brainwriting
 - Figma: Prototipação de alta fidelidade
-- Golang e Gin: Linguagem e framework para implementaçao do backend
+- Golang, Gin e SQLite: Linguagem e framework para implementaçao do backend
 - HTML e CSS: Criaçao de paginas do frontend
 
 ### Trello: https://trello.com/b/gAzfJzpM/grupo-6-projeto
@@ -95,6 +95,10 @@ UH13 Moderação de noticias do JC
 UH14 Denunciar conteudo do JC
 UH15 Reagir a notica do JC
 UH16 Login usuário
+
+# Programação em pares
+<img src="./imgs/pair_programming.jpg" alt="programação em pares" width="1000"/>
+
 
 # Quadro trello atualizado
 <img src="./imgs/image.png" alt="print trello" width="1000"/>
