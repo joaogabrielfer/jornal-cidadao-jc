@@ -211,3 +211,28 @@ func (h *Handler) UpdatePostStatus(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Status do post atualizado com sucesso!"})
 }
+
+func (h *Handler) UpdatePost(c *gin.Context) {
+	postID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID do post inválido."})
+		return
+	}
+
+	title := c.PostForm("title")
+	content := c.PostForm("content")
+
+	err = h.Storage.UpdatePost(postID, title, content)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Post não encontrado."})
+			return
+		}
+		log.Println("Erro ao atualizar o status do post:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ocorreu um erro interno ao atualizar o status."})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Status do post atualizado com sucesso!"})
+}
+

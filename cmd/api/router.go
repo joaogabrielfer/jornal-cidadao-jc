@@ -56,6 +56,7 @@ func setupRoutes(router *gin.Engine, handler *handlers.Handler){
 			adminApi.DELETE("/materia/:id", handler.DeleteArticle)
 
 			adminApi.PUT("/post-status/:id/:status", handler.UpdatePostStatus)
+			adminApi.PUT("/post/:id", handler.UpdatePostStatus)
 		}
 	}
 
