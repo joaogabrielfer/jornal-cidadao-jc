@@ -23,6 +23,7 @@ func setupRoutes(router *gin.Engine, handler *handlers.Handler){
 
 		api.POST("/enquete/votar/:id", handler.UpdateVoteCount)
 		api.POST("/post", handler.UploadPost)
+		api.POST("/post/:id/report", handler.ReportPost) 
 	}
 
 	router.GET("/", handler.GetIndexPage)

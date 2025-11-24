@@ -120,3 +120,10 @@ type Metadata struct {
 	LastPage     int `json:"last_page"`
 	TotalRecords int `json:"total_records"`
 }
+
+type PostReport struct {
+	ID        int           `json:"id"`
+	PostID    int           `json:"post_id"`
+	Reason    string        `json:"reason"`
+	CreatedAt FormattedTime `json:"created_at"`
+}
