@@ -1,134 +1,410 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Matérias</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
-        .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #333; }
-        .materia { border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; padding: 15px; }
-        .materia-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
-        .materia-header h2 { margin: 0; font-size: 20px; color: #d9272e; }
-        .materia-header .autor { font-style: italic; color: #666; }
-        .materia-body { color: #444; }
-        .enquete { margin-top: 15px; padding: 10px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: 4px; }
-        .enquete-pergunta { font-weight: bold; margin-bottom: 10px; }
-        .enquete-opcoes ul { list-style: none; padding: 0; margin: 0; }
-        .enquete-opcoes li { display: flex; justify-content: space-between; padding: 5px 0; }
-        .enquete-opcoes .votos { font-weight: bold; }
-        .no-enquete { color: #888; font-style: italic; }
+  <meta charset="UTF-8" />
+  <title>Jornal Cidadão — Lista de Matérias</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        .btn {
-            text-decoration: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-            font-weight: normal;
-            transition: background-color 0.2s;
-        }
-        .edit-btn {
-            background-color: #3770D0;
-        }
-        .edit-btn:hover {
-            background-color: #2D61B5;
-        }
-        .delete-btn {
-            background-color: #d9272e; 
-        }
-        .delete-btn:hover {
-            background-color: #b02026;
-        }
-    </style>
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="/static/css/jcstyle.css">
+
+  <style>
+    /* ====== HEADER PADRÃO ====== */
+    #header-top-container { width: 100%; background: #ffffff; }
+    #wrapper-header-searchbar { background: #ffffff; }
+    #header .container { max-width: 1200px; margin: 0 auto; }
+    #header .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #header .col-xs-4.col-md-4 {
+      flex: 0 0 33.3333%;
+      max-width: 33.3333%;
+    }
+    #header .edition,
+    #header .logo,
+    #header .options {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #header .edition h5 {
+      margin: 0 0 0 8px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    #header .logo figure {
+      margin: 0;
+      text-align: center;
+    }
+    #header .options {
+      gap: 16px;
+      justify-content: flex-end;
+    }
+    #header .btn-publicidade-legal {
+      font-size: 14px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 1px solid #d9272e;
+      background: #ffffff;
+      color: #d9272e;
+      text-decoration: none;
+    }
+
+    /* ====== MENU LATERAL ====== */
+    .jc-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 9998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .jc-menu-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    body#jc .side-scroll.scroll-JC {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 345px;
+      max-width: 90%;
+      height: 100vh;
+      background: #ffffff;
+      z-index: 9999;
+      overflow-y: auto;
+      box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    body#jc .side-scroll.scroll-JC.is-open {
+      transform: translateX(0);
+    }
+
+    .jc-menu-topbar {
+      display: flex;
+      justify-content: space-between;
+      background: #2c2c2c;
+      color: #fff;
+    }
+    .jc-menu-live-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: #fff;
+      font-weight: bold;
+      padding: 12px 16px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .jc-menu-close-btn {
+      width: 88px;
+      background: #d9272e;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    .side-scroll.scroll-JC nav {
+      padding: 16px 24px;
+    }
+    .side-scroll.scroll-JC nav ul {
+      list-style: none;
+      padding: 0;
+    }
+    .side-scroll.scroll-JC nav li {
+      margin: 10px 0;
+    }
+    .side-scroll.scroll-JC nav a {
+      color: #111;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .side-scroll.scroll-JC nav a:hover {
+      color: #d9272e;
+    }
+
+    /* ====== CONTEÚDO ====== */
+    main.page-wrap {
+      max-width: 1100px;
+      margin: 28px auto 80px;
+      padding: 0 20px;
+    }
+
+    .page-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .card-list {
+      background: #fff;
+      padding: 26px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .materia {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+      background: #fafafa;
+    }
+
+    .materia-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+    }
+
+    .materia-title {
+      color: #d9272e;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .autor {
+      color: #666;
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .btn-edit {
+      background: #3770D0;
+      color: #fff;
+      margin-right: 6px;
+    }
+
+    .btn-delete {
+      background: #d9272e;
+      color: white;
+    }
+
+    .materia-body {
+      color: #444;
+    }
+
+    .no-enquete {
+      color: #666;
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    .enquete {
+      background: #f6f6f6;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #dedede;
+      margin-top: 12px;
+    }
+
+    .enquete-pergunta {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .enquete-opcoes ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .enquete-opcoes li {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    .votos {
+      font-weight: bold;
+      color: #d9272e;
+    }
+  </style>
 </head>
-<body>
 
-    <div class="container">
-        <h1>Lista de Matérias</h1>
+<body id="jc">
 
-        {{ if .Articles }}
-            {{ range .Articles }}
-            <div class="materia">
-                <div class="materia-header">
-                    <div>
-                        <h2>{{ .Title }}</h2>
-                        <span class="autor">Por: {{ .Author }}</span>
-                    </div>
-                    <div class="action-buttons">
-                        <a href="/admin/materia/{{ .ID }}/edit" class="btn edit-btn">Editar</a>
-                        <button class="btn delete-btn" data-id="{{ .ID }}">Deletar</button>
-                    </div>
-                </div>
-                <div class="materia-body">
-                    <p>{{ .Body }}</p>
-                </div>
+<!-- overlay -->
+<div class="jc-menu-overlay" id="jc-menu-overlay"></div>
 
-                <!-- Lógica da enquete permanece a mesma -->
-                {{ if .Poll }}
-                    <div class="enquete">
-                        <div class="enquete-pergunta">{{ .Poll.Question }}</div>
-                        <div class="enquete-opcoes">
-                            <ul>
-                                {{ range .Poll.Options }}
-                                <li>
-                                    <span>{{ .OptionText }}</span>
-                                    <span class="votos">{{ .Votes }} votos</span>
-                                </li>
-                                {{ end }}
-                            </ul>
-                        </div>
-                    </div>
-                {{ else }}
-                    <div class="no-enquete">
-                        <p>Esta matéria não possui uma enquete.</p>
-                    </div>
-                {{ end }}
+<!-- HEADER -->
+<div id="header-top-container">
+  <div id="wrapper-header-searchbar">
+    <header id="header">
+      <div class="container">
+        <div class="row">
+
+          <div class="col-xs-4 col-md-4">
+            <a href="/static/images/edicao.webp" class="edition">
+              <img width="106" height="91" src="/static/images/edicao.webp">
+              <h5>Edição do dia</h5>
+            </a>
+          </div>
+
+          <div class="col-xs-4 col-md-4">
+            <a href="/" class="logo">
+              <figure>
+                <img width="140" height="70" src="/static/images/logo.svg" alt="JC">
+              </figure>
+            </a>
+          </div>
+
+          <div class="col-xs-4 col-md-4">
+            <div class="options">
+              <a href="/publicidade-legal" class="btn-publicidade-legal">Publicidade legal</a>
+
+              <a href="#" class="toggle-menu-sidebar-menu-jc">
+                <img src="/static/images/icon-menu.svg" width="25">
+              </a>
+
+              <a href="#" class="toggle-search">
+                <img src="/static/images/icon-busca.svg" width="18">
+              </a>
             </div>
-            {{ end }}
+          </div>
+
+        </div>
+      </div>
+    </header>
+  </div>
+</div>
+
+<!-- MENU LATERAL -->
+<div class="side-scroll scroll-JC" id="jc-side-menu">
+  <div class="jc-menu-topbar">
+    <button class="jc-menu-live-btn">AO VIVO</button>
+    <div class="jc-menu-close-btn" id="jc-menu-close-btn">×</div>
+  </div>
+
+  <nav>
+    <ul>
+      <li><a href="/ultimas">Últimas</a></li>
+      <li><a href="/colunas">Colunas</a></li>
+      <li><a href="/pernambuco">Pernambuco</a></li>
+      <li><a href="/politica">Política</a></li>
+      <li><a href="/economia">Economia</a></li>
+      <li><a href="/cultura">Cultura</a></li>
+      <li><a href="/mundo">Mundo</a></li>
+      <li><a href="/opiniao">Opinião</a></li>
+    </ul>
+  </nav>
+</div>
+
+<!-- CONTEÚDO -->
+<main class="page-wrap">
+  <h1 class="page-title">Lista de Matérias</h1>
+
+  <section class="card-list">
+    
+    {{ if .Articles }}
+      {{ range .Articles }}
+
+      <div class="materia">
+        <div class="materia-header">
+          <div>
+            <div class="materia-title">{{ .Title }}</div>
+            <div class="autor">Por: {{ .Author }}</div>
+          </div>
+
+          <div>
+            <a href="/admin/materia/{{ .ID }}/edit" class="btn btn-edit">Editar</a>
+            <button class="btn btn-delete delete-btn" data-id="{{ .ID }}">Deletar</button>
+          </div>
+        </div>
+
+        <div class="materia-body">
+          <p>{{ .Body }}</p>
+        </div>
+
+        {{ if .Poll }}
+        <div class="enquete">
+          <div class="enquete-pergunta">{{ .Poll.Question }}</div>
+          <div class="enquete-opcoes">
+            <ul>
+              {{ range .Poll.Options }}
+              <li>
+                <span>{{ .OptionText }}</span>
+                <span class="votos">{{ .Votes }} votos</span>
+              </li>
+              {{ end }}
+            </ul>
+          </div>
+        </div>
         {{ else }}
-            <p>Nenhuma matéria encontrada.</p>
+        <div class="no-enquete">Esta matéria não possui enquete.</div>
         {{ end }}
-    </div>
+      </div>
 
-    <script>
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', async (event) => {
-                const confirmed = confirm('Tem certeza que deseja deletar esta matéria? Esta ação não pode ser desfeita.');
+      {{ end }}
+    {{ else }}
+      <p>Nenhuma matéria encontrada.</p>
+    {{ end }}
 
-                if (!confirmed) {
-                    return; 
-                }
-                const articleId = event.target.dataset.id;
-                const endpoint = `/admin/api/materia/${articleId}`; 
+  </section>
+</main>
 
-                try {
-                    const response = await fetch(endpoint, {
-                        method: 'DELETE',
-                    });
+<!-- SCRIPTS -->
+<script>
+  // MENU LATERAL
+  const menuBtn = document.querySelector(".toggle-menu-sidebar-menu-jc");
+  const sideMenu = document.getElementById("jc-side-menu");
+  const overlay = document.getElementById("jc-menu-overlay");
+  const closeBtn = document.getElementById("jc-menu-close-btn");
 
-                    const result = await response.json();
+  function openMenu(e){
+    e.preventDefault();
+    sideMenu.classList.add("is-open");
+    overlay.classList.add("is-open");
+  }
 
-                    if (response.ok) {
-                        event.target.closest('.materia').remove();
-                    } else {
-                        alert('Erro ao deletar: ' + (result.error || 'Ocorreu um problema no servidor.'));
-                    }
-                } catch (error) {
-                    console.error('Erro na requisição de exclusão:', error);
-                    alert('Falha na conexão com o servidor. Verifique sua rede e tente novamente.');
-                }
-            });
-        });
-		</script>
+  function closeMenu(e){
+    if(e) e.preventDefault();
+    sideMenu.classList.remove("is-open");
+    overlay.classList.remove("is-open");
+  }
+
+  if(menuBtn) menuBtn.addEventListener("click", openMenu);
+  overlay.addEventListener("click", closeMenu);
+  closeBtn.addEventListener("click", closeMenu);
+
+
+  // DELETE
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if(!confirm("Tem certeza que deseja deletar esta matéria?")) return;
+
+      const id = btn.dataset.id;
+
+      const r = await fetch(`/admin/api/materia/${id}`, { method: "DELETE" });
+
+      if(r.ok){
+        btn.closest(".materia").remove();
+      } else {
+        alert("Erro ao deletar.");
+      }
+    });
+  });
+</script>
 
 </body>
 </html>
