@@ -710,6 +710,26 @@ func (s *Storage) UpdatePostStatus(postID int, newStatus model.PostStatus) error
 	return tx.Commit()
 }
 
+func (s *Storage) UpdatePost(postID int, title, description string) error {
+	updateTime := time.Now()
+	updateSQL := `UPDATE posts SET title = ?, description = ?, ultima_atualizacao = ? WHERE id = ?`
+	res, err := s.DB.Exec(updateSQL, title, description, updateTime, postID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
 func (s *Storage) CreatePostReport(postID int, reason string) error {
 	insertSQL := `INSERT INTO post_reports (post_id, reason) VALUES (?, ?)`
 	_, err := s.DB.Exec(insertSQL, postID, reason)

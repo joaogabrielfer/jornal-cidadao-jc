@@ -1,170 +1,241 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel de Controle</title>
-  
+  <title>Painel de Controle — Jornal Cidadão</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="/static/css/jcstyle.css">
+
   <style>
-    .headerUol {
-        background: rgb(38, 38, 38);
-        top: 0;
-        position: fixed;
-        width: 100%;
-        text-align: center;
-        font-size: xx-small;
-        height: 30px;
-        z-index: 100;
+    /* ================================
+       PADRONIZAÇÃO GLOBAL
+       ================================ */
+    html, body {
+      background:#ffffff;
+      color:#141414;
+      font:16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+      margin:0;
+      padding:0;
     }
 
-    .h1Uol {
-        color: white;
-        margin: 0; 
-        padding-top: 5px; 
+    /* ================================
+       HEADER (mesmo estilo dos outros templates)
+       ================================ */
+    #header-top-container { width:100%; background:#fff; }
+    #wrapper-header-searchbar { background:#fff; }
+    #header .container { max-width:1200px; margin:0 auto; }
+    #header .row { display:flex; align-items:center; justify-content:space-between; }
+    #header .col-xs-4.col-md-4 { flex:0 0 33.333%; max-width:33.333%; }
+    #header .edition, #header .logo, #header .options {
+      display:flex; align-items:center; justify-content:center;
+    }
+    #header .edition h5 { margin:0 0 0 8px; font-size:16px; font-weight:700; }
+    #header .options { gap:16px; justify-content:flex-end; }
+    #header .btn-publicidade-legal {
+      font-size:14px; padding:6px 16px; border-radius:999px; border:1px solid #d9272e;
+      background:#fff; color:#d9272e; text-decoration:none;
     }
 
-    .headerJc {
-        background: rgb(217, 39, 46);
-        width: 100%;
-        height: 130px; 
-        margin-top: 30px; 
-        position: relative;
+    /* ================================
+       NAV INTERNO ADMIN
+       ================================ */
+    .admin-nav {
+      background:#f5f5f5;
+      border-bottom:1px solid #e5e7eb;
+      padding:12px 0;
     }
-        
-    .logoJc{
-        color: white;
-        text-align: center;
-    }
-        
-    .nomeJc{
-        color: white;
-        text-align: center;
-    }
-        
-        .headerNav {
-            background: rgb(167, 166, 166);
-            height: 40px; 
-            display: flex;
-            align-items: center; 
-            padding: 0 15px; 
-            margin: 0;
-        }
 
-		.headerNav nav ul {
-            margin: 0;
-            padding: 0;
-            list-style: none; 
-            display: flex; 
-            gap: 15px; 
-        }
-        
-        
-        .headerNav nav a {
-            text-decoration: none; 
-            color: #333; 
-            font-weight: bold;
-            font-size: 14px;
-            padding: 8px 16px; 
-            border-radius: 5px; 
-            background-color: rgba(255, 255, 255, 0.4); 
-            transition: background-color 0.2s ease, color 0.2s ease; 
-        }
-
-        .headerNav nav a:hover {
-            background-color: #333; 
-            color: white; 
-        }
-        
-    body {
-      padding-top: 0; 
-      margin: 0;
+    .admin-nav-inner {
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 20px;
+      display:flex;
+      gap:20px;
     }
-    .mainDashboard { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
-    .painelTitulo { font-size: 1.75rem; margin-bottom: 1rem; }
-    .gridAcoes { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; }
-    .cardAcao { border: 1px solid #e3e3e3; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 8px; background: #fff; }
-    .cardAcao h3 { margin: 0; font-size: 1.1rem; }
-    .btnPrimario { padding: 10px 14px; border-radius: 8px; border: 0; cursor: pointer; background: #1f6feb; color: #fff; }
-    .btnPrimario:hover { filter: brightness(0.96); }
-    .acaoDescricao { color: #555; font-size: .95rem; }
-	* { font-family: Verdana, sans}
+
+    .admin-nav a {
+      text-decoration:none;
+      color:#333;
+      font-weight:700;
+      padding:8px 14px;
+      border-radius:8px;
+      transition:.2s;
+    }
+
+    .admin-nav a:hover {
+      background:#d9272e;
+      color:#fff;
+    }
+
+    /* ================================
+       CONTEÚDO PRINCIPAL
+       ================================ */
+    main.admin-wrap {
+      max-width:1100px;
+      margin:28px auto 80px;
+      padding:0 20px;
+    }
+
+    .page-title {
+      font-size:2.25rem;
+      font-weight:800;
+      letter-spacing:-.02em;
+      margin:12px 0 10px;
+    }
+
+    .page-sub {
+      color:#6b7280;
+      margin-bottom:32px;
+    }
+
+    /* ================================
+       GRID DE AÇÕES — padronizado
+       ================================ */
+    .grid-actions {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:22px;
+    }
+
+    .card-action {
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-left:6px solid #d9272e;
+      border-radius:10px;
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      box-shadow:0 1px 0 rgba(0,0,0,0.03);
+    }
+
+    .card-action h3 {
+      margin:0;
+      font-size:1.25rem;
+      font-weight:700;
+    }
+
+    .card-action p {
+      margin:0;
+      color:#6b7280;
+      font-size:.95rem;
+    }
+
+    .btn-primary {
+      background:#d9272e;
+      border:1px solid #d9272e;
+      color:white;
+      padding:10px 16px;
+      font-size:.95rem;
+      font-weight:700;
+      border-radius:999px;
+      cursor:pointer;
+      transition:.2s;
+      width:max-content;
+    }
+
+    .btn-primary:hover {
+      filter:brightness(.95);
+    }
   </style>
 </head>
-<body>
-  
-  <header class="headerUol">
-    <h1 class="h1Uol">Barra da Uol</h1>
-  </header>
-  <header class="headerJc">
-    <div>
-      <h1 class="logoJc">Logo do Jc</h1>
-      <h1 class="nomeJc">Sistema Jornal do Commercio de comunicação</h1>
+
+<body id="jc">
+
+  <!-- HEADER DO JC (idêntico ao escrever matéria) -->
+  <div id="header-top-container">
+    <div id="wrapper-header-searchbar">
+      <header id="header">
+        <div class="container">
+          <div class="row">
+            <div class="col-xs-4 col-md-4">
+              <a href="/static/images/edicao.webp" class="edition">
+                <img width="106" height="91" src="/static/images/edicao.webp" alt="Edição do dia">
+                <h5>Edição do dia</h5>
+              </a>
+            </div>
+
+            <div class="col-xs-4 col-md-4">
+              <a href="/" class="logo">
+                <figure>
+                  <img width="140" height="70" src="/static/images/logo.svg" alt="JC">
+                </figure>
+              </a>
+            </div>
+
+            <div class="col-xs-4 col-md-4">
+              <div class="options">
+                <a href="/publicidade-legal" class="btn btn-publicidade-legal">Publicidade legal</a>
+                <a href="#" class="toggle-menu-sidebar-menu-jc">
+                  <img width="25" height="20" src="/static/images/icon-menu.svg" alt="menu">
+                </a>
+                <a href="#" class="toggle-search">
+                  <img width="18" height="20" src="/static/images/icon-busca.svg" alt="buscar">
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
     </div>
-  </header>
-	<header class="headerNav">
-		<nav>
-			<ul>
-				<li><a href="/">Início</a></li>
-				<li><a href="/charge">Charges</a></li>
-				<li><a href="/admin">Admin</a></li>
-			</ul>
-		</nav>
-	</header>
+  </div>
 
-  <main class="mainDashboard" role="main">
-    <h2 class="painelTitulo">Painel de Controle</h2>
+  <!-- NAV IGUAL ENTRE PÁGINAS DO ADMIN -->
+  <nav class="admin-nav">
+    <div class="admin-nav-inner">
+      <a href="/">Início</a>
+      <a href="/charge">Charges</a>
+      <a href="/admin">Admin</a>
+    </div>
+  </nav>
 
-    <section class="gridAcoes" aria-label="Ações de moderação e edição">
-    
-      <article class="cardAcao">
+  <!-- CONTEÚDO PADRONIZADO -->
+  <main class="admin-wrap">
+    <h1 class="page-title">Painel de Controle</h1>
+    <p class="page-sub">Gerencie conteúdos, moderação e ferramentas do Jornal Cidadão.</p>
+
+    <section class="grid-actions">
+      
+      <article class="card-action">
         <h3>Escrever Matérias</h3>
-        <p class="acaoDescricao">Criar uma nova matéria para publicação.</p>
-        <a href="/admin/materia">
-          <button class="btnPrimario" aria-label="Escrever Matérias">Acessar</button>
-        </a>
+        <p>Criar uma nova matéria para publicação.</p>
+        <a href="/admin/materia"><button class="btn-primary">Acessar</button></a>
       </article>
 
-     
-      <article class="cardAcao">
+      <article class="card-action">
         <h3>Editar Matérias</h3>
-        <p class="acaoDescricao">Listar e editar matérias já criadas.</p>
-        <a href="/admin/materias">
-          <button class="btnPrimario" aria-label="Editar Matérias">Acessar</button>
-        </a>
+        <p>Listar e editar matérias existentes.</p>
+        <a href="/admin/materias"><button class="btn-primary">Acessar</button></a>
       </article>
 
-      <article class="cardAcao">
+      <article class="card-action">
         <h3>Moderar Jornal Cidadão</h3>
-        <p class="acaoDescricao">Aprovar, reprovar e revisar envios do Jornal Cidadão.</p>
-        <a href="/admin/moderate/jornal-cidadao">
-          <button class="btnPrimario" aria-label="Moderar Jornal Cidadão">Acessar</button>
-        </a>
+        <p>Aprovar, reprovar e revisar envios dos usuários.</p>
+        <a href="/admin/moderate/jornal-cidadao"><button class="btn-primary">Acessar</button></a>
       </article>
 
-      <article class="cardAcao">
+      <article class="card-action">
         <h3>Moderar Usuários</h3>
-        <p class="acaoDescricao">Gerenciar usuários, permissões e status.</p>
-        <a href="/admin/users">
-          <button class="btnPrimario" aria-label="Moderar Usuários">Acessar</button>
-        </a>
+        <p>Gerenciar permissões e contas cadastradas.</p>
+        <a href="/admin/users"><button class="btn-primary">Acessar</button></a>
       </article>
 
-	  <article class="cardAcao">
-		  <h3>Adicionar Charge</h3>
-		  <p class="acaoDescricao">Fazer upload de charge diária.</p>
-		  <a href="/admin/adicionar-charge">
-			  <button class="btnPrimario" aria-label="Adicionar Charge">Acessar</button>
-		  </a>
-	  </article>
+      <article class="card-action">
+        <h3>Adicionar Charge</h3>
+        <p>Enviar a charge diária.</p>
+        <a href="/admin/adicionar-charge"><button class="btn-primary">Acessar</button></a>
+      </article>
 
-	  <article class="cardAcao">
-		  <h3>Deletar Charge</h3>
-		  <p class="acaoDescricao">Deletar alguma charge do banco de dados</p>
-		  <a href="/admin/charges">
-			  <button class="btnPrimario" aria-label="Deletar Charge">Acessar</button>
-		  </a>
-	  </article>
+      <article class="card-action">
+        <h3>Deletar Charge</h3>
+        <p>Gerenciar e excluir charges existentes.</p>
+        <a href="/admin/charges"><button class="btn-primary">Acessar</button></a>
+      </article>
+
     </section>
   </main>
+
 </body>
 </html>
